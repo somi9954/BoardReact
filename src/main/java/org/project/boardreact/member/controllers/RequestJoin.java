@@ -21,6 +21,9 @@ public class RequestJoin {
     @NotBlank
     private String name;
 
+    @NotBlank
+    private String mobile;
+
     @AssertTrue
     private boolean agree;
 }

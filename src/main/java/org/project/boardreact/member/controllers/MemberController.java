@@ -23,12 +23,16 @@ public class MemberController {
     private final JoinValidator joinValidator;
     private final MemberLoginService loginService;
 
-    @GetMapping
-    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/info")
     public JSONData info(@AuthenticationPrincipal MemberInfo memberInfo) {
-        Member member = memberInfo.getMember();
+        if (memberInfo != null) {
+            // 사용자 정보가 있는 경우
+            Member member = memberInfo.getMember();
+            return new JSONData(member);
+        } else {
 
-        return new JSONData(member);
+            return new JSONData(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping
@@ -52,6 +56,7 @@ public class MemberController {
 
         return new JSONData(token);
     }
+
 
 
 

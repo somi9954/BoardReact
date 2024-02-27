@@ -35,6 +35,8 @@ public class QMember extends EntityPathBase<Member> {
 
     public final BooleanPath lock = createBoolean("lock");
 
+    public final StringPath mobile = createString("mobile");
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 

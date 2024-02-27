@@ -1,6 +1,7 @@
 package org.project.boardreact.member.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.project.boardreact.commons.validators.MobileValidator;
 import org.project.boardreact.commons.validators.PasswordValidator;
 import org.project.boardreact.member.repositories.MemberRepository;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,7 @@ import org.springframework.validation.Validator;
 
 @Component
 @RequiredArgsConstructor
-public class JoinValidator implements Validator, PasswordValidator {
+public class JoinValidator implements Validator, PasswordValidator, MobileValidator {
 
     private final MemberRepository repository;
 
@@ -31,6 +32,7 @@ public class JoinValidator implements Validator, PasswordValidator {
         String email = form.getEmail();
         String password = form.getPassword();
         String confirmPassword = form.getConfirmPassword();
+        String mobile = form.getMobile();
 
         // 1. 이메일 중복 여부
         if (StringUtils.hasText(email) && repository.exists(email)) {
@@ -47,6 +49,11 @@ public class JoinValidator implements Validator, PasswordValidator {
         if (StringUtils.hasText(password) && StringUtils.hasText(confirmPassword)
             && !password.equals(confirmPassword)) {
             errors.rejectValue("confirmPassword", "Mismatch");
+        }
+
+        // 4. 휴대전화번호 형식 체크
+        if (StringUtils.hasText(mobile) && !mobileNumCheck(mobile)) {
+            errors.rejectValue("mobile", "Mobile");
         }
     }
 }

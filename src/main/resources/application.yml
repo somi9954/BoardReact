@@ -46,5 +46,5 @@ file:
     path: C:/uploads/
     url: /uploads/
 
-  cors:
-    origin: ${cors.origin}
+cors:
+  origin: ${cors.origin}

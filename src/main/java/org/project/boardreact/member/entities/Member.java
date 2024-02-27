@@ -27,6 +27,9 @@ public class Member extends Base {
     @Column(length=40, nullable = false)
     private String name;
 
+    @Column(length = 11)
+    private String mobile;
+
     @Enumerated(EnumType.STRING)
     @Column(length=10, nullable = false)
     private Authority authority = Authority.USER;
@@ -34,4 +37,6 @@ public class Member extends Base {
     @Column(name="_lock")
     private boolean lock;
     private boolean enable;
+
+
 }

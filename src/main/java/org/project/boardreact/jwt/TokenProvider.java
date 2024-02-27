@@ -1,13 +1,16 @@
 package org.project.boardreact.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.project.boardreact.commons.Utils;
+import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.member.constants.Authority;
 import org.project.boardreact.member.service.MemberInfo;
 import org.project.boardreact.member.service.MemberInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,40 +25,45 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-@EnableConfigurationProperties(JwtProperties.class)
+@Slf4j
 public class TokenProvider {
 
-    private MemberInfoService memberInfoService;
+    private final String secret;
+    private final long tokenValidityInSeconds;
 
-    private JwtProperties props;
+    @Autowired
+    private MemberInfoService infoService;
 
     private Key key;
 
-    public TokenProvider(MemberInfoService memberInfoService, JwtProperties props) {
-        this.memberInfoService = memberInfoService;
-        this.props = props;
+    public TokenProvider(String secret, Long tokenValidityInSeconds) {
+        this.secret = secret;
+        this.tokenValidityInSeconds = tokenValidityInSeconds;
 
-        byte[] keyBytes = Decoders.BASE64.decode(props.getSecret());
-        key = Keys.hmacShaKeyFor(keyBytes);
+        byte[] bytes = Decoders.BASE64.decode(secret);
+        key = Keys.hmacShaKeyFor(bytes);
+    }
+
+    @PostConstruct
+    public void init() {
+        if (infoService == null) {
+            throw new IllegalStateException("MemberInfoService가 주입되지 않았습니다.");
+        }
     }
 
     public String createToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities()
-                .stream().map(GrantedAuthority::getAuthority)
+        String authorities  = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        long now = (new Date()).getTime(); // EpochTime
-        Date validity = new Date(now + props.getAccessTokenValidityInSeconds() * 1000);
+        Date expires = new Date((new Date()).getTime() + tokenValidityInSeconds * 1000);
 
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
+                .signWith(key, SignatureAlgorithm.HS512) // HMAC + SHA512
+                .setExpiration(expires)
                 .compact();
     }
-
 
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parser()
@@ -64,27 +72,27 @@ public class TokenProvider {
                 .parseClaimsJws(token)
                 .getPayload();
 
-        String _authorities = (String)claims.get("auth");
-        _authorities = StringUtils.hasText(_authorities) ? _authorities : Authority.USER.name();
+        String email = claims.getSubject();
+        MemberInfo userDetails = (MemberInfo)infoService.loadUserByUsername(email);
 
-        List<SimpleGrantedAuthority> authorities = Arrays.stream(_authorities.split(",")).map(SimpleGrantedAuthority::new).toList();
+        List<GrantedAuthority> authorities = Arrays.stream(claims.get("auth").toString().split(","))
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
 
-        MemberInfo memberInfo = (MemberInfo)memberInfoService.loadUserByUsername(claims.getSubject());
-        memberInfo.setAuthorities(authorities);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(memberInfo, token, authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
 
         return authentication;
     }
 
-
-    public boolean validateToken(String token) {
+    public void validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(key).build().parseClaimsJws(token).getBody();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+            Jwts.parser().setSigningKey(key).build().parseClaimsJws(token);
+        } catch (ExpiredJwtException e) {
+            throw new BadRequestException(Utils.getMessage("EXPIRED.JWT_TOKEN", "validation"));
+        } catch (UnsupportedJwtException e) {
+            throw new BadRequestException(Utils.getMessage("UNSUPPORTED.JWT_TOKEN", "validation"));
+        } catch (MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            throw new BadRequestException(Utils.getMessage("INVALID_FORMAT.JWT_TOKEN", "validation"));
         }
-        return false;
     }
 }

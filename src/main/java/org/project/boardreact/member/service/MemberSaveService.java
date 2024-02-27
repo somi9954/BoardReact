@@ -23,6 +23,7 @@ public class MemberSaveService {
                 .email(form.getEmail())
                 .name(form.getName())
                 .password(hash)
+                .mobile(form.getMobile())
                 .authority(Authority.USER)
                 .lock(false)
                 .enable(true)
@@ -32,6 +33,11 @@ public class MemberSaveService {
     }
 
     public void save(Member member) {
+        String mobile = member.getMobile();
+        if (member != null) {
+            mobile = mobile.replaceAll("\\D", "");
+            member.setMobile(mobile);
+        }
 
         memberRepository.saveAndFlush(member);
     }
