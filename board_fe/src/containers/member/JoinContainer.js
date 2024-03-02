@@ -27,7 +27,6 @@ const JoinContainer = () => {
         confirmPassword: t('NotBlank_confirmPassword'),
         name: t('NotBlank_name'),
       };
-
       const _errors = {};
       let hasError = false; // 검증 실패 여부
       for (const field in requiredFields) {
@@ -46,14 +45,13 @@ const JoinContainer = () => {
         _errors.agree.push(t('AssertTrue_join_agree'));
         hasError = true;
       }
-
       if (hasError) {
-        setErrors(() => _errors);
+        setErrors((errors) => _errors);
 
         return;
       }
 
-      // 회원가입 처리
+      // 회원 가입 처리
       requestJoin(form)
         .then(() => {
           // 회원 가입 성공시 처리
@@ -79,7 +77,7 @@ const JoinContainer = () => {
   const onToggle = useCallback((e) => {
     setForm(
       produce((draft) => {
-        draft.agree = !draft.agree;
+        draft.agree = !draft.agree; //기본값 false로 되어있으므로 반대값을 넣어주면 true가 된다.
       }),
     );
   }, []);

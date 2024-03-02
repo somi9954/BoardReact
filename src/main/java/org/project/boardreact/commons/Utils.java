@@ -2,13 +2,11 @@ package org.project.boardreact.commons;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -33,7 +31,7 @@ public class Utils {
         }
     }
 
-    public static Map<String , List<String>> getMessages(Errors errors) {
+   public static Map<String , List<String>> getMessages(Errors errors) {
         try {
             Map<String, List<String>> data = new HashMap<>();
             for (FieldError error : errors.getFieldErrors()) {
@@ -51,7 +49,7 @@ public class Utils {
         } catch (Exception e) {
             return null;
         }
-    }
+   }
 
     /**
      * 사이트 설정 조회

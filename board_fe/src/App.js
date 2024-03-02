@@ -8,7 +8,7 @@ import AdminLayout from './layouts/admin/CommonLayout';
 /* 소비자 페이지 */
 import NotFound from './pages/commons/NotFound';
 import Main from './pages/front/Main';
-import Login from './pages/front/member/Login';
+import Login from './pages/front/member/login';
 import Join from './pages/front/member/Join';
 import Logout from './pages/front/member/Logout';
 import Mypage from './pages/front/member/Mypage';

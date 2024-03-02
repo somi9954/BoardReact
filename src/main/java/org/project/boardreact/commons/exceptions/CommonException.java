@@ -1,15 +1,18 @@
 package org.project.boardreact.commons.exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.Errors;
 
-public class CommonException extends RuntimeException {
+import java.util.List;
+import java.util.Map;
 
+public class CommonException extends  RuntimeException{
     private HttpStatus status;
-    private Errors errors;
+    private Map<String, List<String>> messages;
 
-    public CommonException(String message) {
-        this(message, HttpStatus.INTERNAL_SERVER_ERROR);
+    public CommonException(Map<String, List<String>> messages, HttpStatus status) {
+        super();
+        this.status = status;
+        this.messages = messages;
     }
 
     public CommonException(String message, HttpStatus status) {
@@ -17,21 +20,11 @@ public class CommonException extends RuntimeException {
         this.status = status;
     }
 
-    public CommonException(Errors errors, HttpStatus status) {
-        this.status = status;
-        this.errors = errors;
-
-    }
-
     public HttpStatus getStatus() {
         return status;
     }
 
-    public void setStatus(HttpStatus status) {
-        this.status = status;
-    }
-
-    public Errors getErrors() {
-        return errors;
+    public Map<String, List<String>> getMessages() {
+        return messages;
     }
 }
