@@ -2,15 +2,17 @@ package org.project.boardreact.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Objects;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Builder
 @Entity
 @NoArgsConstructor @AllArgsConstructor
@@ -18,7 +20,7 @@ import java.util.UUID;
         @Index(name="idx_fi_gid", columnList = "gid"),
         @Index(name="idx_fi_gid_location", columnList = "gid, location")
 })
-public class FileInfo extends Base {
+public class FileInfo extends BaseMember {
     @Id @GeneratedValue
     private Long seq;
 
@@ -55,5 +57,19 @@ public class FileInfo extends Base {
     @JsonIgnore
     private MultipartFile file;
 
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        FileInfo fileInfo = (FileInfo) o;
+        return getSeq() != null && Objects.equals(getSeq(), fileInfo.getSeq());
+    }
 
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }

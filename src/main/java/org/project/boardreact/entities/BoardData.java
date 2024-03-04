@@ -1,18 +1,19 @@
 package org.project.boardreact.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.tomcat.jni.FileInfo;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Data
 @Builder
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(indexes = {
@@ -29,10 +30,12 @@ public class BoardData extends Base {
 
     @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="bId")
+    @ToString.Exclude
     private Board board;
 
     @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="userNo")
+    @ToString.Exclude
     private Member member;
 
     @Column(length=50)
@@ -57,12 +60,28 @@ public class BoardData extends Base {
 
     private int commentCnt; // 댓글 수
 
-/*    @Transient
-    private List<CommentData> comments; // 댓글 목록*/
+    @Transient
+    private List<CommentData> comments; // 댓글 목록
 
     @Transient
     private List<FileInfo> editorImages;
 
     @Transient
     private List<FileInfo> attachFiles;
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        BoardData boardData = (BoardData) o;
+        return getSeq() != null && Objects.equals(getSeq(), boardData.getSeq());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }

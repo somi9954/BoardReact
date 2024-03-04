@@ -2,7 +2,7 @@ package org.project.boardreact.api.controllers.board;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.apache.tomcat.jni.FileInfo;
+import org.project.boardreact.entities.FileInfo;
 
 import java.util.List;
 import java.util.UUID;

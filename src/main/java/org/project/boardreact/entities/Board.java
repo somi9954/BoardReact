@@ -12,7 +12,7 @@ import org.project.boardreact.commons.contansts.BoardAuthority;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Board extends Base {
+public class Board extends BaseMember {
     @Id
     @Column(length=30)
     private String bId;

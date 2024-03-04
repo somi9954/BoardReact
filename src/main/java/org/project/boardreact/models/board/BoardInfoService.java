@@ -13,10 +13,12 @@ import org.modelmapper.ModelMapper;
 import org.project.boardreact.api.controllers.board.BoardDataSearch;
 import org.project.boardreact.api.controllers.board.BoardForm;
 import org.project.boardreact.commons.ListData;
+import org.project.boardreact.commons.MemberUtil;
 import org.project.boardreact.commons.Pagination;
 import org.project.boardreact.commons.Utils;
-import org.project.boardreact.configs.jwt.CustomJwtFilter;
 import org.project.boardreact.entities.*;
+import org.project.boardreact.models.comment.CommentInfoService;
+import org.project.boardreact.models.file.FileInfoService;
 import org.project.boardreact.repositories.BoardDataRepository;
 import org.project.boardreact.repositories.BoardViewRepository;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.project.boardreact.entities.FileInfo;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -43,7 +46,7 @@ public class BoardInfoService {
     private final FileInfoService fileInfoService;
     private final HttpServletRequest request;
     private final EntityManager em;
-    private final CustomJwtFilter customJwtFilter;
+    private final MemberUtil memberUtill;
     private final HttpSession session;
     private final PasswordEncoder encoder;
     private final Utils utils;
@@ -56,8 +59,8 @@ public class BoardInfoService {
      * @return
      */
     public int viewUid() {
-        return customJwtFilter.isUserLoggedIn() ?
-                customJwtFilter.getMember().getUserNo().intValue() : utils.guestUid();
+        return memberUtill.isLogin() ?
+                memberUtill.getMember().getUserNo().intValue() : utils.guestUid();
     }
 
     /**
@@ -112,7 +115,7 @@ public class BoardInfoService {
         int page = Utils.getNumber(search.getPage(), 1);
         int limit = Utils.getNumber(search.getLimit(), 20);
         int offset = (page - 1) * limit;
-        
+
         String bId = search.getBId(); // 게시판 아이디
         String sopt  = Objects.requireNonNullElse(search.getSopt(), "subject_content"); // 검색 옵션
         String skey = search.getSkey(); // 검색 키워드
@@ -148,7 +151,7 @@ public class BoardInfoService {
                 BooleanBuilder orBuilder = new BooleanBuilder();
                 orBuilder.or(boardData.poster.contains(skey))
                         .or(boardData.member.email.contains(skey))
-                        .or(boardData.member.userNm.contains(skey));
+                        .or(boardData.member.nickname.contains(skey));
 
                 andBuilder.and(orBuilder);
 
@@ -202,10 +205,10 @@ public class BoardInfoService {
         System.out.println("check : " + data.getMember() == null);
         if (data.getMember() != null) {
 
-         // 회원 등록 게시물이만 직접 작성한 게시글인 경우
+            // 회원 등록 게시물이만 직접 작성한 게시글인 경우
             Member boardMember = data.getMember();
-            Member member = customJwtFilter.getMember();
-            return customJwtFilter.isUserLoggedIn() && boardMember.getUserNo().longValue() == member.getUserNo().longValue();
+            Member member = memberUtill.getMember();
+            return memberUtill.isLogin() && boardMember.getUserNo().longValue() == member.getUserNo().longValue();
         } else { // 비회원 게시글
             // 세션에 chk_게시글번호 항목이 있으면 비번 검증 완료
             String key = "chk_" + seq;
