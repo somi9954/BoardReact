@@ -3,6 +3,7 @@ package org.project.boardreact.models.board;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.project.boardreact.entities.BoardData;
+import org.project.boardreact.models.file.FileDeleteService;
 import org.project.boardreact.repositories.BoardDataRepository;
 import org.springframework.stereotype.Service;
 

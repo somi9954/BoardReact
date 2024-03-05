@@ -9,13 +9,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Builder
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@NoArgsConstructor
-@AllArgsConstructor
+@Data @Builder
+@NoArgsConstructor @AllArgsConstructor
 @Table(indexes = {
         @Index(name="idx_bd_list", columnList = "notice DESC, createdAt DESC"),
         @Index(name="idx_bd_category", columnList = "category")
@@ -69,19 +64,4 @@ public class BoardData extends Base {
     @Transient
     private List<FileInfo> attachFiles;
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        BoardData boardData = (BoardData) o;
-        return getSeq() != null && Objects.equals(getSeq(), boardData.getSeq());
-    }
-
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
 }

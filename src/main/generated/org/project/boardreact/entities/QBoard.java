@@ -19,7 +19,7 @@ public class QBoard extends EntityPathBase<Board> {
 
     public static final QBoard board = new QBoard("board");
 
-    public final QBase _super = new QBase(this);
+    public final QBaseMember _super = new QBaseMember(this);
 
     public final BooleanPath active = createBoolean("active");
 
@@ -35,7 +35,13 @@ public class QBoard extends EntityPathBase<Board> {
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
     //inherited
+    public final StringPath createdBy = _super.createdBy;
+
+    //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
+
+    //inherited
+    public final StringPath modifiedBy = _super.modifiedBy;
 
     public QBoard(String variable) {
         super(Board.class, forVariable(variable));

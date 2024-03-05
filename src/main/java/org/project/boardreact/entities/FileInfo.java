@@ -9,16 +9,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Objects;
 import java.util.UUID;
 
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Builder
 @Entity
-@NoArgsConstructor @AllArgsConstructor
-@Table(indexes = {
-        @Index(name="idx_fi_gid", columnList = "gid"),
-        @Index(name="idx_fi_gid_location", columnList = "gid, location")
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(indexes={
+        @Index(name="idx_fileinfo_gid", columnList = "gid"),
+        @Index(name="idx_fileinfo_gid_location", columnList = "gid,location")
 })
 public class FileInfo extends BaseMember {
     @Id @GeneratedValue
