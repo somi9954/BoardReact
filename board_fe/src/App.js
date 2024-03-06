@@ -12,10 +12,12 @@ import Login from './pages/front/member/login';
 import Join from './pages/front/member/Join';
 import Logout from './pages/front/member/Logout';
 import Mypage from './pages/front/member/Mypage';
+import BoardWrite from './pages/front/board/BoardWrite';
 
 /* 관리자 페이지 */
 import AdminMain from './pages/admin/Main';
 import AdminConfig from './pages/admin/Config';
+
 
 const App = () => {
   const {
@@ -32,6 +34,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/mypage" element={<Mypage />} />
+        <Route path="/board/write" element={<BoardWrite />} />
       </Route>
 
       {/* 관리자 페이지 */}
