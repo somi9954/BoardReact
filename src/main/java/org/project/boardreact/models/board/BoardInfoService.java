@@ -16,15 +16,21 @@ import org.project.boardreact.commons.ListData;
 import org.project.boardreact.commons.MemberUtil;
 import org.project.boardreact.commons.Pagination;
 import org.project.boardreact.commons.Utils;
+import org.project.boardreact.configs.jwt.TokenProvider;
 import org.project.boardreact.entities.*;
 import org.project.boardreact.models.comment.CommentInfoService;
 import org.project.boardreact.models.file.FileInfoService;
+import org.project.boardreact.models.member.MemberInfo;
+import org.project.boardreact.models.member.MemberInfoService;
 import org.project.boardreact.repositories.BoardDataRepository;
 import org.project.boardreact.repositories.BoardViewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.project.boardreact.entities.FileInfo;
@@ -42,12 +48,14 @@ public class BoardInfoService {
     private final BoardDataRepository boardDataRepository;
     private final BoardViewRepository boardViewRepository;
     private final CommentInfoService commentInfoService;
+    private final TokenProvider tokenProvider;
+    private final MemberInfoService infoService;
 
     private final FileInfoService fileInfoService;
     private final HttpServletRequest request;
-    private final EntityManager em;
-    private final MemberUtil memberUtill;
     private final HttpSession session;
+    private final EntityManager em;
+    private final MemberUtil memberUtil;
     private final PasswordEncoder encoder;
     private final Utils utils;
 
@@ -59,8 +67,8 @@ public class BoardInfoService {
      * @return
      */
     public int viewUid() {
-        return memberUtill.isLogin() ?
-                memberUtill.getMember().getUserNo().intValue() : utils.guestUid();
+        return memberUtil.isLogin() ?
+                memberUtil.getMember().getUserNo().intValue() : utils.guestUid();
     }
 
     /**
@@ -197,18 +205,24 @@ public class BoardInfoService {
     }
 
     public boolean isMine(Long seq) {
-        if (memberUtill.isAdmin()) { // 관리자는 수정, 삭제 모두 가능
+        if (memberUtil.isAdmin()) { // 관리자는 수정, 삭제 모두 가능
             return true;
         }
 
-        BoardData data = get(seq);
-        System.out.println("check : " + data.getMember() == null);
-        if (data.getMember() != null) {
+        // JWT 토큰을 통해 사용자 정보 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return false; // 인증 실패
+        }
 
-            // 회원 등록 게시물이만 직접 작성한 게시글인 경우
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+        MemberInfo userDetails = (MemberInfo) infoService.loadUserByUsername(email);
+
+        BoardData data = get(seq);
+        if (data.getMember() != null) {
+            // 회원 등록 게시물이며 직접 작성한 게시글인 경우
             Member boardMember = data.getMember();
-            Member member = memberUtill.getMember();
-            return memberUtill.isLogin() && boardMember.getUserNo().longValue() == member.getUserNo().longValue();
+            return userDetails != null && userDetails.getMember().getUserNo().longValue() == boardMember.getUserNo().longValue();
         } else { // 비회원 게시글
             // 세션에 chk_게시글번호 항목이 있으면 비번 검증 완료
             String key = "chk_" + seq;

@@ -19,7 +19,7 @@ import org.project.boardreact.models.comment.CommentNotFoundException;
 import org.project.boardreact.models.file.FileInfoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -39,12 +39,13 @@ public class BoardController {
     private final BoardConfigInfoService configInfoService;
     private final CommentInfoService commentInfoService;
     private final FileInfoService fileInfoService;
+    private final HttpSession session;
     private  BoardData boardData;
 
 
 
-    @PostMapping("/write/{tId}")
-    public ResponseEntity<JSONData> write(@PathVariable("tId") String tId, @RequestBody @Valid BoardForm form, Errors errors) {
+    @PostMapping("/write/{bId}")
+    public ResponseEntity<JSONData> write(@PathVariable("bId") String bId, @RequestBody @Valid BoardForm form, Errors errors) {
 
         // 유효성 검사 오류 확인
         if (errors.hasErrors()) {
@@ -168,8 +169,14 @@ public class BoardController {
     }
 
     @PostMapping("/guest/password")
-    public ResponseEntity<Map<String, Object>> guestPasswordCheck(@RequestParam("password") String password, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> guestPasswordCheck(@RequestParam("password") String password, Authentication authentication) {
         Map<String, Object> responseData = new HashMap<>();
+
+        // 사용자 인증 확인
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "Unauthorized"));
+        }
+
 
         Long seq = (Long) session.getAttribute("guest_seq");
         Long commentSeq = (Long) session.getAttribute("comment_seq");
@@ -180,8 +187,8 @@ public class BoardController {
         }
 
         if (seq == null) {
-            // 세션에 게스트 시퀀스가 없으면 오류 응답 반환
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Guest sequence not found in session"));
+            // 게스트 시퀀스가 없으면 오류 응답 반환
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Guest sequence not found"));
         }
 
         // 비밀번호 검증
@@ -191,32 +198,31 @@ public class BoardController {
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Password does not match"));
         }
 
-        // 검증 성공시 세션 설정 및 응답 데이터 설정
+        // 검증 성공시 응답 데이터 설정
         String key = "chk_" + seq;
-        session.setAttribute(key, true);
-        session.removeAttribute("guest_seq");
         responseData.put("message", "Guest password validation successful");
 
         return ResponseEntity.ok(responseData);
     }
 
-    private String guestCommentPasswordCheck(Long seq, String password, HttpSession session, Model model) {
+    private ResponseEntity<Map<String, Object>> guestCommentPasswordCheck(Long seq, String password, HttpSession session) {
+        Map<String, Object> responseData = new HashMap<>();
 
         if (seq == null) {
             throw new CommentNotFoundException();
         }
 
         if (!commentInfoService.checkGuestPassword(seq, password)) { // 비번 검증 실패시
-            throw new BadRequestException(Utils.getMessage("비밀번호가_일치하지_않습니다.", "error"));
+            responseData.put("error", Utils.getMessage("비밀번호가_일치하지_않습니다.", "error"));
+            return ResponseEntity.badRequest().body(responseData);
         }
 
         // 검증 성공시
         String key = "chk_comment_" + seq;
         session.setAttribute(key, true);
-        session.removeAttribute("comment_seq");
 
-        model.addAttribute("script", "parent.location.reload()");
-        return "common/_execute_script";
+        responseData.put("message", "Guest password validation successful");
+        return ResponseEntity.ok(responseData);
     }
 
     private ResponseEntity<JSONData> commonProcess(String bId, String mode) {
@@ -264,7 +270,6 @@ public class BoardController {
 
     @PostMapping("/guestPassword")
     public ResponseEntity<String> guestPassword(@RequestBody PasswordRequest passwordRequest) {
-        // 여기에 비밀번호 확인 및 처리 로직을 구현하세요
         if (passwordRequest.getPassword().equals("guest")) {
             return ResponseEntity.ok("Welcome, Guest!");
         } else {
