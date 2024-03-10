@@ -23,11 +23,11 @@ main { padding-top: 80px;}
 
 /* 관리자 공통 */
 .admin_page { display: flex; }
-.admin_page > aside { width: 200px; background: #ccc; min-height: 850px; }
+.admin_page > aside { width: 200px; background: #F9CAC8; min-height: 850px; }
 .admin_page > section { flex-grow: 1; padding: 0 50px 50px; }
 
-.admin_page > aside a { display: block; padding: 30px 25px; border-bottom: 1px solid #555; font-size: 1.35rem; }
-.admin_page > aside a.on { background: #555; color: #fff; }
+.admin_page > aside a { display: block; padding: 30px 25px;  font-size: 1.35rem; text-align: center }
+.admin_page > aside a.on { background: #D94C90; color: #fff; }
 
 .main_page {
     position: fixed;

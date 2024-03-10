@@ -1,8 +1,8 @@
 import apiRequest from '../../lib/apiRequest';
 
-export default function requestWrite(form, tId) {
+export default function requestWrite(form, bId) {
   return new Promise((resolve, reject) => {
-    apiRequest(`/board/write/${tId}`, 'POST', form)
+    apiRequest(`/board/write/${bId}`, 'POST', form)
       .then((res) => {
         if (res.data.success) {
           resolve(res.data);

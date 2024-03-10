@@ -15,11 +15,18 @@ const SideMenu = () => {
         {t('사이트 설정')}
       </NavLink>
       <NavLink
+        to="/admin/board"
+        className={({ isActive }) => classNames({ on: isActive })}
+      >
+        {t('게시판 관리')}
+      </NavLink>
+      <NavLink
         to="/admin/member"
         className={({ isActive }) => classNames({ on: isActive })}
       >
         {t('회원 관리')}
       </NavLink>
+      
     </aside>
   );
 };

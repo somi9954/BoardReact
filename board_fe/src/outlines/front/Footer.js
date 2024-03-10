@@ -2,11 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 
 const FooterContainer = styled.footer`
-    text-align: center;
-    background-color: #ff4910;
+    text-align: center; 
+    position: fixed;
+    bottom: 0;
     width: 100%;
     h1 {
-        color: #fff;
+        color: #FF6039;
     }
 `;
 

@@ -6,7 +6,7 @@ import { ButtonGroup, BigButton } from '../commons/ButtonStyle';
 import sizeNames from '../../styles/sizes';
 import styled from 'styled-components';
 import loadable from '@loadable/component';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const ErrorMessages = loadable(() => import('../commons/ErrorMessages'));
 

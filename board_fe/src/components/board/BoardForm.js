@@ -9,36 +9,48 @@ import EditorBox from '../commons/EditorBox';
 
 const ErrorMessages = loadable(() => import('../commons/ErrorMessages'));
 
-const { small, medium, big } = sizeNames;
+const { medium } = sizeNames;
 
 const FormBox = styled.form`
-  dl {
-    display: flex;
-    padding: 10px 15px;
-    align-items: center;
-    dt {
-      width: 130px;
-      font-size: ${medium};
-      font-weight: bold;
+    dl {
+        display: flex;
+        padding: 10px 15px;
+        align-items: center;
+        dt {
+            width: 130px;
+            font-size: ${medium};
+            font-weight: bold;
+        }
+        dd {
+            flex-grow: 1;
+        }
     }
-    dd {
-      flex-grow: 1;
+    dl + dl {
+        border-top: 1px solid #d5d5d5;
     }
-  }
-  dl + dl {
-    border-top: 1px solid #d5d5d5;
-  }
-  dl:last-of-type {
-    margin-bottom: 15px;
-  }
-  }
+    dl:last-of-type {
+        margin-bottom: 15px;
+    }
 `;
 
-const BoardForm = ({ onSubmit, onChange, form, errors }) => {
+const BoardForm = ({ onSubmit, onChange, form, errors, handleEditor }) => {
   const { t } = useTranslation();
+
+  const contentValue = form.editorBody || '';
 
   return (
     <FormBox onSubmit={onSubmit}>
+      <dl>
+        <dt>{t('분류')}</dt>
+        <dd>
+          <InputText
+            type="radio"
+            name="category"
+            value={form.category}
+            onChange={onChange}
+          />
+        </dd>
+      </dl>
       <dl>
         <dt>{t('제목')}</dt>
         <dd>
@@ -64,7 +76,12 @@ const BoardForm = ({ onSubmit, onChange, form, errors }) => {
       </dl>
       <dl>
         <dt>{t('내용')}</dt>
-       <EditorBox />
+        <dd>
+          <EditorBox
+            value="내용을 입력하세요." // value props로 내용 전달
+            onChange={handleEditor} // onChange 핸들러 전달
+          />
+        </dd>
       </dl>
 
       <ButtonGroup>
@@ -91,5 +108,6 @@ const BoardForm = ({ onSubmit, onChange, form, errors }) => {
     </FormBox>
   );
 };
+
 
 export default React.memo(BoardForm);

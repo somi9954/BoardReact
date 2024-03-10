@@ -1,68 +1,52 @@
 import React, { useState, useCallback } from 'react';
-import { produce } from 'immer';
 import { useNavigate } from 'react-router-dom';
 import BoardForm from '../../components/board/BoardForm';
 import requestWrite from '../../api/board/boardWrite';
 
-const BoardWriteContainer = ({ tId }) => {
+const BoardWriteContainer = ({ bId }) => {
   const navigate = useNavigate();
-
   const [form, setForm] = useState({});
   const [errors, setErrors] = useState({});
 
-  const onSubmit = useCallback(
-    (e) => {
-      e.preventDefault();
+  const handleSubmit = useCallback((e) => {
+    e.preventDefault();
 
-      const requiredFields = {
-        subject: '제목을 입력하세요.',
-        content: '내용을 입력하세요.',
-      };
-      const _errors = {};
-      let hasError = false;
-
-      for (const field in requiredFields) {
-        if (!form[field] || !form[field].trim()) {
-          _errors[field] = _errors[field] || [];
-          _errors[field].push(requiredFields[field]);
-          hasError = true;
-        }
-      }
-
-      if (hasError) {
-        setErrors(_errors);
-        return;
-      }
-
-      requestWrite(form, tId)
-        .then((data) => {
-          setForm({});
-          navigate(`/board/view/${data.seq}`, { replace: true });
-        })
-        .catch((err) => {
-          setErrors({ message: err });
-        });
-    },
-    [form, tId, navigate]
-  );
-
-  const onChange = useCallback((e) => {
-    const target = e.currentTarget;
-    setForm(
-      produce((draft) => {
-        draft[target.name] = target.value;
+    requestWrite(form, bId) // bId도 함께 전달
+      .then((data) => {
+        console.log('작성 요청 성공:', data);
+        setForm({}); // 폼 초기화
+        navigate(`/board/view/${data.seq}`, { replace: true }); // 작성된 글 보기 페이지로 이동
       })
-    );
+      .catch((error) => {
+        console.error('작성 요청 오류:', error);
+        setErrors({ message: error }); // 오류 메시지 설정
+      });
+  }, [form, bId, navigate]);
+
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  }, []);
+
+  const handleEditorChange = useCallback((content) => {
+    setForm((prevForm) => ({
+      ...prevForm,
+      editorBody: content, // 에디터 내용을 form 상태의 editorBody 필드에 설정
+    }));
   }, []);
 
   return (
     <BoardForm
-      onSubmit={onSubmit}
-      onChange={onChange}
+      onSubmit={handleSubmit}
+      onChange={handleChange}
       form={form}
       errors={errors}
+      handleEditor={handleEditorChange}
     />
   );
 };
 
-export default React.memo(BoardWriteContainer);
+export default BoardWriteContainer;
