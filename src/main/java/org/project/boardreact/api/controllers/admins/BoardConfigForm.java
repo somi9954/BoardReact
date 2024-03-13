@@ -1,6 +1,11 @@
 package org.project.boardreact.api.controllers.admins;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,9 +15,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor @AllArgsConstructor
 public class BoardConfigForm {
 
-    private String mode;
+    private String mode = "add";
 
-    @NotBlank(message = "게시판 아이디를 입력하세요.")
+    @NotNull
     private String bId;
 
     @NotBlank(message = "게시판 이름을 입력하세요.")
@@ -23,4 +28,21 @@ public class BoardConfigForm {
     private String authority = "ALL";
 
     private String category;
+
+    public String getbId() {
+        return bId;
+    }
+
+    public void setbId(String bId) {
+        this.bId = bId;
+    }
+
+    public String getbName() {
+        return bName;
+    }
+
+    public void setbName(String bName) {
+        this.bName = bName;
+    }
 }
+

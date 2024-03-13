@@ -12,14 +12,14 @@ const Main = () => {
   };
 
   return (
-    <div>
+    <>
       <Helmet>
         <title>{t('게시판 관리 - 게시판 목록')}</title>
       </Helmet>
       <OuterBox>
       <AdminBoard />
       </OuterBox>
-    </div>
+    </>
   );
 };
 

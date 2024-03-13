@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import {OuterBox} from '../../components/commons/OutlineStyle';
 import { MainTitle } from '../../components/commons/TitleStyle';
 import SiteContainer from '../../containers/admin/SiteContainer';
-import Menus from './Menus';
 
 const Config = () => {
   const { t } = useTranslation();

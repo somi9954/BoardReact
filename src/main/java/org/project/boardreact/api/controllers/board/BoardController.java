@@ -45,7 +45,7 @@ public class BoardController {
 
 
     @PostMapping("/write/{bId}")
-    public ResponseEntity<JSONData> write(@PathVariable("bId") String bId, @RequestBody @Valid BoardForm form, Errors errors) {
+    public ResponseEntity<JSONData> write(@PathVariable("bId") String bId, @RequestBody  BoardForm form, Errors errors) {
 
         // 유효성 검사 오류 확인
         if (errors.hasErrors()) {

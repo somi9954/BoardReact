@@ -14,6 +14,15 @@ public enum BoardAuthority {
         this.title = title;
     }
 
+    public static boolean isValid(String value) {
+        for (BoardAuthority authority : BoardAuthority.values()) {
+            if (authority.name().equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static List<String[]> getList() {
         return Arrays.asList(
                 new String[] { ALL.name(), ALL.title },

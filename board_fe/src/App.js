@@ -17,6 +17,7 @@ import BoardWrite from './pages/front/board/BoardWrite';
 /* 관리자 페이지 */
 import AdminMain from './pages/admin/Main';
 import AdminConfig from './pages/admin/Config';
+import AdminBoardWrite from './pages/admin/AdminBoardWrite';
 import AdminBoard from './components/board/admin/AdminBoard';
 
 
@@ -42,6 +43,7 @@ const App = () => {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminMain />} />
         <Route path="/admin/board" element={<AdminBoard />} />
+        <Route path="/admin/board/add" element={<AdminBoardWrite />} />
         <Route path="config" element={<AdminConfig />} />
       </Route>
 
