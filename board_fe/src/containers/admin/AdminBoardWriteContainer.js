@@ -25,7 +25,6 @@ const AdminBoardWriteContainer = ({ mode }) => {
     const requiredFields = {
       bId: t('NotBlank_boardId'),
       bName: t('NotBlank_boardName'),
-      category: t('NotBlank_boardCategories'),
     };
 
     const _errors = {};

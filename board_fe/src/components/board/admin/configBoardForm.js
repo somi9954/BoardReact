@@ -110,6 +110,7 @@ const ConfigBoardForm = ({ onSubmit, onChange, form, errors, onActive, onAuthori
           <textarea
             name="category"
             className="boardCategories"
+            placeholder="분류가 여러개인 경우는 엔터키를 눌러서 줄개행 해주세요."
             value={form && form.category ? form.category : ''}
             onChange={onChange}
           />
