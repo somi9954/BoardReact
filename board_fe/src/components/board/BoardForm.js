@@ -12,25 +12,25 @@ const ErrorMessages = loadable(() => import('../commons/ErrorMessages'));
 const { medium } = sizeNames;
 
 const FormBox = styled.form`
-    dl {
-        display: flex;
-        padding: 10px 15px;
-        align-items: center;
-        dt {
-            width: 130px;
-            font-size: ${medium};
-            font-weight: bold;
-        }
-        dd {
-            flex-grow: 1;
-        }
+  dl {
+    display: flex;
+    padding: 10px 15px;
+    align-items: center;
+    dt {
+      width: 130px;
+      font-size: ${medium};
+      font-weight: bold;
     }
-    dl + dl {
-        border-top: 1px solid #d5d5d5;
+    dd {
+      flex-grow: 1;
     }
-    dl:last-of-type {
-        margin-bottom: 15px;
-    }
+  }
+  dl + dl {
+    border-top: 1px solid #d5d5d5;
+  }
+  dl:last-of-type {
+    margin-bottom: 15px;
+  }
 `;
 
 const BoardForm = ({ onSubmit, onChange, form, errors, handleEditor }) => {
@@ -77,10 +77,7 @@ const BoardForm = ({ onSubmit, onChange, form, errors, handleEditor }) => {
       <dl>
         <dt>{t('내용')}</dt>
         <dd>
-          <EditorBox
-            value="내용을 입력하세요." // value props로 내용 전달
-            onChange={handleEditor} // onChange 핸들러 전달
-          />
+          <EditorBox value="내용을 입력하세요." onChange={handleEditor} />
         </dd>
       </dl>
 
@@ -108,6 +105,5 @@ const BoardForm = ({ onSubmit, onChange, form, errors, handleEditor }) => {
     </FormBox>
   );
 };
-
 
 export default React.memo(BoardForm);

@@ -20,7 +20,6 @@ import AdminConfig from './pages/admin/Config';
 import AdminBoardWrite from './pages/admin/AdminBoardWrite';
 import AdminBoard from './components/board/admin/AdminBoard';
 
-
 const App = () => {
   const {
     action: { updateUserInfo },
@@ -36,7 +35,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/mypage" element={<Mypage />} />
-        <Route path="/board/write/${bId}" element={<BoardWrite />} />
+        <Route path="/board/write/:bId" element={<BoardWrite />} />
       </Route>
 
       {/* 관리자 페이지 */}

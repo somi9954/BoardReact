@@ -1,27 +1,36 @@
-import React, { useState, useCallback } from 'react';
+// BoardWriteContainer.js
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BoardForm from '../../components/board/BoardForm';
 import requestWrite from '../../api/board/boardWrite';
 
-const BoardWriteContainer = ({ bId }) => {
+const BoardWriteContainer = ({ bId, initialCategories }) => {
   const navigate = useNavigate();
   const [form, setForm] = useState({});
   const [errors, setErrors] = useState({});
+  const [categories, setCategories] = useState(initialCategories); // 초기 카테고리로 카테고리 초기화
 
-  const handleSubmit = useCallback((e) => {
-    e.preventDefault();
+  useEffect(() => {
+    setCategories(initialCategories); // 초기 카테고리 변경 시 카테고리 업데이트
+  }, [initialCategories]);
 
-    requestWrite(form, bId) // bId도 함께 전달
-      .then((data) => {
-        console.log('작성 요청 성공:', data);
-        setForm({}); // 폼 초기화
-        navigate(`/board/view/${data.seq}`, { replace: true }); // 작성된 글 보기 페이지로 이동
-      })
-      .catch((error) => {
-        console.error('작성 요청 오류:', error);
-        setErrors({ message: error }); // 오류 메시지 설정
-      });
-  }, [form, bId, navigate]);
+  const handleSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+
+      requestWrite(form, bId)
+        .then((data) => {
+          console.log('작성 요청 성공:', data);
+          setForm({});
+          navigate(`/board/view/${data.seq}`, { replace: true });
+        })
+        .catch((error) => {
+          console.error('작성 요청 오류:', error);
+          setErrors({ message: error });
+        });
+    },
+    [form, bId, navigate],
+  );
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -34,7 +43,7 @@ const BoardWriteContainer = ({ bId }) => {
   const handleEditorChange = useCallback((content) => {
     setForm((prevForm) => ({
       ...prevForm,
-      editorBody: content, // 에디터 내용을 form 상태의 editorBody 필드에 설정
+      editorBody: content,
     }));
   }, []);
 
@@ -44,6 +53,7 @@ const BoardWriteContainer = ({ bId }) => {
       onChange={handleChange}
       form={form}
       errors={errors}
+      categories={categories} // 카테고리를 BoardForm에 전달
       handleEditor={handleEditorChange}
     />
   );
