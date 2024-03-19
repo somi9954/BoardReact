@@ -1,8 +1,8 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
-import AdminBoard from '../../components/board/admin/AdminBoard';
 import { OuterBox } from '../../components/commons/OutlineStyle';
+import AdminBoardListContainer from '../../containers/admin/AdminBoardListContainer';
 
 const Main = () => {
   const { t } = useTranslation();
@@ -17,7 +17,7 @@ const Main = () => {
         <title>{t('게시판 관리 - 게시판 목록')}</title>
       </Helmet>
       <OuterBox>
-      <AdminBoard />
+      <AdminBoardListContainer />
       </OuterBox>
     </>
   );

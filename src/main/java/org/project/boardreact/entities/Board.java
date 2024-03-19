@@ -1,12 +1,10 @@
 package org.project.boardreact.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 import org.project.boardreact.commons.contansts.BoardAuthority;
 
 

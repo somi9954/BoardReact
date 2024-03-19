@@ -35,20 +35,20 @@ const Menus = () => {
     <ListBox>
       <nav className="submenus">
         <NavLink
-          to="/admin/board"
-          className={classNames({ on: location.pathname === '/admin/board' })} // 현재 경로와 비교
+          to="/admin/board/list"
+          className={classNames({ on: location.pathname === '/admin/board/list' })}
         >
           {t('게시판 목록')}
         </NavLink>
         <NavLink
           to="/admin/board/add"
-          className={classNames({ on: location.pathname === '/admin/board/add' })} // 현재 경로와 비교
+          className={classNames({ on: location.pathname === '/admin/board/add' })}
         >
           {t('게시판 등록')}
         </NavLink>
         <NavLink
           to="/admin/board/posts"
-          className={classNames({ on: location.pathname === '/admin/board/posts' })} // 현재 경로와 비교
+          className={classNames({ on: location.pathname === '/admin/board/posts' })}
         >
           {t('게시판 관리')}
         </NavLink>

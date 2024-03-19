@@ -1,9 +1,9 @@
 package org.project.boardreact.api.controllers.admins;
 
 import lombok.extern.slf4j.Slf4j;
+import org.project.boardreact.commons.ListData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.project.boardreact.commons.Utils;
@@ -18,7 +18,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @RestController("adminBoardController")
@@ -33,12 +32,20 @@ public class BoardController {
     private final BoardConfigDeleteService deleteService;
     private final BoardConfigValidator validator;
 
-    @GetMapping
-    public ResponseEntity<JSONData<List<Board>>> list(@RequestParam(required = false) BoardSearch search) {
-        List<Board> boards = infoService.getList(search).getContent();
-        JSONData<List<Board>> response = new JSONData<>(boards);
-        return ResponseEntity.status(response.getStatus()).body(response);
+
+    @GetMapping("/list")
+    public ResponseEntity<ListData<Board>> list(@ModelAttribute BoardSearch search) {
+        try {
+            ListData<Board> boardList = infoService.getList(search);
+            return ResponseEntity.ok(boardList);
+        } catch (Exception e) {
+            logger.error("Error occurred while fetching board list: {}", e.getMessage(), e);
+            JSONData<List<Board>> errorResponse = new JSONData<>();
+            errorResponse.setMessage("Failed to fetch board list");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ListData<>());
+        }
     }
+
 
     @PutMapping("/update")
     public ResponseEntity<JSONData> updateList(@RequestParam List<Integer> idxes) throws BadRequestException {

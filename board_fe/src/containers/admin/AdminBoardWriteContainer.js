@@ -58,7 +58,7 @@ const AdminBoardWriteContainer = ({ mode }) => {
           authority: 'ALL'
         });
 
-        navigate(`/admin/board`, { replace: true });
+        navigate(`/admin`, { replace: true });
       })
       .catch((error) => {
         console.error('작성 요청 오류:', error);

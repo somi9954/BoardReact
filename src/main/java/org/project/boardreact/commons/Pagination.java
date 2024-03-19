@@ -1,5 +1,6 @@
 package org.project.boardreact.commons;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 
@@ -26,7 +27,8 @@ public class Pagination {
 
     private String baseUrl; // 기본 페이지 URL;
 
-    private HttpServletRequest request;
+    @JsonIgnore
+    private transient HttpServletRequest request;
 
     /**
      *

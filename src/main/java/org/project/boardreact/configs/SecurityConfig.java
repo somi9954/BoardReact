@@ -51,7 +51,6 @@ public class SecurityConfig {
                     "/api/v1/member", // 회원가입
                     "/api/v1/member/token", // 로그인
                     "/api/v1/member/info",
-                        "/api/v1/member/memberlist",
                     "/api/v1/member/exists/**").permitAll().anyRequest().authenticated(); // 나머지 URL은 모두 회원 인증(토큰 인증)
         });
 

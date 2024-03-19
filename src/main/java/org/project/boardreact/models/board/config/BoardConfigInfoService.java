@@ -1,6 +1,11 @@
 package org.project.boardreact.models.board.config;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -12,8 +17,10 @@ import org.project.boardreact.commons.Pagination;
 import org.project.boardreact.commons.Utils;
 import org.project.boardreact.commons.contansts.BoardAuthority;
 import org.project.boardreact.commons.exceptions.AuthorizationException;
+import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.configs.jwt.CustomJwtFilter;
 import org.project.boardreact.entities.Board;
+import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.entities.QBoard;
 import org.project.boardreact.repositories.BoardRepository;
 import org.springframework.data.domain.Page;
@@ -23,10 +30,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Objects;
 
-import static org.springframework.data.domain.Sort.Order.desc;
+import java.util.*;
+
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +41,7 @@ public class BoardConfigInfoService {
     private final BoardRepository repository;
     private final HttpServletRequest request;
     private final MemberUtil memberUtil;
+    private final EntityManager em;
 
     public Board get(String bId) {
         Board data = repository.findById(bId).orElseThrow(BoardNotFoundException::new);
@@ -74,56 +81,74 @@ public class BoardConfigInfoService {
     }
 
     public ListData<Board> getList(BoardSearch search) {
-        BooleanBuilder andBuilder = new BooleanBuilder();
-
+        QBoard board = QBoard.board;
         int page = Utils.getNumber(search.getPage(), 1);
         int limit = Utils.getNumber(search.getLimit(), 20);
+        int offset = (page - 1) * limit;
 
-        /* 검색 처리 S */
-        QBoard board = QBoard.board;
-        // 키워드 검색
-        String sopt = Objects.requireNonNullElse(search.getSopt(), "ALL");
-        String skey = search.getSkey();
-        if (StringUtils.hasText(skey)) {
-            skey = skey.trim();
+        BooleanBuilder andBuilder = new BooleanBuilder();
 
-            if (sopt.equals("bId")) { // 게시판 아이디
-                andBuilder.and(board.bId.contains(skey));
-            } else if (sopt.equals("bName")) { // 게시판 이름
-                andBuilder.and(board.bName.contains(skey));
+        // 검색어 및 검색 옵션 처리
+        if (StringUtils.hasText(search.getSkey())) {
+            String skey = search.getSkey().trim();
 
+            if ("bId".equals(search.getSopt())) { // 게시판 아이디로 검색
+                andBuilder.and(board.bId.containsIgnoreCase(skey));
+            } else if ("bName".equals(search.getSopt())) { // 게시판 이름으로 검색
+                andBuilder.and(board.bName.containsIgnoreCase(skey));
             } else { // 통합 검색
-                BooleanBuilder orBuilder = new BooleanBuilder();
-                orBuilder.or(board.bId.contains(skey))
-                        .or(board.bName.contains(skey));
-
-                andBuilder.and(orBuilder);
+                andBuilder.andAnyOf(
+                        board.bId.containsIgnoreCase(skey),
+                        board.bName.containsIgnoreCase(skey)
+                );
             }
         }
 
-        // 사용여부
-        List<Boolean> active = search.getActive();
-        if (active != null && !active.isEmpty()) {
-            andBuilder.and(board.active.in(active));
+        // 사용 여부 검색 조건 추가
+        if (search.getActive() != null && !search.getActive().isEmpty()) {
+            andBuilder.and(board.active.in(search.getActive()));
         }
 
-        // 글쓰기 권한
-        List<BoardAuthority> authorities = search.getAuthority() == null ? null : search.getAuthority().stream().map(BoardAuthority::valueOf).toList();
-
-        if (authorities != null && !authorities.isEmpty()) {
+        // 글쓰기 권한 검색 조건 추가
+        if (search.getAuthority() != null && !search.getAuthority().isEmpty()) {
+            List<BoardAuthority> authorities = search.getAuthority().stream()
+                    .map(BoardAuthority::valueOf)
+                    .toList();
             andBuilder.and(board.authority.in(authorities));
         }
-        /* 검색 처리 E */
 
-        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(desc("createdAt")));
+        PathBuilder pathBuilder = new PathBuilder(Board.class, "board");
+        List<Board> items = new JPAQueryFactory(em)
+                .selectFrom(board)
+                .where(andBuilder)
+                .offset(offset)
+                .limit(limit)
+                .orderBy(new OrderSpecifier<>(Order.DESC, pathBuilder.get("createdAt")))
+                .fetch();
 
-        Page<Board> data = repository.findAll(andBuilder, pageable);
+        int total = (int) repository.count(andBuilder);
+
+        Pagination pagination = new Pagination(page, total, 10, limit, request);
+
+        ListData<Board> data = new ListData<>();
+        data.setContent(items);
+        data.setPagination(pagination);
+
+        return data;
+    }
 
 
-        Pagination pagination = new Pagination(page, (int)data.getTotalElements(), 10, limit, request);
+    public ListData<Board> getList(String bId, int num) { // 반환 유형을 ListData<Board>로 변경
+        QBoard board = QBoard.board;
+        num = Utils.getNumber(num, 10);
+        Pageable pageable = PageRequest.of(0, num, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Board> data = repository.findAll(board.bId.eq(bId), pageable);
+
+        List<Board> content = data.getContent();
+        Pagination pagination = new Pagination(1, (int) data.getTotalElements(), 10, num, request);
 
         ListData<Board> listData = new ListData<>();
-        listData.setContent(data.getContent());
+        listData.setContent(content);
         listData.setPagination(pagination);
 
         return listData;

@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import loadable from '@loadable/component';
 import Menus from '../../../pages/admin/Menus';
+import { InputText } from '../../commons/InputStyle';
+import { NavLink } from 'react-router-dom';
 
 const Container = styled.div`
   select {
@@ -68,6 +70,28 @@ const Container = styled.div`
     text-align: center;
   }
 
+    .table-action2 {
+        padding: 10px 0;
+        text-align: center;
+    }
+
+    .sbtn2 {
+        display: inline-block;
+        border: 1px solid #D94C90;
+        color: #D94C90;
+        min-width: 90px;
+        padding: 0 20px;
+        height: 28px;
+        line-height: 26px;
+        text-align: center;
+        border-radius: 5px;
+    }
+    .sbtn.blue2 {
+        color: #fff;
+        background: #D94C90;
+        margin-left: 5px;
+    }
+
   .table-cols dl {
     width: 160px;
     padding: 10px 20px;
@@ -111,29 +135,58 @@ const Container = styled.div`
   }
 `;
 
-const AdminBoard = ({ errors, items }) => {
+const AdminBoard = ({ errors, boardList, loading }) => {
   const { t } = useTranslation();
-
   const ErrorMessages = loadable(() => import('../../commons/ErrorMessages'));
-
-  const code = 'board';
   const [selectedIds, setSelectedIds] = useState([]);
-
+  const [modifiedBoardList, setModifiedBoardList] = useState([]);
+  const [selectAllChecked , setSelectAllChecked] = useState(false);
 
   const handleCheckboxChange = (event) => {
     const { value, checked } = event.target;
 
-    setSelectedIds((prevSelectedIds) => {
+    if (value === 'all') {
+      // 전체 선택 체크박스가 변경될 때
       if (checked) {
-        return [...prevSelectedIds, value];
+        const selectedIds = modifiedBoardList.map(board => board.bid);
+        setSelectedIds(selectedIds);
       } else {
-        return prevSelectedIds.filter((selectedId) => selectedId !== value);
+        setSelectedIds([]);
       }
-    });
+      setSelectAllChecked(checked);
+    } else {
+      // 개별 체크박스가 변경될 때
+      if (checked) {
+        setSelectedIds([...selectedIds, value]);
+      } else {
+        setSelectedIds(selectedIds.filter(id => id !== value));
+      }
+    }
   };
 
-  // items가 undefined 또는 null인 경우를 확인하고 isEmpty를 설정합니다.
-  const isEmpty = !items || items.length === 0;
+
+  const handleActiveChange = (event, index) => {
+    const { value } = event.target;
+    const updatedBoardList = [...modifiedBoardList];
+    updatedBoardList[index].activeText = value;
+    updatedBoardList[index].active = value === '사용' ? true : false;
+    setModifiedBoardList(updatedBoardList);
+  };
+
+  const handlePermissionChange = (event, index) => {
+    const { value } = event.target;
+    const updatedBoardList = [...modifiedBoardList];
+    updatedBoardList[index].authority = value;
+    setModifiedBoardList(updatedBoardList);
+  };
+
+  useEffect(() => {
+    console.log('boardList:', boardList);
+    setModifiedBoardList(boardList.map(board => ({
+      ...board,
+      activeText: board.active ? '사용' : '미사용'
+    })));
+  }, [boardList]);
 
   return (
     <Container>
@@ -150,7 +203,7 @@ const AdminBoard = ({ errors, items }) => {
                   <option value="bId">게시판 ID</option>
                   <option value="bName">게시판명</option>
                 </select>
-                <input type="text" name="skey" placeholder="검색어 입력..." />
+                <InputText type="text" name="skey" placeholder="검색어 입력..." />
                 <button type="submit" className="search_btn">
                   {t('조회하기')}
                 </button>
@@ -159,54 +212,99 @@ const AdminBoard = ({ errors, items }) => {
           </div>
           <ErrorMessages errors={errors} field="search" />
         </form>
-
-
-
         <h1>게시판 목록</h1>
-        <form
-          name="frmList"
-          method="post"
-          action="/admin/board"
-          autoComplete="off"
-          target="ifrmProcess"
-        >
-          <input type="hidden" name="_method" value="patch" />
-          <table className="table-rows">
-            <thead>
+        <table className="table-rows">
+          <thead>
+          <tr>
+            <th width="40">
+              <InputText
+                type="checkbox"
+                className="checkall"
+                id="checkall"
+                checked={selectAllChecked}
+                value="all"
+                onChange={handleCheckboxChange}
+              />
+            </th>
+            <th width="150">게시판 ID</th>
+            <th width="300">게시판명</th>
+            <th width="150">사용 여부</th>
+            <th width="150">글쓰기 권한</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+          {loading ? (
             <tr>
-              <th width="40">
-                <input
-                  type="checkbox"
-                  className="checkall"
-                  id="checkall"
-                  onChange={handleCheckboxChange}
-                />
-                <label htmlFor="checkall"></label>
-              </th>
-              <th width="150">게시판 ID</th>
-              <th width="300">게시판명</th>
-              <th width="150">사용 여부</th>
-              <th width="150">글쓰기 권한</th>
-              <th></th>
+              <td colSpan="6" className="nodata">
+                등록된 게시판이 없습니다.
+              </td>
             </tr>
-            {isEmpty && (
-              <tr>
-                <td colSpan="6" className="nodata">
-                  등록된 게시판이 없습니다.
+          ) : modifiedBoardList && modifiedBoardList.length > 0 ? (
+            modifiedBoardList.map((board, index) => (
+              <tr key={board.bid}>
+                <td>
+                  <InputText
+                    type="checkbox"
+                    className="check"
+                    id={`check${board.bid}`}
+                    value={board.bid}
+                    checked={selectedIds.includes(board.bid)}
+                    onChange={handleCheckboxChange}
+                  />
+                </td>
+                <td>{board.bid}</td>
+                <td>{board.bname}</td>
+                <td>
+                  <select
+                    name="active"
+                    value={board.activeText}
+                    onChange={(event) => handleActiveChange(event, index)}
+                  >
+                    <option value="사용">사용</option>
+                    <option value="미사용">미사용</option>
+                  </select>
+                </td>
+                <td>
+                  <select
+                    name="permission"
+                    value={board.authority}
+                    onChange={(event) => handlePermissionChange(event, index)}
+                  >
+                    <option value="ALL">ALL(비회원+회원+관리자)</option>
+                    <option value="MEMBER">MEMBER(회원+관리자)</option>
+                    <option value="ADMIN">ADMIN(관리자)</option>
+                  </select>
+                </td>
+                <td>
+                  <div className="table-action2">
+                    <NavLink to={`/admin/board/edit/${board.bid}`} className="sbtn2">
+                      설정수정
+                    </NavLink>
+                    <NavLink to={`/board/list/${board.bid}`} className="sbtn blue2">
+                      미리보기
+                    </NavLink>
+                  </div>
                 </td>
               </tr>
-            )}
-            </thead>
-          </table>
-          <div className="table-action">
-            <button type="button" className="sbtn">
-              수정하기
-            </button>
-            <button type="button" className="sbtn blue">
-              삭제하기
-            </button>
-          </div>
-        </form>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6" className="nodata">
+                등록된 게시판이 없습니다.
+              </td>
+            </tr>
+          )}
+          </tbody>
+        </table>
+        <div className="table-action">
+          <button type="button" className="sbtn">
+            수정하기
+          </button>
+          <button type="button" className="sbtn blue">
+            삭제하기
+          </button>
+        </div>
       </div>
     </Container>
   );

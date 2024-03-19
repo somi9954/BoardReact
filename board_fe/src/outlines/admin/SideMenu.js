@@ -15,7 +15,7 @@ const SideMenu = () => {
         {t('사이트 설정')}
       </NavLink>
       <NavLink
-        to="/admin/board"
+        to="/admin/board/list"
         className={({ isActive }) => classNames({ on: isActive })}
       >
         {t('게시판 관리')}
