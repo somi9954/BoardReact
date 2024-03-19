@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { SubTitle } from '../../components/commons/TitleStyle';
 import { NavLink } from 'react-router-dom';
 import Banner from '../../components/commons/Banner';
-import mini from '../../images/mini.jpg';
+import mini from '../../images/main/mini.jpg';
 
 const { medium, big } = sizeNames;
 

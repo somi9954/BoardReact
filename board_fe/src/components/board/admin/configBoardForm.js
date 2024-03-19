@@ -5,8 +5,8 @@ import { ButtonGroup, BigButton } from '../../commons/ButtonStyle';
 import sizeNames from '../../../styles/sizes';
 import styled from 'styled-components';
 import loadable from '@loadable/component';
-import on from '../../../images/on.png';
-import off from '../../../images/off.png';
+import on from '../../../images/button/on.png';
+import off from '../../../images/button/off.png';
 
 const { medium } = sizeNames;
 

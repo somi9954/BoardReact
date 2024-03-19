@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import banner from '../../images/4281689.jpg';
+import banner from '../../images/main/4281689.jpg';
 
 const BannerBox = styled.img`
     width: 1000px;
