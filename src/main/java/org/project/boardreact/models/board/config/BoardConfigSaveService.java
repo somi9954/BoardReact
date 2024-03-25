@@ -2,8 +2,10 @@ package org.project.boardreact.models.board.config;
 
 import lombok.RequiredArgsConstructor;
 import org.project.boardreact.api.controllers.admins.BoardConfigForm;
+import org.project.boardreact.api.controllers.board.BoardForm;
 import org.project.boardreact.commons.Utils;
 import org.project.boardreact.commons.contansts.BoardAuthority;
+import org.project.boardreact.commons.contansts.MemberType;
 import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.entities.Board;
 import org.project.boardreact.repositories.BoardRepository;
@@ -24,32 +26,24 @@ public class BoardConfigSaveService {
         String bid = form.getbId();
 
         Board board = null;
-        if ("edit".equals(mode)) {
-            if (StringUtils.hasText(bid)) {
-                board = boardRepository.findById(bid).orElseThrow(BoardNotFoundException::new);
-            } else {
-                throw new BadRequestException("게시판 ID가 필요합니다.");
-            }
+        if (mode.equals("edit") && StringUtils.hasText(bid)) {
+            board = boardRepository.findById(bid).orElseThrow(BoardNotFoundException::new);
         } else {
             board = Board.builder()
                     .bId(bid)
                     .build();
         }
 
-        // Check if bName is empty before setting it
-        String bName = form.getbName();
-        if (!StringUtils.hasText(bName)) {
-            throw new BadRequestException("게시판 이름을 입력하세요.");
-        }
-
-        board.setBName(bName);
+        board.setBName(form.getbName());
         board.setActive(form.isActive());
         board.setCategory(form.getCategory());
 
         board.setAuthority(BoardAuthority.valueOf(form.getAuthority()));
 
+
         boardRepository.saveAndFlush(board);
     }
+
 
     public void update(List<Integer> idxes) throws BadRequestException {
         if (idxes == null || idxes.isEmpty()) {

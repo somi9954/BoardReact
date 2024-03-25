@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiRequest from '../../lib/apiRequest';
 import AdminBoard from '../../components/board/admin/AdminBoard';
-import BoardWriteContainer from '../board/BoardWriteContainer';
+import requestDelete from '../../api/admin/ConfigDelete';
 
 const AdminBoardListContainer = () => {
   const { t } = useTranslation();
@@ -11,6 +11,7 @@ const AdminBoardListContainer = () => {
   const [error, setError] = useState(null);
   const [searchInput, setSearchInput] = useState('');
   const [searchType, setSearchType] = useState('all');
+  const [selectedIds, setSelectedIds] = useState([]);
 
   useEffect(() => {
     fetchBoardList();
@@ -69,6 +70,20 @@ const AdminBoardListContainer = () => {
     setSearchType(event.target.value);
   };
 
+  const handleDeleteSelectedBoards = async () => {
+    setLoading(true);
+    try {
+      const deleteRequests = selectedIds.map((bId) => requestDelete(bId));
+      await Promise.all(deleteRequests);
+      // 삭제 후 재로딩
+      fetchBoardList();
+      setSelectedIds([]); // 삭제 후 selectedIds 초기화
+    } catch (error) {
+      setError(error);
+      setLoading(false);
+    }
+  };
+
   return (
     <AdminBoard
       boardList={boardList}
@@ -79,6 +94,8 @@ const AdminBoardListContainer = () => {
       onSearchTypeChange={handleSearchTypeChange}
       searchInput={searchInput}
       searchType={searchType}
+      selectedIds={selectedIds}
+      onDeleteSelectedBoards={handleDeleteSelectedBoards}
     />
   );
 };

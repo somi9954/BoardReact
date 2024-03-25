@@ -5,14 +5,30 @@ import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
 import 'tui-color-picker/dist/tui-color-picker.css';
 import '@toast-ui/editor-plugin-color-syntax/dist/toastui-editor-plugin-color-syntax.css';
 
-const toolbar = [['heading', 'bold', 'italic', 'strike'], ['hr', 'quote', 'ul', 'ol'], ['image']];
+const toolbar = [
+  ['heading', 'bold', 'italic', 'strike'],
+  ['hr', 'quote', 'ul', 'ol'],
+  ['image'],
+];
 
 class EditorBox extends Component {
+  constructor(props) {
+    super(props);
+    this.editorRef = React.createRef();
+  }
+
+  handleChange = () => {
+    const content = this.editorRef.current.getInstance().getMarkdown(); // HTML 대신 Markdown을 가져옴
+    if (typeof this.props.onEditorChange === 'function') {
+      this.props.onEditorChange(content);
+    }
+  };
+
   render() {
-    const { content, editorRef, imageHandler } = this.props;
+    const { content } = this.props;
     return (
       <Editor
-        initialValue={content || ' '}
+        initialValue={content || ' '} // HTML을 Markdown으로 변경
         previewStyle="vertical"
         theme=""
         usageStatistics={false}
@@ -21,10 +37,8 @@ class EditorBox extends Component {
         initialEditType="wysiwyg"
         useCommandShortcut={false}
         plugins={[colorSyntax]}
-        ref={editorRef}
-        hooks={{
-          addImageBlobHook: (blob, callback) => imageHandler(blob, callback),
-        }}
+        ref={this.editorRef}
+        onChange={this.handleChange}
       />
     );
   }

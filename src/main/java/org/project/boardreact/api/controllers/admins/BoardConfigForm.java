@@ -10,10 +10,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.project.boardreact.commons.contansts.BoardAuthority;
 
 @Data @Builder
 @NoArgsConstructor @AllArgsConstructor
-public class BoardConfigForm {
+public class BoardConfigForm{
 
     private String mode = "add";
 
@@ -25,7 +26,7 @@ public class BoardConfigForm {
 
     private boolean active;
 
-    private String authority = "ALL";
+    private String authority = String.valueOf(BoardAuthority.ALL);
 
     private String category;
 
@@ -44,5 +45,7 @@ public class BoardConfigForm {
     public void setbName(String bName) {
         this.bName = bName;
     }
+
+
 }
 

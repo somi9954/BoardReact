@@ -4,12 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.project.boardreact.api.controllers.board.BoardForm;
 import org.project.boardreact.api.controllers.board.BoardFormValidator;
 import org.project.boardreact.commons.MemberUtil;
-import org.project.boardreact.configs.jwt.CustomJwtFilter;
 import org.project.boardreact.entities.Board;
 import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.models.board.config.BoardConfigInfoService;
+import org.project.boardreact.models.board.config.BoardNotFoundException;
 import org.project.boardreact.repositories.BoardDataRepository;
-import org.project.boardreact.repositories.FileInfoRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -24,24 +23,32 @@ public class BoardSaveService {
     private final BoardConfigInfoService infoService;
     private final MemberUtil memberUtil;
     private final PasswordEncoder encoder;
-    private final FileInfoRepository fileInfoRepository;
     private final BoardFormValidator validator;
 
-    public void save(BoardForm form, Errors errors) {
+    public void save(BoardForm form, Errors errors, String bId) {
         validator.validate(form, errors);
         if (errors.hasErrors()) {
-            return;
+            return; // 유효성 검사를 통과하지 못한 경우 저장 메서드를 호출하지 않고 종료합니다.
         }
 
-        save(form);
+        save(form, bId);
     }
 
-    public void save(BoardForm form) {
+    public void save(BoardForm form, String bId) {
         Long seq = form.getSeq();
         String mode = Objects.requireNonNullElse(form.getMode(), "write");
 
+        // 게시판 ID가 유효한지 확인
+        /*if (StringUtils.isEmpty(bId)) {
+            throw new IllegalArgumentException("Board ID cannot be null");
+        }*/
+
         // 게시판 설정 조회 + 글쓰기 권한 체크
-        Board board = infoService.get(form.getBId(), true);
+        Board board = infoService.get(bId, true);
+
+        if (board == null) {
+            throw new BoardNotFoundException();
+        }
 
         String gid = form.getGid();
 
@@ -54,6 +61,7 @@ public class BoardSaveService {
             data.setGid(gid); // 그룹 ID(GID)는 최초 글 등록시 한번만 등록
             data.setMember(memberUtil.getMember()); // 글 등록 회원 정보도 최초 글등록시 한번
         }
+
 
         data.setSubject(form.getSubject());
         data.setContent(form.getContent());
@@ -71,9 +79,8 @@ public class BoardSaveService {
             data.setGuestPw(encoder.encode(guestPw));
         }
 
+        // 수정된 데이터를 저장합니다.
         boardDataRepository.saveAndFlush(data);
-
-        // 파일 업로드 완료 처리
-        fileInfoRepository.processDone(gid);
     }
 }
+

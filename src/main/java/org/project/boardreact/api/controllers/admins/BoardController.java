@@ -61,12 +61,19 @@ public class BoardController {
         }
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<JSONData> deleteList(@RequestParam List<Integer> idxes) throws BadRequestException {
-        deleteService.delete(idxes);
-        JSONData<?> response = new JSONData<>();
-        response.setMessage("Deleted successfully");
-        return ResponseEntity.status(response.getStatus()).body(response);
+    @DeleteMapping("/delete/{bId}")
+    public ResponseEntity<JSONData> deleteList(@RequestParam String bId)  {
+        try {
+            Board data = infoService.get(bId);
+            if (data == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+
+            deleteService.delete(bId);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 

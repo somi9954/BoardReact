@@ -48,7 +48,6 @@ public class BoardInfoService {
     private final BoardDataRepository boardDataRepository;
     private final BoardViewRepository boardViewRepository;
     private final CommentInfoService commentInfoService;
-    private final TokenProvider tokenProvider;
     private final MemberInfoService infoService;
 
     private final FileInfoService fileInfoService;

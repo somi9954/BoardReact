@@ -18,7 +18,7 @@ import BoardWrite from './pages/front/board/BoardWrite';
 import AdminMain from './pages/admin/Main';
 import AdminConfig from './pages/admin/Config';
 import AdminBoardWrite from './pages/admin/AdminBoardWrite';
-import AdminBoard from './components/board/admin/AdminBoard';
+import AdminBoardChange from './pages/admin/AdminBoardChange';
 
 const App = () => {
   const {
@@ -43,6 +43,7 @@ const App = () => {
         <Route index element={<AdminMain />} />
         <Route path="/admin/board/list" element={<AdminMain />} />
         <Route path="/admin/board/add" element={<AdminBoardWrite />} />
+        <Route path="/admin/board/edit/:bId" element={<AdminBoardChange />} />
         <Route path="config" element={<AdminConfig />} />
       </Route>
 

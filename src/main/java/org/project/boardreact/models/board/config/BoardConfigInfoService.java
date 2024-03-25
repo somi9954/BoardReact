@@ -17,16 +17,9 @@ import org.project.boardreact.commons.Pagination;
 import org.project.boardreact.commons.Utils;
 import org.project.boardreact.commons.contansts.BoardAuthority;
 import org.project.boardreact.commons.exceptions.AuthorizationException;
-import org.project.boardreact.commons.exceptions.BadRequestException;
-import org.project.boardreact.configs.jwt.CustomJwtFilter;
 import org.project.boardreact.entities.Board;
-import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.entities.QBoard;
 import org.project.boardreact.repositories.BoardRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -44,10 +37,19 @@ public class BoardConfigInfoService {
     private final EntityManager em;
 
     public Board get(String bId) {
-        Board data = repository.findById(bId).orElseThrow(BoardNotFoundException::new);
+        if (bId == null) {
+            throw new IllegalArgumentException("Board ID cannot be null");
+        }
 
+        Optional<Board> optionalBoard = repository.findById(bId);
+        if (optionalBoard.isEmpty()) {
+            throw new BoardNotFoundException(); // 해당 ID에 해당하는 게시판이 없는 경우 예외 처리
+        }
+
+        Board data = optionalBoard.get();
         return data;
     }
+
 
     public Board get(String bId, boolean checkAuthority) {
         Board data = get(bId);
@@ -126,7 +128,10 @@ public class BoardConfigInfoService {
                 .orderBy(new OrderSpecifier<>(Order.DESC, pathBuilder.get("createdAt")))
                 .fetch();
 
-        int total = (int) repository.count(andBuilder);
+        int total = (int) new JPAQueryFactory(em)
+                .selectFrom(board)
+                .where(andBuilder)
+                .fetchCount();
 
         Pagination pagination = new Pagination(page, total, 10, limit, request);
 
@@ -135,22 +140,5 @@ public class BoardConfigInfoService {
         data.setPagination(pagination);
 
         return data;
-    }
-
-
-    public ListData<Board> getList(String bId, int num) { // 반환 유형을 ListData<Board>로 변경
-        QBoard board = QBoard.board;
-        num = Utils.getNumber(num, 10);
-        Pageable pageable = PageRequest.of(0, num, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Board> data = repository.findAll(board.bId.eq(bId), pageable);
-
-        List<Board> content = data.getContent();
-        Pagination pagination = new Pagination(1, (int) data.getTotalElements(), 10, num, request);
-
-        ListData<Board> listData = new ListData<>();
-        listData.setContent(content);
-        listData.setPagination(pagination);
-
-        return listData;
     }
 }

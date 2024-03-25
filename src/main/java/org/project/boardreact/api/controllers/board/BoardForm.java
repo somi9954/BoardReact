@@ -33,6 +33,4 @@ public class BoardForm {
 
     private String guestPw;
 
-    private List<FileInfo> editorImages;
-    private List<FileInfo> attachFiles;
 }

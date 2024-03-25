@@ -1,5 +1,6 @@
 package org.project.boardreact.api.controllers.board;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,27 +44,45 @@ public class BoardController {
     private  BoardData boardData;
 
 
-
     @PostMapping("/write/{bId}")
-    public ResponseEntity<JSONData> write(@PathVariable("bId") String bId, @RequestBody  BoardForm form, Errors errors) {
+    public ResponseEntity<JSONData> write(@PathVariable("bId") String bId, @RequestBody BoardForm form, HttpServletRequest request, Errors errors) {
+        // 클라이언트가 보낸 요청의 로그를 확인하여 보드 ID가 올바르게 전달되었는지 확인합니다.
+        System.out.println("Received request: " + request.getMethod() + " " + request.getRequestURI());
+        System.out.println("Board ID received from client: " + bId);
 
-        // 유효성 검사 오류 확인
-        if (errors.hasErrors()) {
-            // 유효성 검사 오류 메시지 생성
-            String message = errors.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(","));
-            // BadRequestException으로 예외 처리
-            throw new BadRequestException(Utils.getMessage("Not_Blank_write", "validation"));
+        // 클라이언트가 보낸 요청의 컨텐츠를 확인하여 올바른 데이터가 포함되어 있는지 확인합니다.
+        System.out.println("BoardForm received from client: " + form.toString());
+
+        // 클라이언트가 보낸 요청의 헤더를 확인하여 필요한 인증 또는 권한이 있는지 확인합니다.
+        String authToken = request.getHeader("Authorization");
+        System.out.println("Authorization token received from client: " + authToken);
+
+        // 클라이언트가 보낸 요청의 경로를 확인하여 해당 경로에 대한 처리 로직이 올바르게 구현되어 있는지 확인합니다.
+        if (bId == null || bId.isEmpty()) {
+            // 클라이언트가 보낸 게시판 ID가 null 또는 빈 문자열인 경우에 대한 처리
+            throw new IllegalArgumentException("Board ID cannot be null or empty");
         }
 
-        saveService.save(form);
+        if (errors.hasErrors()) {
+            // 유효성 검사 오류 메시지 생성
+            String errorMessage = errors.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage())
+                    .collect(Collectors.joining(", "));
+            // BadRequestException으로 예외 처리
+            throw new BadRequestException(errorMessage);
+        }
+
+        saveService.save(form, bId);
+
+
+        saveService.save(form, errors, bId);
 
         JSONData data = new JSONData();
         data.setStatus(HttpStatus.CREATED);
 
         return ResponseEntity.status(data.getStatus()).body(data);
     }
+
 
     @GetMapping("/update/{seq}")
     public ResponseEntity<JSONData> update(@PathVariable("seq") Long seq) {
@@ -82,7 +101,7 @@ public class BoardController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<JSONData> save(@Valid BoardForm form, Errors errors) {
+    public ResponseEntity<JSONData> save(@Valid @RequestBody BoardForm form, Errors errors) {
         String mode = Objects.requireNonNullElse(form.getMode(), "write");
         String bId = form.getBId();
 
@@ -95,20 +114,17 @@ public class BoardController {
             }
         }
 
-        saveService.save(form, errors);
-
+        // 유효성 검사 결과 확인
         if (errors.hasErrors()) {
-            String gid = form.getGid();
-            List<FileInfo> editorImages = fileInfoService.getListAll(gid, "editor");
-            List<FileInfo> attachFiles = fileInfoService.getListAll(gid, "attach");
-            form.setEditorImages(editorImages);
-            form.setAttachFiles(attachFiles);
-
-            JSONData data = new JSONData();
-            data.setStatus(HttpStatus.BAD_REQUEST);
-            data.setMessage("Validation error");
-            return ResponseEntity.status(data.getStatus()).body(data);
+            // 유효성 검사 오류 메시지 생성
+            String message = errors.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(","));
+            // BadRequestException으로 예외 처리
+            throw new BadRequestException(message);
         }
+
+        saveService.save(form,bId); // 유효성 검사를 통과한 경우에만 저장
 
         JSONData data = new JSONData();
         data.setStatus(HttpStatus.OK);

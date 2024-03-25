@@ -145,7 +145,7 @@ const AdminBoard = ({
   searchInput,
   searchType,
   onSearchTypeChange,
-  fetchBoardList,
+  onDeleteSelectedBoards,
 }) => {
   const { t } = useTranslation();
   const ErrorMessages = loadable(() => import('../../commons/ErrorMessages'));
@@ -173,6 +173,11 @@ const AdminBoard = ({
         setSelectedIds(selectedIds.filter((id) => id !== value));
       }
     }
+  };
+
+  const handleDeleteSelectedBoardsClick = () => {
+    console.log('Selected IDs:', selectedIds); // 확인용 로그
+    onDeleteSelectedBoards(); // 삭제 요청 보내는 함수 호출
   };
 
   const handleActiveChange = (event, index) => {
@@ -330,7 +335,11 @@ const AdminBoard = ({
           <button type="button" className="sbtn blue">
             선택 게시판 수정
           </button>
-          <button type="button" className="sbtn">
+          <button
+            type="button"
+            className="sbtn"
+            onClick={handleDeleteSelectedBoardsClick}
+          >
             선택 게시판 삭제
           </button>
         </div>

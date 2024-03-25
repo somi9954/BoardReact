@@ -19,7 +19,7 @@ public class Board extends BaseMember {
     @Column(length=30)
     private String bId;
 
-    @Column(length=60, nullable = false, updatable = false)
+    @Column(length=60, nullable = false)
     private String bName;
 
     private boolean active;
@@ -30,4 +30,5 @@ public class Board extends BaseMember {
 
     @Lob
     private String category;
+
 }
