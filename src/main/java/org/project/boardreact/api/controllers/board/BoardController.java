@@ -165,23 +165,14 @@ public class BoardController {
     }
 
     @GetMapping("/list/{bId}")
-    public ResponseEntity<Map<String, Object>> list(@PathVariable("bId") String bId, @ModelAttribute BoardDataSearch search) {
-        Map<String, Object> responseData = new HashMap<>();
+    public JSONData<List<BoardData>> list(BoardDataSearch search) {
+        ListData<BoardData> todoList = infoService.getList(search);
+        List<BoardData> data = todoList.getContent();
 
-        // 공통 처리
-        ResponseEntity<JSONData> commonProcessData = commonProcess(bId, "list");
+        JSONData<List<BoardData>> jsonData = new JSONData<>();
+        jsonData.setData(data);
 
-        // 게시글 목록 조회
-        search.setBId(bId);
-        ListData<BoardData> data = infoService.getList(search);
-
-        // 응답 데이터 설정
-        responseData.put("commonProcessData", commonProcessData);
-        responseData.put("items", data.getContent());
-        responseData.put("pagination", data.getPagination());
-
-        // 응답 반환
-        return ResponseEntity.ok(responseData);
+        return jsonData;
     }
 
     @PostMapping("/guest/password")
