@@ -10,10 +10,10 @@ const BoardList = () => {
   return (
     <>
       <Helmet>
-        <title>{t('리스트')}</title>
+        <title>{t('자유게시판')}</title>
       </Helmet>
       <OuterBox>
-        <MainTitle color="#ff4910">{t('리스트')}</MainTitle>
+        <MainTitle color="#ff4910">{t('자유게시판')}</MainTitle>
         <BoardListContainer />
       </OuterBox>
     </>

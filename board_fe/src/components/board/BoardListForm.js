@@ -185,7 +185,10 @@ const BoardListForm = ({
           {boardData.data.slice(startIndex, endIndex).map((item, index) => (
             <tr key={startIndex + index}>
               <td>{startIndex + index + 1}</td>
-              <td>{item.subject}</td>
+              {/* 제목을 클릭하여 해당 게시물로 이동하는 링크 */}
+              <td>
+                <NavLink to={`/board/view/${item.seq}`}>{item.subject}</NavLink>
+              </td>
               <td>{item.poster}</td>
               <td>{item.createdAt}</td>
               <td>{item.viewCnt}</td>
