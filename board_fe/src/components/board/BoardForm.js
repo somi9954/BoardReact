@@ -4,8 +4,7 @@ import { InputText } from '../commons/InputStyle';
 import { ButtonGroup, BigButton } from '../commons/ButtonStyle';
 import sizeNames from '../../styles/sizes';
 import styled from 'styled-components';
-import loadable from '@loadable/component';
-import EditorBox from '../commons/EditorBox'; // EditorBox import 추가
+import EditorBox from '../commons/EditorBox';
 import ErrorMessages from '../commons/ErrorMessages';
 
 const { medium } = sizeNames;
@@ -49,7 +48,6 @@ const BoardForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 내용이 비어 있는지 확인
     if (!form.content || form.content.trim() === '') {
       onChange({
         ...form,
@@ -60,7 +58,7 @@ const BoardForm = ({
       });
       return;
     }
-    console.log('Form submitted!'); // 콘솔 로그 추가
+    console.log('Form submitted!');
     onSubmit(e);
   };
 
