@@ -57,7 +57,7 @@ public class BoardController {
         String authToken = request.getHeader("Authorization");
         System.out.println("Authorization token received from client: " + authToken);
 
-        // 클라이언트가 보낸 요청의 경로를 확인하여 해당 경로에 대한 처리 로직이 올바르게 구현되어 있는지 확인합니다.
+
         if (bId == null || bId.isEmpty()) {
             // 클라이언트가 보낸 게시판 ID가 null 또는 빈 문자열인 경우에 대한 처리
             throw new IllegalArgumentException("Board ID cannot be null or empty");
@@ -165,15 +165,38 @@ public class BoardController {
     }
 
     @GetMapping("/list/{bId}")
-    public JSONData<List<BoardData>> list(BoardDataSearch search) {
-        ListData<BoardData> todoList = infoService.getList(search);
-        List<BoardData> data = todoList.getContent();
+    public JSONData<List<BoardData>> list(@PathVariable("bId") String bId, BoardDataSearch search) {
+        search.setBId(bId);
+        System.out.println("Received request for board list with bId: " + bId); // 요청된 게시판 ID 출력
 
+        // Adjusting page and limit
+        int page = search.getPage();
+        int limit = search.getLimit();
+        System.out.println("Requested page: " + page); // 요청된 페이지 출력
+        System.out.println("Requested limit: " + limit); // 요청된 한 페이지 당 아이템 개수 출력
+
+        // Get board list data from service
+        ListData<BoardData> boardList = infoService.getList(search);
+
+        // Convert the retrieved data into JSON format
         JSONData<List<BoardData>> jsonData = new JSONData<>();
-        jsonData.setData(data);
+
+        if (boardList != null) {
+            jsonData.setData(boardList.getContent());
+            System.out.println("Board List Data: " + jsonData); // 게시판 리스트 데이터 출력
+
+            // 서비스에서 가져온 게시판 데이터가 올바른지 확인하기 위해 각 게시물의 bId를 출력합니다.
+            for (BoardData boardData : boardList.getContent()) {
+                System.out.println("Board ID of the retrieved data: " + boardData.getBoard().getBId());
+            }
+        } else {
+            System.out.println("Board List Data is null");
+        }
 
         return jsonData;
     }
+
+
 
     @PostMapping("/guest/password")
     public ResponseEntity<Map<String, Object>> guestPasswordCheck(@RequestParam("password") String password, Authentication authentication) {

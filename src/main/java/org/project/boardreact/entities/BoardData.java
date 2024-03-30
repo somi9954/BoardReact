@@ -23,12 +23,12 @@ public class BoardData extends Base {
     @Column(length=50, nullable = false)
     private String gid = UUID.randomUUID().toString();
 
-    @ManyToOne(fetch= FetchType.LAZY)
+    @ManyToOne(fetch= FetchType.EAGER)
     @JoinColumn(name="bId")
     @ToString.Exclude
     private Board board;
 
-    @ManyToOne(fetch= FetchType.LAZY)
+    @ManyToOne(fetch= FetchType.EAGER)
     @JoinColumn(name="userNo")
     @ToString.Exclude
     private Member member;

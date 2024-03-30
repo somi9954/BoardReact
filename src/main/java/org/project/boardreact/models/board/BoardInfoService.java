@@ -39,6 +39,7 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Objects;
 
+import static org.project.boardreact.entities.QBoard.board;
 import static org.springframework.data.domain.Sort.Order.desc;
 
 @Service
@@ -57,6 +58,7 @@ public class BoardInfoService {
     private final MemberUtil memberUtil;
     private final PasswordEncoder encoder;
     private final Utils utils;
+    private final EntityManager entityManager;
 
 
     /**
@@ -119,80 +121,61 @@ public class BoardInfoService {
 
     public ListData<BoardData> getList(BoardDataSearch search) {
         QBoardData boardData = QBoardData.boardData;
-        int page = Utils.getNumber(search.getPage(), 1);
-        int limit = Utils.getNumber(search.getLimit(), 20);
+        int page = Objects.requireNonNullElse(search.getPage(), 1);
+        int limit = Objects.requireNonNullElse(search.getLimit(), 20);
         int offset = (page - 1) * limit;
+        String bId = search.getBId();
+        String sopt = StringUtils.hasText(search.getSopt()) ? search.getSopt() : "subject_content";
+        String skey = search.getSkey();
+        String category = search.getCategory();
 
-        String bId = search.getBId(); // 게시판 아이디
-        String sopt  = Objects.requireNonNullElse(search.getSopt(), "subject_content"); // 검색 옵션
-        String skey = search.getSkey(); // 검색 키워드
-        String category = search.getCategory(); // 게시판 분류
+        BooleanBuilder whereClause = new BooleanBuilder();
+        whereClause.and(boardData.board.bId.eq(bId));
 
-        BooleanBuilder andBuilder = new BooleanBuilder();
-        andBuilder.and(boardData.board.bId.eq(bId));
-
-        // 게시판 분류 검색 처리
         if (StringUtils.hasText(category)) {
             category = category.trim();
-            andBuilder.and(boardData.category.eq(category));
+            whereClause.and(boardData.category.eq(category));
         }
 
-
-        // 키워드 검색 처리
         if (StringUtils.hasText(skey)) {
             skey = skey.trim();
-
-            if (sopt.equals("subject")) { // 제목 검색
-                andBuilder.and(boardData.subject.contains(skey));
-
-            } else if (sopt.equals("content")) { // 내용 검색
-                andBuilder.and(boardData.content.contains(skey));
-
-            } else if (sopt.equals("subject_content")) { // 제목 + 내용 검색
-                BooleanBuilder orBuilder = new BooleanBuilder();
-                orBuilder.or(boardData.subject.contains(skey))
+            if ("subject".equals(sopt)) {
+                whereClause.and(boardData.subject.contains(skey));
+            } else if ("content".equals(sopt)) {
+                whereClause.and(boardData.content.contains(skey));
+            } else if ("subject_content".equals(sopt)) {
+                BooleanBuilder orClause = new BooleanBuilder();
+                orClause.or(boardData.subject.contains(skey))
                         .or(boardData.content.contains(skey));
-
-                andBuilder.and(orBuilder);
-            } else if (sopt.equals("poster")) { // 작성자 + 아이디
-                BooleanBuilder orBuilder = new BooleanBuilder();
-                orBuilder.or(boardData.poster.contains(skey))
+                whereClause.and(orClause);
+            } else if ("poster".equals(sopt)) {
+                BooleanBuilder orClause = new BooleanBuilder();
+                orClause.or(boardData.poster.contains(skey))
                         .or(boardData.member.email.contains(skey))
                         .or(boardData.member.nickname.contains(skey));
-
-                andBuilder.and(orBuilder);
-
+                whereClause.and(orClause);
             }
         }
 
-        PathBuilder pathBuilder = new PathBuilder(BoardData.class, "boardData");
-        List<BoardData> items = new JPAQueryFactory(em)
+        List<BoardData> items = new JPAQueryFactory(entityManager)
                 .selectFrom(boardData)
-                .leftJoin(boardData.board)
+                .leftJoin(boardData.board, board).fetchJoin() // Fetch 조인 사용
                 .leftJoin(boardData.member)
-                .where(andBuilder)
+                .where(whereClause)
                 .offset(offset)
                 .limit(limit)
-                .fetchJoin()
-                .orderBy(
-                        new OrderSpecifier(Order.valueOf("DESC"),
-                                pathBuilder.get("createdAt")))
+                .orderBy(boardData.createdAt.desc())
                 .fetch();
 
-        int total = (int)boardDataRepository.count(andBuilder);
+        long total = boardDataRepository.count(whereClause);
 
-        Pagination pagination = new Pagination(page, total, 10, limit, request);
-
-        // 파일 정보 추가
-        items.stream().forEach(this::addFileInfo);
-
+        Pagination pagination = new Pagination(page, (int) total, 10, limit, request);
         ListData<BoardData> data = new ListData<>();
         data.setContent(items);
         data.setPagination(pagination);
 
         return data;
     }
-
 
     private void addFileInfo(BoardData data) {
         String gid = data.getGid();

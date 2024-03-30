@@ -1,37 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import apiRequest from '../../lib/apiRequest';
 import BoardListForm from '../../components/board/BoardListForm';
 
-const BoardListContainer = ({ bId }) => {
+const BoardListContainer = () => {
   const { t } = useTranslation();
-  const [boardList, setBoardList] = useState([]);
+  const { bId } = useParams();
+  const [boardList, setBoardList] = useState({ data: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchBoardList = async () => {
-    try {
-      const response = await apiRequest('/board/list/${bId}', 'GET');
-      setBoardList(response.data.data);
-      console.log(response.data.data);
-    } catch (error) {
-      console.error('할 일 목록을 불러오는 중 에러 발생:', error);
-    } finally {
-      setLoading(false); // 로딩 완료
-    }
-  };
-
   useEffect(() => {
-    fetchBoardList();
+    setLoading(true);
+
+    // 해당 게시판에 대한 데이터를 가져옵니다.
+    apiRequest(`/board/list/${bId}`, 'GET')
+      .then((boardListRes) => {
+        console.log('Board List Response:', boardListRes.data);
+        if (!boardListRes.data.success) {
+          throw new Error(boardListRes.data.message);
+        }
+
+        // 필요한 데이터를 추출하여 상태에 설정합니다.
+        setBoardList({
+          data: boardListRes.data.data,
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to fetch board data:', err);
+        setError('Failed to fetch board data. Please try again later.');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [bId]);
 
   return (
-    <BoardListForm
-      boardList={boardList}
-      loading={loading}
-      error={error}
-      fetchBoardList={fetchBoardList}
-    />
+    <BoardListForm boardData={boardList} loading={loading} error={error} />
   );
 };
 
