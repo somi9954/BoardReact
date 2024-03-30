@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Paging from '../commons/Paging';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
+import { NavLink } from 'react-router-dom';
+import Pagination from 'react-js-pagination';
 
 const Container = styled.div`
   select {
@@ -8,6 +11,7 @@ const Container = styled.div`
     min-width: 150px;
     height: 45px;
     border-radius: 5px;
+    margin-bottom: 5px;
   }
 
   input[type='text'] {
@@ -39,20 +43,19 @@ const Container = styled.div`
 
   .sbtn {
     display: inline-block;
-    border: 1px solid #d94c90;
-    color: #d94c90;
+    background: #d94c90;
+    color: #fff;
     min-width: 90px;
-    padding: 0 20px;
-    height: 28px;
-    line-height: 26px;
+    padding: 0 40px;
+    line-height: 40px;
     text-align: center;
     border-radius: 5px;
     margin-left: 5px;
+    float: right;
+    font-size: 15px;
+    font-weight: bold;
   }
-  .sbtn.blue {
-    color: #fff;
-    background: #d94c90;
-  }
+
   .table-cols {
     width: 100%;
     border-spacing: 0;
@@ -69,18 +72,6 @@ const Container = styled.div`
   .table-action2 {
     padding: 10px 0;
     text-align: center;
-  }
-
-  .sbtn2 {
-    display: inline-block;
-    border: 1px solid #d94c90;
-    color: #d94c90;
-    min-width: 90px;
-    padding: 0 20px;
-    height: 28px;
-    line-height: 26px;
-    text-align: center;
-    border-radius: 5px;
   }
 
   .table-cols dl {
@@ -128,47 +119,94 @@ const Container = styled.div`
   }
 `;
 
-const BoardListForm = ({ boardData, loading, error }) => {
-  // 로딩 중일 때 표시할 내용
+const BoardListForm = ({
+  boardData,
+  loading,
+  error,
+  sortBy,
+  handleSortChange,
+}) => {
+  const { t } = useTranslation();
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    if (boardData?.data) {
+      const totalCount = boardData.data.length;
+      setPage((prevPage) => Math.min(prevPage, Math.ceil(totalCount / 10)));
+    }
+  }, [boardData]);
+
+  // 로딩 중인 경우
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  // 오류 발생 시 표시할 내용
+  // 에러가 발생한 경우
   if (error) {
     return <div>Error: {error}</div>;
   }
 
-  // 데이터가 비어 있는 경우
-  if (!boardData || !boardData.data || boardData.data.length === 0) {
+  // 데이터가 없는 경우
+  if (!boardData || boardData.data.length === 0) {
     return <div>No data available.</div>;
   }
 
-  // 게시판 데이터가 있는 경우, 데이터를 표시
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber);
+  };
+
+  const itemsPerPage = 10;
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, boardData.data.length);
+
   return (
     <Container>
+      {/* 글쓰기 버튼 */}
+      <NavLink
+        to={`/board/write/${boardData.data[0].board.bid}`}
+        className="sbtn"
+      >
+        {t('글쓰기')}
+      </NavLink>
+
+      {/* 정렬 옵션 */}
+      <select name="sopt" value={sortBy} onChange={handleSortChange}>
+        <option value="createdAt">{t('최신순')}</option>
+        <option value="modifiedAt">{t('등록순')}</option>
+        <option value="seq">{t('번호순')}</option>
+      </select>
+
       <div>
         <table className="table-rows">
           <thead>
             <tr>
-              <th width="150">글번호</th>
-              <th>제목</th>
-              <th>등록일</th>
-              <th>조회수</th>
+              <th width="150">{t('글번호')}</th>
+              <th>{t('제목')}</th>
+              <th>{t('작성자')}</th>
+              <th width="200">{t('등록일')}</th>
+              <th width="70">{t('조회수')}</th>
             </tr>
           </thead>
           <tbody>
-            {boardData.data.map((item) => (
-              <tr key={item.seq}>
-                <td>{item.seq}</td>
+            {boardData.data.slice(startIndex, endIndex).map((item, index) => (
+              <tr key={startIndex + index}>
+                <td>{startIndex + index + 1}</td>
                 <td>{item.subject}</td>
+                <td>{item.poster}</td>
                 <td>{item.createdAt}</td>
                 <td>{item.viewCnt}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <Paging page={1} count={10} setPage={() => {}} />
+
+        {/* 페이징 컴포넌트 */}
+        <Paging
+          page={page}
+          count={boardData.data.length}
+          setPage={handlePageChange}
+          initialPage={page}
+        />
       </div>
     </Container>
   );
