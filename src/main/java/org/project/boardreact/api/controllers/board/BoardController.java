@@ -132,9 +132,9 @@ public class BoardController {
     }
 
     @GetMapping("/view/{seq}")
-    public ResponseEntity<JSONData> view(@PathVariable("seq") Long seq,
-                                         @ModelAttribute BoardDataSearch search) {
+    public ResponseEntity<JSONData> view(@PathVariable("seq") Long seq, BoardDataSearch search) {
         infoService.updateView(seq);
+        System.out.println("seq:" + seq);
 
         BoardData data = infoService.get(seq);
         boardData = data;

@@ -1,16 +1,21 @@
 import apiRequest from '../../lib/apiRequest';
 
-export default function responseList(form) {
+export default function responseView(seq) {
   return new Promise((resolve, reject) => {
-    apiRequest('/board/view/{seq}', 'GET', form)
+    apiRequest(`/board/view/${seq}`, 'GET')
       .then((res) => {
+        console.log(res.data); // 서버 응답 데이터 확인
         if (!res.data.success) {
+          console.error(res.data);
           reject(res.data);
-          console.log(reject);
         } else {
-          resolve(true);
+          // 서버 응답 데이터 전체를 resolve에 전달
+          resolve(res.data);
         }
       })
-      .catch((err) => reject(err));
+      .catch((err) => {
+        console.error(err);
+        reject(err);
+      });
   });
 }

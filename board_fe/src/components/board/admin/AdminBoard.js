@@ -176,8 +176,8 @@ const AdminBoard = ({
   };
 
   const handleDeleteSelectedBoardsClick = () => {
-    console.log('Selected IDs:', selectedIds); // 확인용 로그
-    onDeleteSelectedBoards(); // 삭제 요청 보내는 함수 호출
+    console.log('선택된 ID들:', selectedIds); // 디버깅용
+    onDeleteSelectedBoards(); // 삭제 프로세스 시작
   };
 
   const handleActiveChange = (event, index) => {
@@ -196,7 +196,6 @@ const AdminBoard = ({
   };
 
   useEffect(() => {
-    console.log('boardList:', boardList);
     setModifiedBoardList(
       boardList.map((board) => ({
         ...board,

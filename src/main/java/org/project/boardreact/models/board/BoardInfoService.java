@@ -130,7 +130,9 @@ public class BoardInfoService {
         String category = search.getCategory();
 
         BooleanBuilder whereClause = new BooleanBuilder();
-        whereClause.and(boardData.board.bId.eq(bId));
+        if (bId != null) {
+            whereClause.and(boardData.board.bId.eq(bId));
+        }
 
         if (StringUtils.hasText(category)) {
             category = category.trim();

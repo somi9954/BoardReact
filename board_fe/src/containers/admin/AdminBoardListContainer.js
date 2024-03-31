@@ -75,12 +75,14 @@ const AdminBoardListContainer = () => {
     try {
       const deleteRequests = selectedIds.map((bId) => requestDelete(bId));
       await Promise.all(deleteRequests);
+      // 삭제 요청 완료 후 로딩 상태 해제
+      setLoading(false);
       // 삭제 후 재로딩
       fetchBoardList();
       setSelectedIds([]); // 삭제 후 selectedIds 초기화
     } catch (error) {
       setError(error);
-      setLoading(false);
+      setLoading(false); // 삭제 요청 실패 시에도 로딩 상태 해제
     }
   };
 

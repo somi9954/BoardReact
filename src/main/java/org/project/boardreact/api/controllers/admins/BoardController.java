@@ -62,7 +62,7 @@ public class BoardController {
     }
 
     @DeleteMapping("/delete/{bId}")
-    public ResponseEntity<JSONData> deleteList(@RequestParam String bId)  {
+    public ResponseEntity<JSONData> deleteList(@PathVariable String bId)  {
         try {
             Board data = infoService.get(bId);
             if (data == null) {
@@ -75,6 +75,7 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
 
     @PutMapping("/edit/{bId}")
