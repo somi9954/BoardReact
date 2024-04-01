@@ -6,14 +6,10 @@ export default function responseList(boardDataSeq) {
     apiRequest(`/comment/list/${boardDataSeq}`, 'GET')
       .then((res) => {
         console.log('Comment List Response:', res.data); // 데이터 출력
-        if (!res.data.success) {
-          reject(res.data.message); // 오류 메시지 처리
-        } else {
-          resolve(res.data); // 데이터 전송
-        }
+        resolve(res.data); // 댓글 목록 데이터 전체를 반환
       })
       .catch((err) => {
-        console.error('Error fetching board data:', err); // 오류 메시지 출력
+        console.error('Error fetching comment data:', err); // 오류 메시지 출력 수정
         reject(err); // 오류 처리
       });
   });

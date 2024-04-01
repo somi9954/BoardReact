@@ -58,17 +58,24 @@ public class CommentController {
         return ResponseEntity.ok(successResponse);
     }
 
-    @GetMapping("/list/{boardDataSeq}")
     public ResponseEntity<List<CommentData>> getComments(@PathVariable("boardDataSeq") Long boardDataSeq) {
-        // 로그 추가: 요청이 도착했음을 알리는 로그
-        System.out.println("댓글 목록 조회 요청 도착: " + boardDataSeq);
+        try {
+            List<CommentData> commentData = infoService.getList(boardDataSeq);
 
-        List<CommentData> commentData = infoService.getList(boardDataSeq);
+            // 댓글 목록 조회 결과 프린트
+            System.out.println("댓글 목록 조회 결과: " + commentData);
 
-        // 댓글 목록 조회 결과 프린트
-        System.out.println("댓글 목록 조회 결과: " + commentData);
+            return ResponseEntity.status(HttpStatus.OK).body(commentData);
+        } catch (Exception e) {
+            // 에러 메시지 출력
+            System.out.println("댓글 목록 조회 도중 오류 발생:");
+            e.printStackTrace();
 
-        return ResponseEntity.status(HttpStatus.OK).body(commentData);
+            // 에러 응답 반환
+            JSONData errorResponse = new JSONData();
+            errorResponse.setMessage("댓글 목록 조회에 실패하였습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @DeleteMapping("/delete/{seq}")

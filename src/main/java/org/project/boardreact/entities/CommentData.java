@@ -13,11 +13,11 @@ public class CommentData extends Base {
     @Id @GeneratedValue
     private Long seq;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="boardData_seq")
     private BoardData boardData;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="userNo")
     private Member member;
 

@@ -7,6 +7,7 @@ import org.project.boardreact.commons.MemberUtil;
 import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.entities.CommentData;
 import org.project.boardreact.models.board.BoardDataNotFoundException;
+import org.project.boardreact.models.comment.CommentInfoService;
 import org.project.boardreact.repositories.BoardDataRepository;
 import org.project.boardreact.repositories.CommentDataRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,9 +59,12 @@ public class CommentSaveService {
     }
 
     public void save(CommentData comment) {
+
         commentDataRepository.saveAndFlush(comment);
-        // 게시글에 속한 댓글 갯수를 업데이트합니다.
+
+        // 총 댓글 갯수 업데이트
         Long boardDataSeq = comment.getBoardData().getSeq();
         commentInfoService.updateCommentCnt(boardDataSeq);
     }
 }
+

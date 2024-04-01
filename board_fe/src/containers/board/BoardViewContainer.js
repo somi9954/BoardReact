@@ -2,11 +2,11 @@ import React, { useEffect, useState, useCallback } from 'react';
 import BoardViewForm from '../../components/board/BoardViewForm';
 import responseView from '../../api/board/boardView';
 import requestCommentWrite from '../../api/Comment/CommentWrite';
-import responseCommentList from '../../api/Comment/CommentList';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getUserInfo } from '../../api/member/Login';
 import { produce } from 'immer';
+import responseList from '../../api/Comment/CommentList';
 
 const BoardViewContainer = () => {
   const [boardData, setBoardData] = useState(null);
@@ -22,10 +22,13 @@ const BoardViewContainer = () => {
     const fetchData = async () => {
       try {
         const seq = getSeqFromURL();
+        console.log('seq', seq);
         if (seq !== undefined) {
-          const responseData = await responseView(seq); // seq를 전달하여 데이터 가져오기
-          setBoardData(responseData); // 가져온 데이터 설정
-          console.log('Data fetched successfully:', responseData); // 데이터 확인을 위해 콘솔에 출력
+          const responseData = await responseView(seq);
+          setBoardData(responseData);
+
+          const commentData = await responseList(seq);
+          setCommentList(commentData);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -48,7 +51,7 @@ const BoardViewContainer = () => {
   }, []);
 
   const onSubmit = useCallback(
-    async (e) => {
+    async (e, formData) => {
       e.preventDefault();
 
       const requiredFields = {
@@ -57,7 +60,7 @@ const BoardViewContainer = () => {
       const _errors = {};
       let hasError = false;
       for (const field in requiredFields) {
-        if (!form[field] || !form[field].trim()) {
+        if (!formData[field] || !formData[field].trim()) {
           _errors[field] = _errors[field] || [];
           _errors[field].push(requiredFields[field]);
           hasError = true;
@@ -65,26 +68,26 @@ const BoardViewContainer = () => {
       }
 
       if (hasError) {
-        setErrors((errors) => _errors);
+        setErrors(_errors);
         return;
       }
 
-      const seq = getSeqFromURL(); // 여기서 게시글의 식별자를 가져오는 함수를 호출하여 seq를 가져옵니다.
-      const formData = {
-        ...form,
-        poster: currentUser || form.poster || '',
-        boardDataSeq: seq, // 댓글을 작성하는데 필요한 게시글의 식별자를 전달합니다.
+      const seq = getSeqFromURL();
+      const postData = {
+        ...formData,
+        poster: currentUser || formData.poster || '',
+        boardDataSeq: seq,
       };
 
       try {
-        await requestCommentWrite(formData);
+        await requestCommentWrite(postData);
         navigate(`/board/view/${seq}`, { replace: true });
       } catch (error) {
         console.error('Error adding comment:', error);
-        setErrors(() => error.message);
+        setErrors(error.message);
       }
     },
-    [form, t, navigate, currentUser],
+    [t, navigate, currentUser],
   );
 
   const getSeqFromURL = () => {
@@ -93,10 +96,10 @@ const BoardViewContainer = () => {
   };
 
   const onChange = useCallback((e) => {
-    const target = e.currentTarget;
+    const { name, value } = e.target;
     setForm(
       produce((draft) => {
-        draft[target.name] = target.value;
+        draft[name] = value;
       }),
     );
   }, []);

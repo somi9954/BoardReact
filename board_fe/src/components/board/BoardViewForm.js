@@ -36,15 +36,12 @@ const BoardViewForm = ({
       </NavLink>
       <button>수정</button>
       <button>삭제</button>
-
       <form onSubmit={(e) => onSubmit(e, form)}>
-        {' '}
-        {/* 전체 폼 제출 */}
         <InputText
           type="text"
           name="content"
           onChange={onChange}
-          value={form?.content || ''}
+          value={form.content || ''}
           placeholder="댓글을 입력하세요."
         />
         <InputText
@@ -58,23 +55,24 @@ const BoardViewForm = ({
             type="text"
             name="guestPw"
             onChange={onChange}
-            value={form?.guestPw || ''}
+            value={form.guestPw || ''}
             placeholder="비회원 비밀번호"
+            readOnly={currentUser ? true : false}
           />
         )}
         <button type="submit">등록</button>
       </form>
-
-      <h3>댓글 목록</h3>
-      {Array.isArray(commentList) ? (
+      <h1>댓글 목록</h1>
+      {commentList && commentList.length > 0 ? (
         commentList.map((comment, index) => (
           <div key={index}>
             <p>{comment.content}</p>
             <p>{comment.poster}</p>
+            <p>{comment.createdAt}</p>
           </div>
         ))
       ) : (
-        <p>No comments available</p>
+        <p>댓글이 없습니다.</p>
       )}
     </div>
   );

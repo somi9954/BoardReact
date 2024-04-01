@@ -15,7 +15,6 @@ public class CommentForm {
     @NotBlank
     private String poster;
 
-    @Size(min=0)
     private String guestPw;
 
     @NotBlank
