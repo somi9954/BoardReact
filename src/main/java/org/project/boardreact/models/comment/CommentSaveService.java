@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.project.boardreact.api.controllers.comments.CommentForm;
 import org.project.boardreact.api.controllers.comments.CommentFormValidator;
 import org.project.boardreact.commons.MemberUtil;
-import org.project.boardreact.configs.jwt.CustomJwtFilter;
 import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.entities.CommentData;
 import org.project.boardreact.models.board.BoardDataNotFoundException;
@@ -59,10 +58,8 @@ public class CommentSaveService {
     }
 
     public void save(CommentData comment) {
-
         commentDataRepository.saveAndFlush(comment);
-
-        // 총 댓글 갯수 업데이트
+        // 게시글에 속한 댓글 갯수를 업데이트합니다.
         Long boardDataSeq = comment.getBoardData().getSeq();
         commentInfoService.updateCommentCnt(boardDataSeq);
     }

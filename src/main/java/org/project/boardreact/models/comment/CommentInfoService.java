@@ -65,8 +65,7 @@ public class CommentInfoService {
         List<CommentData> items = new JPAQueryFactory(em)
                 .selectFrom(commentData)
                 .where(commentData.boardData.seq.eq(boardDataSeq))
-                .leftJoin(commentData.member)
-                .fetchJoin()
+                .leftJoin(commentData.member).fetchJoin()
                 .orderBy(new OrderSpecifier(Order.ASC, pathBuilder.get("createdAt")))
                 .fetch();
 

@@ -4,9 +4,7 @@ export default function responseView(seq) {
   return new Promise((resolve, reject) => {
     apiRequest(`/board/view/${seq}`, 'GET')
       .then((res) => {
-        console.log(res.data); // 서버 응답 데이터 확인
         if (!res.data.success) {
-          console.error(res.data);
           reject(res.data);
         } else {
           // 서버 응답 데이터 전체를 resolve에 전달
