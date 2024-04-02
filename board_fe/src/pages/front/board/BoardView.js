@@ -12,7 +12,7 @@ const BoardView = () => {
         <title>{t('커뮤니티 글쓰기')}</title>
       </Helmet>
       <OuterBox>
-        <MainTitle color="#ff4910">{t('커뮤니티 글쓰기')}</MainTitle>
+        <MainTitle color="#ff4910">{t('VIEW')}</MainTitle>
         <BoardViewContainer />
       </OuterBox>
     </>

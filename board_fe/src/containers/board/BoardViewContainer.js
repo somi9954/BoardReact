@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import BoardViewForm from '../../components/board/BoardViewForm';
 import responseView from '../../api/board/boardView';
 import requestCommentWrite from '../../api/Comment/CommentWrite';
+import requestDelete from '../../api/board/boardDelete'; // import requestDelete
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getUserInfo } from '../../api/member/Login';
@@ -26,7 +27,6 @@ const BoardViewContainer = () => {
         if (seq !== undefined) {
           const responseData = await responseView(seq);
           setBoardData(responseData);
-
           const commentData = await responseList(seq);
           setCommentList(commentData);
         }
@@ -81,6 +81,9 @@ const BoardViewContainer = () => {
 
       try {
         await requestCommentWrite(postData);
+        // 댓글 추가 후에 새로 데이터를 불러오도록 수정
+        const commentData = await responseList(seq);
+        setCommentList(commentData);
         navigate(`/board/view/${seq}`, { replace: true });
       } catch (error) {
         console.error('Error adding comment:', error);
@@ -89,6 +92,17 @@ const BoardViewContainer = () => {
     },
     [t, navigate, currentUser],
   );
+
+  const onDelete = async () => {
+    const seq = getSeqFromURL();
+    try {
+      await requestDelete(seq);
+      navigate(`/board/list`, { replace: true });
+    } catch (error) {
+      console.error('Error deleting board:', error);
+      // 에러 처리
+    }
+  };
 
   const getSeqFromURL = () => {
     const parts = window.location.pathname.split('/');
@@ -108,6 +122,7 @@ const BoardViewContainer = () => {
     <BoardViewForm
       boardData={boardData}
       onSubmit={onSubmit}
+      onDelete={onDelete}
       form={form}
       onChange={onChange}
       currentUser={currentUser}
