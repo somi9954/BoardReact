@@ -58,6 +58,7 @@ public class CommentController {
         return ResponseEntity.ok(successResponse);
     }
 
+    @GetMapping("/list/{boardDataSeq}")
     public ResponseEntity<List<CommentData>> getComments(@PathVariable("boardDataSeq") Long boardDataSeq) {
         try {
             List<CommentData> commentData = infoService.getList(boardDataSeq);
