@@ -5,6 +5,9 @@ import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
 const BoardBox = styled.div`
+  button.sbtn3 {
+    border: none;
+  }
   p {
     text-align: left;
     padding: 8px;
@@ -197,7 +200,9 @@ const BoardViewForm = ({
           <NavLink to={`/board/update/${boardData.data.seq}`} className="sbtn3">
             {t('수정')}
           </NavLink>
-          <button onClick={onDelete}>삭제</button>
+          <button onClick={onDelete} className="sbtn3">
+            삭제
+          </button>
         </div>
       </div>
       <div className="comment">

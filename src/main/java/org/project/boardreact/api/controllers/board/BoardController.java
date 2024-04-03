@@ -81,7 +81,6 @@ public class BoardController {
         return ResponseEntity.status(data.getStatus()).body(data);
     }
 
-
     @PutMapping("/update/{seq}")
     public ResponseEntity<JSONData> update(@PathVariable("seq") Long seq , @RequestBody BoardForm form, Errors errors) {
         if (!infoService.isMine(seq)) {
@@ -101,7 +100,7 @@ public class BoardController {
 
 
         // 수정된 데이터전달
-        saveService.save(form, form.getBId()); // 클라이언트에서 전달한 폼 객체를 사용하여 저장
+        saveService.save(form, form.getBId());
         System.out.println("저장된 폼:" + form);
 
         JSONData data = new JSONData();

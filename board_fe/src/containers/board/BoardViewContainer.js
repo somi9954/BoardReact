@@ -12,6 +12,7 @@ import responseList from '../../api/Comment/CommentList';
 const BoardViewContainer = () => {
   const [boardData, setBoardData] = useState(null);
   const [commentList, setCommentList] = useState([]);
+  const [boardBid, setBoardBid] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -27,6 +28,7 @@ const BoardViewContainer = () => {
         if (seq !== undefined) {
           const responseData = await responseView(seq);
           setBoardData(responseData);
+          setBoardBid(responseData?.data?.board?.bid); // 게시판 bid 설정
           const commentData = await responseList(seq);
           setCommentList(commentData);
         }
@@ -94,13 +96,22 @@ const BoardViewContainer = () => {
   );
 
   const onDelete = async () => {
-    const seq = getSeqFromURL();
+    const seq = getSeqFromURL(); // 현재 페이지의 게시글 ID를 추출합니다.
     try {
+      const confirmed = window.confirm('정말 삭제하시겠습니까?');
+      if (!confirmed) return; // 사용자가 취소를 선택한 경우 삭제 중단
+
+      if (currentUser !== boardData?.data?.poster) {
+        alert('작성자만 삭제할 수 있습니다.');
+        return; // 작성자가 아닌 경우 삭제 중단
+      }
+
       await requestDelete(seq);
-      navigate(`/board/list`, { replace: true });
+      // 삭제가 성공하면, 해당 게시판 목록 페이지로 이동합니다.
+      navigate(`/board/list/${boardBid}`, { replace: true }); // 게시판 bid 사용
     } catch (error) {
-      console.error('Error deleting board:', error);
-      // 에러 처리
+      console.error('게시판 삭제 오류:', error);
+      // 오류 처리, 사용자에게 표시할 오류 상태를 설정할 수 있습니다.
     }
   };
 
