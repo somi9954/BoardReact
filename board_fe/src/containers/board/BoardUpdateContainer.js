@@ -3,18 +3,29 @@ import responseView from '../../api/board/boardView';
 import responseUpdate from '../../api/board/BoardUpdate';
 import BoardUpdateForm from '../../components/board/BoardUpdateForm';
 import { useNavigate } from 'react-router-dom';
+import { getUserInfo } from '../../api/member/Login';
 
 const BoardUpdateContainer = () => {
   const [boardData, setBoardData] = useState(null);
   const [form, setForm] = useState({});
+  const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
+  // URL에서 시퀀스 가져오는 함수
   const getSeqFromURL = () => {
     const parts = window.location.pathname.split('/');
     return parts[parts.length - 1];
   };
 
+  // 컴포넌트 마운트 시 사용자 정보 가져오기
+  useEffect(() => {
+    getUserInfo()
+      .then((userInfo) => setUserInfo(userInfo))
+      .catch((error) => console.error('사용자 정보 가져오기 오류:', error));
+  }, []);
+
+  // 컴포넌트 마운트 시 게시판 데이터 가져오기
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,6 +42,7 @@ const BoardUpdateContainer = () => {
     fetchData();
   }, []);
 
+  // boardData 변경 시 form 상태 업데이트
   useEffect(() => {
     if (boardData && boardData.board && boardData.board.category) {
       const categories = boardData.board.category.split('\n');
@@ -45,6 +57,7 @@ const BoardUpdateContainer = () => {
     }
   }, [boardData]);
 
+  // 폼 제출 핸들러
   const onSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -61,6 +74,7 @@ const BoardUpdateContainer = () => {
     [boardData, form, navigate],
   );
 
+  // 폼 입력 변경 핸들러
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((prevForm) => ({
@@ -69,6 +83,7 @@ const BoardUpdateContainer = () => {
     }));
   };
 
+  // 에디터 내용 변경 핸들러
   const handleEditorChange = useCallback((content) => {
     setForm((prevForm) => ({
       ...prevForm,
@@ -76,15 +91,21 @@ const BoardUpdateContainer = () => {
     }));
   }, []);
 
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div>
-      {boardData && (
+      {boardData && userInfo && (
         <BoardUpdateForm
           initialValues={boardData}
           form={form}
           onSubmit={onSubmit}
           onChange={onChange}
           handleEditorChange={handleEditorChange}
+          userInfo={userInfo}
+          handleGoBack={handleGoBack}
         />
       )}
     </div>
