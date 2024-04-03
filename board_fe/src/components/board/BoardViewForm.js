@@ -5,9 +5,10 @@ import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
 const BoardBox = styled.div`
-  button.sbtn3 {
+  button {
     border: none;
   }
+
   p {
     text-align: left;
     padding: 8px;
@@ -54,6 +55,10 @@ const BoardBox = styled.div`
       margin-right: 0;
     }
   }
+  .btngp2 {
+    text-align: right;
+    justify-items: end;
+  }
 
   .sbtn {
     color: #fff;
@@ -93,8 +98,15 @@ const BoardBox = styled.div`
     background: #78c2ad;
     border-radius: 5px;
     padding: 10px;
+    margin: 8px;
   }
 
+  .sbtn4 {
+    color: #fff;
+    background: #d94c90;
+    border-radius: 5px;
+    padding: 10px;
+  }
   .comment_box {
     margin-top: 50px;
     .List {
@@ -126,7 +138,7 @@ const CommentBox = styled.div`
 
   .pcontent {
     padding: 8px;
-    height: 100px;
+    height: 80px;
   }
 
   .comment-header {
@@ -159,6 +171,8 @@ const BoardViewForm = ({
   currentUser,
   commentList,
   onDelete,
+  onCommentDelete,
+  onCommentUpdate,
 }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
@@ -170,6 +184,13 @@ const BoardViewForm = ({
   if (loading || !boardData || !boardData.data) {
     return <div>Loading...</div>;
   }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      onSubmit(e, form);
+    }
+  };
 
   const { subject, createdAt, content, viewCnt, poster, modifiedAt } =
     boardData.data;
@@ -216,6 +237,7 @@ const BoardViewForm = ({
             name="content"
             className="comment_content"
             onChange={onChange}
+            onKeyDown={handleKeyDown}
             value={form.content || ''}
             placeholder="댓글을 입력하세요."
           />

@@ -48,7 +48,6 @@ const BoardUpdateForm = ({
 
   // 사용자가 업데이트를 허용하는지 확인하는 함수
   const isUserAllowedToUpdate = () => {
-    // userInfo에 'nickname' 필드가 있다고 가정합니다.
     return userInfo && form.poster === userInfo.nickname;
   };
 

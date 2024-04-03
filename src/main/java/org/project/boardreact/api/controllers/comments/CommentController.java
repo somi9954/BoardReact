@@ -27,11 +27,20 @@ public class CommentController {
     private final CommentInfoService infoService;
     private final Utils utils;
 
-    @GetMapping("/update/{seq}")
-    public ResponseEntity<CommentForm> updateComment(@PathVariable("seq") Long seq) {
+    @PutMapping("/update/{seq}")
+    public ResponseEntity<JSONData> updateComment(@PathVariable("seq") Long seq , Errors errors) {
         infoService.isMine(seq);
+
         CommentForm form = infoService.getForm(seq);
-        return ResponseEntity.ok(form);
+
+        saveService.save(form,errors);
+
+        System.out.println("저장된 폼:" + form);
+
+        JSONData data = new JSONData();
+        data.setStatus(HttpStatus.CREATED);
+
+        return ResponseEntity.status(data.getStatus()).body(data);
     }
 
     @PostMapping("/save")

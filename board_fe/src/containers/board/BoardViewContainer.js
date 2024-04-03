@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { getUserInfo } from '../../api/member/Login';
 import { produce } from 'immer';
 import responseList from '../../api/Comment/CommentList';
+import requestCommentDelete from '../../api/Comment/CommentDelete';
+import responseCommentUpdate from '../../api/Comment/CommentUpdate';
 
 const BoardViewContainer = () => {
   const [boardData, setBoardData] = useState(null);
@@ -30,7 +32,7 @@ const BoardViewContainer = () => {
           setBoardBid(responseData?.data?.board?.bid); // 게시판 bid 설정
           const commentData = await responseList(seq);
           setCommentList(commentData);
-          increaseViewCount(seq); // 조회수 증가 함수 호출
+          increaseViewCount(seq);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -83,9 +85,9 @@ const BoardViewContainer = () => {
 
       try {
         await requestCommentWrite(postData);
-        // 댓글 추가 후에 새로 데이터를 불러오도록 수정
         const commentData = await responseList(seq);
         setCommentList(commentData);
+        setForm((prevForm) => ({ ...prevForm, content: '' }));
         navigate(`/board/view/${seq}`, { replace: true });
       } catch (error) {
         console.error('Error adding comment:', error);
@@ -99,19 +101,39 @@ const BoardViewContainer = () => {
     const seq = getSeqFromURL(); // 현재 페이지의 게시글 ID를 추출합니다.
     try {
       const confirmed = window.confirm('정말 삭제하시겠습니까?');
-      if (!confirmed) return; // 사용자가 취소를 선택한 경우 삭제 중단
+      if (!confirmed) return;
 
       if (currentUser !== boardData?.data?.poster) {
         alert('작성자만 삭제할 수 있습니다.');
-        return; // 작성자가 아닌 경우 삭제 중단
+        return;
       }
 
       await requestDelete(seq);
-      // 삭제가 성공하면, 해당 게시판 목록 페이지로 이동합니다.
-      navigate(`/board/list/${boardBid}`, { replace: true }); // 게시판 bid 사용
+      navigate(`/board/list/${boardBid}`, { replace: true });
     } catch (error) {
       console.error('게시판 삭제 오류:', error);
-      // 오류 처리, 사용자에게 표시할 오류 상태를 설정할 수 있습니다.
+    }
+  };
+
+  const onCommentDelete = async (seq) => {
+    try {
+      const confirmed = window.confirm('정말 삭제하시겠습니까?');
+      if (!confirmed) return;
+
+      const isAuthor = commentList.some(
+        (comment) => currentUser === comment.poster,
+      );
+      if (!isAuthor) {
+        alert('작성자만 삭제할 수 있습니다.');
+        return;
+      }
+
+      await requestCommentDelete(seq);
+      const newCommentList = await responseList(getSeqFromURL());
+      setCommentList(newCommentList);
+      navigate(`/board/view/${boardData.data.seq}`, { replace: true });
+    } catch (error) {
+      console.error('댓글 삭제 오류:', error);
     }
   };
 
@@ -139,6 +161,28 @@ const BoardViewContainer = () => {
     );
   }, []);
 
+  const onKeyDownHandler = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // 엔터 키의 기본 동작을 중지합니다.
+      // 댓글을 등록하는 함수 호출
+      onSubmit(e, form);
+    }
+  };
+
+  const onCommentUpdate = async (seq, updatedContent) => {
+    try {
+      // 댓글 수정 API 호출
+      await responseCommentUpdate(seq, { content: updatedContent });
+      // 수정 후 댓글 목록을 다시 불러와서 갱신
+      const updatedCommentList = await responseList(getSeqFromURL());
+      setCommentList(updatedCommentList);
+      // 게시글 뷰 페이지로 이동
+      navigate(`/board/view/${boardData.data.seq}`, { replace: true });
+    } catch (error) {
+      console.error('댓글 수정 오류:', error);
+    }
+  };
+
   return (
     <BoardViewForm
       boardData={boardData}
@@ -148,6 +192,13 @@ const BoardViewContainer = () => {
       onChange={onChange}
       currentUser={currentUser}
       commentList={commentList}
+      onCommentDelete={onCommentDelete}
+      onKeyDownHandler={onKeyDownHandler}
+      onCommentUpdate={onCommentUpdate}
+      commentList={commentList.map((comment) => ({
+        ...comment,
+        onDelete: () => onCommentDelete(comment.seq), // 각 댓글에 삭제 함수 추가
+      }))}
     />
   );
 };

@@ -26,12 +26,10 @@ const BoardListContainer = () => {
           throw new Error(boardListRes.data.message);
         }
 
-        // 원본 데이터를 설정합니다.
         setOriginalBoardList({
           data: boardListRes.data.data,
         });
 
-        // 필요한 데이터를 추출하여 상태에 설정합니다.
         setBoardList({
           data: boardListRes.data.data,
         });
