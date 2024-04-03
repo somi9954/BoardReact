@@ -5,6 +5,7 @@ import requestWrite from '../../api/board/boardWrite';
 import apiRequest from '../../lib/apiRequest';
 import { getUserInfo } from '../../api/member/Login';
 import responseList from '../../api/board/BoardList';
+import responseUpdate from '../../api/board/BoardUpdate';
 
 const BoardWriteContainer = () => {
   const navigate = useNavigate();
@@ -71,9 +72,12 @@ const BoardWriteContainer = () => {
       if (!form.content || form.content.trim() === '') {
         throw new Error('내용을 입력하세요.');
       }
-      const formDataWithUser = { ...form, poster: user.nickname };
-      await requestWrite(formDataWithUser, bId);
-      fetchLatestSeqAndNavigate(); // 최신 글의 seq를 가져와서 해당 글로 이동
+      // 수정할 게시글의 시퀀스 번호
+      const seqToUpdate = form.seq;
+      // 게시글 수정 요청
+      await responseUpdate(seqToUpdate, form);
+      // 수정 요청이 성공하면 최신 글의 시퀀스를 가져와서 해당 글로 이동
+      fetchLatestSeqAndNavigate();
       // 폼 재설정
       setForm({});
       setErrors({});
