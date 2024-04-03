@@ -4,19 +4,44 @@ import BoardForm from '../../components/board/BoardForm';
 import requestWrite from '../../api/board/boardWrite';
 import apiRequest from '../../lib/apiRequest';
 import { getUserInfo } from '../../api/member/Login';
+import responseList from '../../api/board/BoardList';
 
 const BoardWriteContainer = () => {
   const navigate = useNavigate();
   const { bId } = useParams();
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState({ bId: bId });
   const [errors, setErrors] = useState({});
   const [categories, setCategories] = useState([]);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (bId) {
-      fetchBoardList(bId);
-    }
+    const fetchData = async () => {
+      try {
+        if (bId) {
+          const response = await apiRequest(
+            `/admin/board/list?bId=${bId}`,
+            'GET',
+          );
+          if (response.data && response.data.content) {
+            const filteredBoards = response.data.content.filter(
+              (board) => board.bid === bId,
+            );
+            const fetchedCategories = filteredBoards
+              .map((board) => board.category.split('\n'))
+              .flat();
+            setCategories(fetchedCategories);
+          } else {
+            throw new Error('Failed to fetch board list.');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching board list:', error);
+        setErrors({ message: error });
+      }
+    };
+
+    fetchData();
+
     getUserInfo()
       .then((loggedInUser) => {
         setUser(loggedInUser);
@@ -26,22 +51,15 @@ const BoardWriteContainer = () => {
       });
   }, [bId]);
 
-  const fetchBoardList = async (bId) => {
+  const fetchLatestSeqAndNavigate = async () => {
     try {
-      const response = await apiRequest(`/admin/board/list?bId=${bId}`, 'GET');
-      if (response.data && response.data.content) {
-        const filteredBoards = response.data.content.filter(
-          (board) => board.bid === bId,
-        );
-        const fetchedCategories = filteredBoards
-          .map((board) => board.category.split('\n'))
-          .flat();
-        setCategories(fetchedCategories);
-      } else {
-        throw new Error('Failed to fetch board list.');
-      }
+      const latestResponse = await responseList(bId); // 게시판의 최신 글 목록을 가져옴
+      console.log(latestResponse);
+      const latestSeq = latestResponse.data[0].seq; // 최신 글의 seq
+      console.log(latestSeq);
+      navigate(`/board/view/${latestSeq}`, { replace: true }); // 최신 게시글로 이동
     } catch (error) {
-      console.error('Error fetching board list:', error);
+      console.error('Error fetching latest seq and navigating:', error);
       setErrors({ message: error });
     }
   };
@@ -54,8 +72,8 @@ const BoardWriteContainer = () => {
         throw new Error('내용을 입력하세요.');
       }
       const formDataWithUser = { ...form, poster: user.nickname };
-      const data = await requestWrite(formDataWithUser, bId); // bId를 requestWrite로 전달
-      navigate(`/board/view/${data.seq}`, { replace: true });
+      await requestWrite(formDataWithUser, bId);
+      fetchLatestSeqAndNavigate(); // 최신 글의 seq를 가져와서 해당 글로 이동
       // 폼 재설정
       setForm({});
       setErrors({});
@@ -86,7 +104,7 @@ const BoardWriteContainer = () => {
     <BoardForm
       onSubmit={onSubmit}
       onChange={handleChange}
-      form={{ ...form, bId: bId }}
+      form={form}
       categories={categories}
       handleEditorChange={handleEditorChange}
       user={user}

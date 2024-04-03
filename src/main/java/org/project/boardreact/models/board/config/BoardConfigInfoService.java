@@ -43,7 +43,7 @@ public class BoardConfigInfoService {
 
         Optional<Board> optionalBoard = repository.findById(bId);
         if (optionalBoard.isEmpty()) {
-            throw new BoardNotFoundException(); // 해당 ID에 해당하는 게시판이 없는 경우 예외 처리
+            throw new BoardNotFoundException();
         }
 
         Board data = optionalBoard.get();

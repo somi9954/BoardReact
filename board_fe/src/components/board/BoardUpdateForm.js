@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { InputText } from '../commons/InputStyle';
-import { ButtonGroup, BigButton } from '../commons/ButtonStyle';
-import sizeNames from '../../styles/sizes';
-import styled from 'styled-components';
 import EditorBox from '../commons/EditorBox';
-import ErrorMessages from '../commons/ErrorMessages';
+import { BigButton, ButtonGroup } from '../commons/ButtonStyle';
+import styled from 'styled-components';
+import sizeNames from '../../styles/sizes';
 
 const { medium } = sizeNames;
 
@@ -29,57 +28,39 @@ const FormBox = styled.form`
   dl:last-of-type {
     margin-bottom: 15px;
   }
+  .category {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+  }
 `;
 
-const BoardForm = ({
+const BoardUpdateForm = ({
+  initialValues,
+  form,
   onSubmit,
   onChange,
-  form,
-  errors,
-  categories,
-  user,
-  showPasswordField,
-  bId,
   handleEditorChange,
 }) => {
   const { t } = useTranslation();
 
-  const content = form.content || '';
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.content || form.content.trim() === '') {
-      onChange({
-        ...form,
-        errors: {
-          ...errors,
-          content: '내용을 입력하세요.',
-        },
-      });
-      return;
-    }
-    console.log('Form submitted!');
-    onSubmit(e);
-  };
-
   return (
-    <FormBox onSubmit={handleSubmit}>
-      <input type="hidden" name="bId" value={bId} /> {/* bId 추가 */}
+    <FormBox onSubmit={onSubmit}>
       <dl>
         <dt>{t('분류')}</dt>
-        <dd>
-          {categories.map((category, index) => (
-            <span key={index} style={{ marginRight: '10px' }}>
+        <dd className="category">
+          {initialValues.board.category.split('\n').map((cat, index) => (
+            <div key={index} style={{ marginRight: '10px' }}>
               <input
                 type="radio"
-                id={`category-${index}`}
+                id={cat}
                 name="category"
-                value={category}
-                checked={form.category === category}
+                value={cat}
+                checked={form.category === cat}
                 onChange={onChange}
               />
-              <label htmlFor={`category-${index}`}>{category}</label>
-            </span>
+              <label htmlFor={cat}>{cat}</label>
+            </div>
           ))}
         </dd>
       </dl>
@@ -92,7 +73,6 @@ const BoardForm = ({
             value={form.subject || ''}
             onChange={onChange}
           />
-          <ErrorMessages errors={errors} field="subject" />
         </dd>
       </dl>
       <dl>
@@ -100,14 +80,14 @@ const BoardForm = ({
         <dd>
           <InputText
             type="text"
+            id="poster"
             name="poster"
-            value={user ? user.nickname : form.poster || ''}
+            value={form.poster || ''}
             onChange={onChange}
-            readOnly={user ? true : false}
           />
         </dd>
       </dl>
-      {showPasswordField && (
+      {initialValues.board.member && (
         <dl>
           <dt>{t('비밀번호')}</dt>
           <dd>
@@ -125,10 +105,9 @@ const BoardForm = ({
         <dt>{t('내용')}</dt>
         <dd>
           <EditorBox
-            content={form.content}
+            content={form.content || ''}
             onEditorChange={handleEditorChange}
           />
-          <ErrorMessages errors={errors} field="content" />{' '}
         </dd>
       </dl>
       <ButtonGroup>
@@ -156,4 +135,4 @@ const BoardForm = ({
   );
 };
 
-export default React.memo(BoardForm);
+export default BoardUpdateForm;

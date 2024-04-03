@@ -6,7 +6,7 @@ import lombok.Data;
 public class BoardDataSearch {
     private String bId;
     private int page = 1;
-    private int limit = 20;
+    private int limit = 400;
 
     private String category;
     private String sopt;

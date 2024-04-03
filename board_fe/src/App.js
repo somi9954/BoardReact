@@ -14,14 +14,14 @@ import Logout from './pages/front/member/Logout';
 import Mypage from './pages/front/member/Mypage';
 import BoardWrite from './pages/front/board/BoardWrite';
 import BoardList from './pages/front/board/BoardList';
-import boardView from './pages/front/board/BoardView';
+import BoardView from './pages/front/board/BoardView';
+import BoardUpdate from './pages/front/board/BoardUpdate';
 
 /* 관리자 페이지 */
 import AdminMain from './pages/admin/Main';
 import AdminConfig from './pages/admin/Config';
 import AdminBoardWrite from './pages/admin/AdminBoardWrite';
 import AdminBoardChange from './pages/admin/AdminBoardChange';
-import BoardView from './pages/front/board/BoardView';
 
 const App = () => {
   const {
@@ -41,6 +41,7 @@ const App = () => {
         <Route path="/board/write/:bId" element={<BoardWrite />} />
         <Route path="/board/list/:bId" element={<BoardList />} />
         <Route path="/board/view/:seq" element={<BoardView />} />
+        <Route path="/board/update/:seq" element={<BoardUpdate />} />
       </Route>
 
       {/* 관리자 페이지 */}

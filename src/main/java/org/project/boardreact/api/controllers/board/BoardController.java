@@ -11,13 +11,12 @@ import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.commons.rests.JSONData;
 import org.project.boardreact.entities.Board;
 import org.project.boardreact.entities.BoardData;
-import org.project.boardreact.entities.FileInfo;
 import org.project.boardreact.models.board.*;
 import org.project.boardreact.models.board.config.BoardConfigInfoService;
 import org.project.boardreact.models.board.config.BoardNotFoundException;
 import org.project.boardreact.models.comment.CommentInfoService;
 import org.project.boardreact.models.comment.CommentNotFoundException;
-import org.project.boardreact.models.file.FileInfoService;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -39,7 +38,6 @@ public class BoardController {
     private final BoardSaveService saveService;
     private final BoardConfigInfoService configInfoService;
     private final CommentInfoService commentInfoService;
-    private final FileInfoService fileInfoService;
     private final HttpSession session;
     private  BoardData boardData;
 
@@ -66,7 +64,7 @@ public class BoardController {
         if (errors.hasErrors()) {
             // 유효성 검사 오류 메시지 생성
             String errorMessage = errors.getAllErrors().stream()
-                    .map(error -> error.getDefaultMessage())
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             // BadRequestException으로 예외 처리
             throw new BadRequestException(errorMessage);
@@ -75,29 +73,41 @@ public class BoardController {
         saveService.save(form, bId);
 
 
-        saveService.save(form, errors, bId);
-
         JSONData data = new JSONData();
         data.setStatus(HttpStatus.CREATED);
+        data.addData(bId);
+        data.addData(bId);
 
         return ResponseEntity.status(data.getStatus()).body(data);
     }
 
 
-    @GetMapping("/update/{seq}")
-    public ResponseEntity<JSONData> update(@PathVariable("seq") Long seq) {
+    @PutMapping("/update/{seq}")
+    public ResponseEntity<JSONData> update(@PathVariable("seq") Long seq , @RequestBody BoardForm form, Errors errors) {
         if (!infoService.isMine(seq)) {
             throw new BadRequestException("작성한 게시글만 수정할 수 있습니다.");
         }
 
-        BoardForm form = infoService.getForm(seq);
+        if (errors.hasErrors()) {
+            // 유효성 검사 오류 메시지 생성
+            String errorMessage = errors.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            // BadRequestException으로 예외 처리
+            throw new BadRequestException(errorMessage);
+        }
+
+        form = infoService.getForm(seq);
+
+
+        // 수정된 데이터전달
+        saveService.save(form, form.getBId()); // 클라이언트에서 전달한 폼 객체를 사용하여 저장
+        System.out.println("저장된 폼:" + form);
 
         JSONData data = new JSONData();
-        data.setStatus(HttpStatus.OK);
-        data.setMessage("성공");
-        data.setData(form);
+        data.setStatus(HttpStatus.CREATED);
 
-        return ResponseEntity.ok(data);
+        return ResponseEntity.status(data.getStatus()).body(data);
     }
 
     @PostMapping("/save")
@@ -150,35 +160,34 @@ public class BoardController {
     }
 
     @DeleteMapping("/delete/{seq}")
-    public ResponseEntity delete(@PathVariable Long seq) {
-        try {
-            BoardData data = infoService.get(seq);
-            if (data == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-
-            deleteService.delete(seq);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    public ResponseEntity<JSONData> delete(@PathVariable("seq") Long seq) {
+        if (!infoService.isMine(seq)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new JSONData("작성한 게시글만 삭제할 수 있습니다."));
         }
+
+        deleteService.delete(seq);
+
+        JSONData responseData = new JSONData();
+        responseData.setMessage("게시글이 성공적으로 삭제되었습니다.");
+        return ResponseEntity.ok().body(responseData);
     }
 
     @GetMapping("/list/{bId}")
     public JSONData<List<BoardData>> list(@PathVariable("bId") String bId, BoardDataSearch search) {
         search.setBId(bId);
-        System.out.println("Received request for board list with bId: " + bId); // 요청된 게시판 ID 출력
+        System.out.println("Received request for board list with bId: " + bId);
 
-        // Adjusting page and limit
+
         int page = search.getPage();
         int limit = search.getLimit();
-        System.out.println("Requested page: " + page); // 요청된 페이지 출력
-        System.out.println("Requested limit: " + limit); // 요청된 한 페이지 당 아이템 개수 출력
+        System.out.println("Requested page: " + page);
+        System.out.println("Requested limit: " + limit);
 
-        // Get board list data from service
+
         ListData<BoardData> boardList = infoService.getList(search);
 
-        // Convert the retrieved data into JSON format
+
         JSONData<List<BoardData>> jsonData = new JSONData<>();
 
         if (boardList != null) {

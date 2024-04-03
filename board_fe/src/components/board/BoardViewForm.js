@@ -85,6 +85,13 @@ const BoardBox = styled.div`
     float: right;
   }
 
+  .sbtn3 {
+    color: #fff;
+    background: #78c2ad;
+    border-radius: 5px;
+    padding: 10px;
+  }
+
   .comment_box {
     margin-top: 50px;
     .List {
@@ -187,7 +194,9 @@ const BoardViewForm = ({
           >
             {t('목록')}
           </NavLink>
-          <button>수정</button>
+          <NavLink to={`/board/update/${boardData.data.seq}`} className="sbtn3">
+            {t('수정')}
+          </NavLink>
           <button onClick={onDelete}>삭제</button>
         </div>
       </div>

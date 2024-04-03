@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import BoardViewForm from '../../components/board/BoardViewForm';
 import responseView from '../../api/board/boardView';
 import requestCommentWrite from '../../api/Comment/CommentWrite';
-import requestDelete from '../../api/board/boardDelete'; // import requestDelete
+import requestDelete from '../../api/board/boardDelete';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getUserInfo } from '../../api/member/Login';

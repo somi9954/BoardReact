@@ -2,6 +2,7 @@ package org.project.boardreact.api.controllers.board;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.entities.FileInfo;
 
 import java.util.List;
@@ -33,4 +34,14 @@ public class BoardForm {
 
     private String guestPw;
 
+    public void updateBoardData(BoardData data) {
+        if (data != null) {
+            data.setSubject(this.subject);
+            data.setContent(this.content);
+            data.setPoster(this.poster);
+            data.setCategory(this.category);
+            data.setNotice(this.notice);
+            data.setGuestPw(this.guestPw);
+        }
+    }
 }
