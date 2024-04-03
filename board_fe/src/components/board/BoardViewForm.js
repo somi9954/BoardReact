@@ -171,7 +171,8 @@ const BoardViewForm = ({
     return <div>Loading...</div>;
   }
 
-  const { subject, createdAt, content, viewCnt, poster } = boardData.data;
+  const { subject, createdAt, content, viewCnt, poster, modifiedAt } =
+    boardData.data;
 
   return (
     <BoardBox>
@@ -183,6 +184,9 @@ const BoardViewForm = ({
           </p>
           <p className="info">
             <strong>작성일:</strong> {formatDate(createdAt)}
+          </p>
+          <p className="info">
+            <strong>수정일:</strong> {formatDate(modifiedAt)}
           </p>
         </div>
         <p className="viewCnt">

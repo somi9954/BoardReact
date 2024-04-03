@@ -34,6 +34,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.project.boardreact.entities.FileInfo;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -77,6 +78,8 @@ public class BoardInfoService {
      *
      * @param seq
      */
+
+    @Transactional
     public void updateView(Long seq) {
         // 조회 기록 추가
         try {
@@ -91,11 +94,15 @@ public class BoardInfoService {
         QBoardView boardView = QBoardView.boardView;
         long cnt = boardViewRepository.count(boardView.seq.eq(seq));
 
+        // 조회수 업데이트 확인을 위한 로그
+        System.out.println("View count updated for seq: " + seq + ", New count: " + cnt);
+
         // 게시글 데이터에 업데이트(viewCnt)
         BoardData data = boardDataRepository.findById(seq).orElse(null);
         if (data == null) return;
 
         data.setViewCnt((int)cnt);
+        System.out.println("new count" + cnt);
         boardDataRepository.flush();
     }
 

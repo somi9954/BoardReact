@@ -24,13 +24,13 @@ const BoardViewContainer = () => {
     const fetchData = async () => {
       try {
         const seq = getSeqFromURL();
-        console.log('seq', seq);
         if (seq !== undefined) {
           const responseData = await responseView(seq);
           setBoardData(responseData);
           setBoardBid(responseData?.data?.board?.bid); // 게시판 bid 설정
           const commentData = await responseList(seq);
           setCommentList(commentData);
+          increaseViewCount(seq); // 조회수 증가 함수 호출
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -112,6 +112,16 @@ const BoardViewContainer = () => {
     } catch (error) {
       console.error('게시판 삭제 오류:', error);
       // 오류 처리, 사용자에게 표시할 오류 상태를 설정할 수 있습니다.
+    }
+  };
+
+  const increaseViewCount = async (seq) => {
+    try {
+      await fetch(`/board/view/${seq}`, {
+        method: 'GET',
+      });
+    } catch (error) {
+      console.error('Error increasing view count:', error);
     }
   };
 

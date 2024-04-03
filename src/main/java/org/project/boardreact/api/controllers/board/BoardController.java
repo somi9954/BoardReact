@@ -142,8 +142,9 @@ public class BoardController {
 
     @GetMapping("/view/{seq}")
     public ResponseEntity<JSONData> view(@PathVariable("seq") Long seq, BoardDataSearch search) {
+
+        // 게시글 조회수 업데이트
         infoService.updateView(seq);
-        System.out.println("seq:" + seq);
 
         BoardData data = infoService.get(seq);
         boardData = data;
