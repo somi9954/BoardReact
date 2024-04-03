@@ -280,6 +280,15 @@ const BoardViewForm = ({
                 <span>{formatDate(comment.createdAt)}</span>
               </p>
               <p className="pcontent">{comment.content}</p>
+              <div className="btngp2">
+                <button className="sbtn4">수정</button>
+                <button
+                  onClick={() => onCommentDelete(comment.seq)}
+                  className="sbtn3"
+                >
+                  삭제
+                </button>
+              </div>
             </div>
           ))
         ) : (
