@@ -3,11 +3,14 @@ package org.project.boardreact.models.board;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.project.boardreact.entities.BoardData;
+import org.project.boardreact.entities.CommentData;
 import org.project.boardreact.models.comment.CommentDeleteService;
 import org.project.boardreact.models.file.FileDeleteService;
 import org.project.boardreact.repositories.BoardDataRepository;
 import org.project.boardreact.repositories.CommentDataRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -15,7 +18,6 @@ import org.springframework.stereotype.Service;
 public class BoardDeleteService {
     private final BoardInfoService infoService;
     private final BoardDataRepository repository;
-    private final FileDeleteService fileDeleteService;
     private final CommentDeleteService commentDeleteService;
     private final CommentDataRepository commentDataRepository;
 
@@ -23,16 +25,14 @@ public class BoardDeleteService {
         BoardData data = infoService.get(seq);
         String gid = data.getGid();
 
-        // 해당 게시글의 댓글을 조회하여 댓글이 있는지 확인
-        boolean hasComments = !commentDataRepository.findById(seq).isEmpty();
 
-        // 댓글이 있는 경우에만 댓글 삭제
-        if (hasComments) {
-            commentDeleteService.delete(seq);
+
+        // 게시글에 연결된 모든 댓글을 가져와 삭제합니다.
+        List<CommentData> comments = commentDataRepository.findAllByBoardData(data);
+        for (CommentData comment : comments) {
+            commentDeleteService.delete(comment.getSeq());
         }
 
-        // 파일 삭제
-        fileDeleteService.deleteByGid(gid);
 
         // 게시글 삭제
         repository.delete(data);

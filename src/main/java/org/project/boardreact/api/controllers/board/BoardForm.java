@@ -5,6 +5,7 @@ import lombok.Data;
 import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.entities.FileInfo;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,15 +34,4 @@ public class BoardForm {
     private boolean notice;
 
     private String guestPw;
-
-    public void updateBoardData(BoardData data) {
-        if (data != null) {
-            data.setSubject(this.subject);
-            data.setContent(this.content);
-            data.setPoster(this.poster);
-            data.setCategory(this.category);
-            data.setNotice(this.notice);
-            data.setGuestPw(this.guestPw);
-        }
-    }
 }

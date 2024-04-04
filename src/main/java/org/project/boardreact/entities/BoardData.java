@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Entity

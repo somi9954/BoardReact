@@ -138,16 +138,17 @@ const BoardListForm = ({
     }
   }, [boardData]);
 
+  const getSeqFromURL = () => {
+    const parts = window.location.pathname.split('/');
+    return parts[parts.length - 1];
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
 
   if (error) {
     return <div>Error: {error}</div>;
-  }
-
-  if (!boardData || boardData.data.length === 0) {
-    return <div>No data available.</div>;
   }
 
   const handlePageChange = (pageNumber) => {
@@ -160,10 +161,7 @@ const BoardListForm = ({
 
   return (
     <Container>
-      <NavLink
-        to={`/board/write/${boardData.data[0].board.bid}`}
-        className="sbtn"
-      >
+      <NavLink to={`/board/write/${getSeqFromURL()}`} className="sbtn">
         {t('글쓰기')}
       </NavLink>
       <select name="sopt" value={sortBy} onChange={handleSortChange}>
@@ -180,21 +178,31 @@ const BoardListForm = ({
             <th width="200">{t('등록일')}</th>
             <th width="70">{t('조회수')}</th>
           </tr>
-        </thead>
-        <tbody>
-          {boardData.data.slice(startIndex, endIndex).map((item, index) => (
-            <tr key={startIndex + index}>
-              <td>{boardData.data.length - (startIndex + index)}</td>
-              {/* 제목을 클릭하여 해당 게시물로 이동하는 링크 */}
-              <td>
-                <NavLink to={`/board/view/${item.seq}`}>{item.subject}</NavLink>
-              </td>
-              <td>{item.poster}</td>
-              <td>{item.createdAt}</td>
-              <td>{item.viewCnt}</td>
+        </thead>{' '}
+        {(!boardData || boardData.data.length === 0) && (
+          <tbody>
+            <tr>
+              <td colSpan="5">데이터가 없습니다.</td>
             </tr>
-          ))}
-        </tbody>
+          </tbody>
+        )}
+        {boardData.data.length > 0 && (
+          <tbody>
+            {boardData.data.slice(startIndex, endIndex).map((item, index) => (
+              <tr key={startIndex + index}>
+                <td>{boardData.data.length - (startIndex + index)}</td>
+                <td>
+                  <NavLink to={`/board/view/${item.seq}`}>
+                    {item.subject}
+                  </NavLink>
+                </td>
+                <td>{item.poster}</td>
+                <td>{item.createdAt}</td>
+                <td>{item.viewCnt}</td>
+              </tr>
+            ))}
+          </tbody>
+        )}
       </table>
       <Paging
         className="paging"
@@ -203,7 +211,6 @@ const BoardListForm = ({
         setPage={handlePageChange}
         initialPage={page}
       />
-      {/* 검색 옵션 */}
       <div className="table-cols">
         <div className="search">
           <div className="input_grp">
