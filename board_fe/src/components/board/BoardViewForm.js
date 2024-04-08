@@ -3,6 +3,7 @@ import { InputText } from '../commons/InputStyle';
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import Paging from '../commons/Paging';
 
 const BoardBox = styled.div`
   button {
@@ -175,14 +176,27 @@ const BoardViewForm = ({
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [editedComment, setEditedComment] = useState(null);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (commentList) {
+      const totalCount = commentList.length;
+      setPage((prevPage) => Math.min(prevPage, Math.ceil(totalCount / 10)));
+    }
+  }, [commentList]);
+
   if (loading || !boardData || !boardData.data) {
     return <div>Loading...</div>;
   }
+
+  const itemsPerPage = 10;
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, commentList.length);
+  console.log('endIndex', endIndex);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -201,6 +215,10 @@ const BoardViewForm = ({
 
   const handleCancelEdit = () => {
     setEditedComment(null);
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber);
   };
 
   // 수정 폼에서 수정된 내용을 저장하는 함수가 호출되도록 수정합니다.
@@ -287,7 +305,7 @@ const BoardViewForm = ({
           </p>
         </div>
         {commentList && commentList.length > 0 ? (
-          commentList.map((comment, index) => (
+          commentList.slice(startIndex, endIndex).map((comment, index) => (
             <div key={index} className="List">
               <p className="plist">
                 <span>{comment.poster}</span>
@@ -350,6 +368,13 @@ const BoardViewForm = ({
         ) : (
           <p>댓글이 없습니다.</p>
         )}
+        <Paging
+          className="paging"
+          page={page}
+          count={commentList.length}
+          setPage={handlePageChange}
+          initialPage={page}
+        />
       </CommentBox>
     </BoardBox>
   );

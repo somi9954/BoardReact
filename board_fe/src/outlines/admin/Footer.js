@@ -1,9 +1,5 @@
-import React from 'react';
-
 const Footer = () => {
-  return (
-      <h1 align="center">푸터</h1>
-  );
+  return <h4 align="center">ⓒ 2024 SOMICHO All Rights Reserved. </h4>;
 };
 
 export default Footer;

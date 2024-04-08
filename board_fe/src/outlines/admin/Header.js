@@ -35,7 +35,7 @@ const OuterBox = styled.header`
       color: ${({ scroll }) => (scroll === 'true' ? '#fff' : info)};
       text-decoration: none;
       transition: color 0.3s;
-      margin-left: 300px;
+      margin-left: 470px;
     }
   }
 
@@ -107,6 +107,12 @@ const Header = () => {
               {t('로그아웃')}
             </NavLink>
             <NavLink
+              to="/board/list/freetalk"
+              className={({ isActive }) => classNames({ on: isActive })}
+            >
+              {t('커뮤니티')}
+            </NavLink>
+            <NavLink
               to="/mypage"
               className={({ isActive }) => classNames({ on: isActive })}
             >
@@ -123,6 +129,12 @@ const Header = () => {
           </>
         ) : (
           <>
+            <NavLink
+              to="/board/list/freetalk"
+              className={({ isActive }) => classNames({ on: isActive })}
+            >
+              {t('커뮤니티')}
+            </NavLink>
             <NavLink
               to="/login"
               className={({ isActive }) => classNames({ on: isActive })}
