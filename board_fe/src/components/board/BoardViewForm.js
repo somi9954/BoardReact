@@ -176,6 +176,7 @@ const BoardViewForm = ({
 }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
+  const [editedComment, setEditedComment] = useState(null);
 
   useEffect(() => {
     setLoading(false);
@@ -188,8 +189,26 @@ const BoardViewForm = ({
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      onSubmit(e, form);
+      if (editedComment) {
+        handleUpdateComment(editedComment);
+      } else {
+        onSubmit(e, form);
+      }
     }
+  };
+
+  const handleEditComment = (comment) => {
+    setEditedComment(comment);
+  };
+
+  const handleCancelEdit = () => {
+    setEditedComment(null);
+  };
+
+  // 수정 폼에서 수정된 내용을 저장하는 함수가 호출되도록 수정합니다.
+  const handleUpdateComment = (comment) => {
+    onCommentUpdate(comment); // 수정된 내용을 저장하는 함수 호출
+    setEditedComment(null); // 수정 상태 초기화
   };
 
   const { subject, createdAt, content, viewCnt, poster, modifiedAt } =
@@ -277,18 +296,60 @@ const BoardViewForm = ({
             <div key={index} className="List">
               <p className="plist">
                 <span>{comment.poster}</span>
-                <span>{formatDate(comment.createdAt)}</span>
+                {comment.modifiedAt && (
+                  <span>{formatDate(comment.modifiedAt)}</span>
+                )}
+                {!comment.modifiedAt && (
+                  <span>{formatDate(comment.createdAt)}</span>
+                )}
               </p>
-              <p className="pcontent">{comment.content}</p>
-              <div className="btngp2">
-                <button className="sbtn4">수정</button>
-                <button
-                  onClick={() => onCommentDelete(comment.seq)}
-                  className="sbtn3"
-                >
-                  삭제
-                </button>
-              </div>
+              {editedComment && editedComment.seq === comment.seq ? (
+                <div>
+                  <textarea
+                    type="text"
+                    name="content"
+                    className="comment_content"
+                    onChange={(e) =>
+                      setEditedComment({
+                        ...editedComment,
+                        content: e.target.value,
+                      })
+                    }
+                    value={editedComment.content || ''}
+                    onKeyDown={handleKeyDown}
+                    placeholder="댓글을 입력하세요."
+                  />
+                  <div className="btngp2">
+                    <button
+                      onClick={() => handleUpdateComment(editedComment)}
+                      className="sbtn4"
+                    >
+                      저장
+                    </button>
+                    <button onClick={handleCancelEdit} className="sbtn3">
+                      취소
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <p className="pcontent">{comment.content}</p>
+                  <div className="btngp2">
+                    <button
+                      onClick={() => handleEditComment(comment)}
+                      className="sbtn4"
+                    >
+                      수정
+                    </button>
+                    <button
+                      onClick={() => onCommentDelete(comment.seq)}
+                      className="sbtn3"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))
         ) : (

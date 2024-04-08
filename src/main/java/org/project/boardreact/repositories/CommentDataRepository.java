@@ -28,5 +28,8 @@ public interface CommentDataRepository extends JpaRepository<CommentData, Long>,
      * @return 해당 게시글에 속하는 모든 댓글 목록
      */
     List<CommentData> findAllByBoardData(BoardData boardData);
+
+    // 해당 게시글 ID에 대한 댓글 수를 반환하는 메서드
+    long countByBoardDataSeq(Long boardDataSeq);
 }
 

@@ -20,6 +20,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -76,13 +77,12 @@ public class BoardController {
         JSONData data = new JSONData();
         data.setStatus(HttpStatus.CREATED);
         data.addData(bId);
-        data.addData(bId);
 
         return ResponseEntity.status(data.getStatus()).body(data);
     }
 
     @PutMapping("/update/{seq}")
-    public ResponseEntity<JSONData> update(@PathVariable("seq") Long seq , @RequestBody BoardForm form, Errors errors) {
+    public ResponseEntity<JSONData> update(@PathVariable("seq") Long seq , @RequestBody BoardUpdateForm form, Errors errors) {
         if (!infoService.isMine(seq)) {
             throw new BadRequestException("작성한 게시글만 수정할 수 있습니다.");
         }
@@ -96,11 +96,14 @@ public class BoardController {
             throw new BadRequestException(errorMessage);
         }
 
-        form = infoService.getForm(seq);
+        BoardForm boardForm = infoService.getForm(seq);
+        System.out.println("수정 전:" +  seq);
 
+        // 클라이언트가 보낸 요청의 컨텐츠를 확인하여 올바른 데이터가 포함되어 있는지 확인합니다.
+        System.out.println("BoardForm received from client: " + form.toString());
 
         // 수정된 데이터전달
-        saveService.save(form, form.getBId());
+        saveService.save(form, boardForm.getBId());
         System.out.println("저장된 폼:" + form);
 
         JSONData data = new JSONData();
@@ -123,17 +126,15 @@ public class BoardController {
             }
         }
 
-        // 유효성 검사 결과 확인
+
         if (errors.hasErrors()) {
-            // 유효성 검사 오류 메시지 생성
             String message = errors.getFieldErrors().stream()
                     .map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(","));
-            // BadRequestException으로 예외 처리
             throw new BadRequestException(message);
         }
 
-        saveService.save(form,bId); // 유효성 검사를 통과한 경우에만 저장
+        saveService.save(form,bId);
 
         JSONData data = new JSONData();
         data.setStatus(HttpStatus.OK);
@@ -146,15 +147,20 @@ public class BoardController {
         // 게시글 조회수 업데이트
         infoService.updateView(seq);
 
+        // 댓글 수 업데이트
+        commentInfoService.updateCommentCnt(seq);
+
+        // 게시글 및 댓글 수 조회
         BoardData data = infoService.get(seq);
-        boardData = data;
+        Long commentCount = (long) data.getCommentCnt(seq);
 
-        String bId = data.getBoard().getBId();
-        JSONData<BoardData> responseData = new JSONData<>(data); // JSONData 객체를 생성하면서 data를 설정
 
-        // 추가 데이터를 dataList에 추가
+        JSONData<BoardData> responseData = new JSONData<>(data);
+        responseData.addData("commentCount", commentCount);
+
+
         responseData.addData(infoService.getList(search).getContent());
-        responseData.addData(commonProcess(bId, "view"));
+        responseData.addData(commonProcess(data.getBoard().getBId(), "view"));
 
         return ResponseEntity.ok(responseData);
     }
@@ -186,7 +192,7 @@ public class BoardController {
 
 
         ListData<BoardData> boardList = infoService.getList(search);
-
+        System.out.println("boardList" + boardList);
 
         JSONData<List<BoardData>> jsonData = new JSONData<>();
 
@@ -197,6 +203,7 @@ public class BoardController {
             // 서비스에서 가져온 게시판 데이터가 올바른지 확인하기 위해 각 게시물의 bId를 출력합니다.
             for (BoardData boardData : boardList.getContent()) {
                 System.out.println("Board ID of the retrieved data: " + boardData.getBoard().getBId());
+                commentInfoService.updateCommentCnt(boardData.getSeq());
             }
         } else {
             System.out.println("Board List Data is null");
@@ -301,7 +308,6 @@ public class BoardController {
         responseData.addData("categories", categories);
         responseData.addData("pageTitle", pageTitle);
         responseData.addData("addCommonScript", addCommonScript);
-        responseData.addData("addScript", addScript);
 
 
         return ResponseEntity.ok(responseData);

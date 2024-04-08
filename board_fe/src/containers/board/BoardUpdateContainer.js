@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import responseView from '../../api/board/boardView';
 import responseUpdate from '../../api/board/BoardUpdate';
-import BoardUpdateForm from '../../components/board/BoardUpdateForm';
 import { useNavigate } from 'react-router-dom';
 import { getUserInfo } from '../../api/member/Login';
+import BoardUpdateForm from '../../components/board/BoardUpdateForm';
 
 const BoardUpdateContainer = () => {
   const [boardData, setBoardData] = useState(null);
@@ -68,6 +68,7 @@ const BoardUpdateContainer = () => {
         navigate(`/board/view/${seq}`, { replace: true });
       } catch (error) {
         console.error('데이터 업데이트 오류:', error);
+        // 오류 발생 시 오류 메시지를 사용자에게 표시
         setErrors(() => error.message);
       }
     },

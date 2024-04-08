@@ -179,13 +179,7 @@ const BoardListForm = ({
             <th width="70">{t('조회수')}</th>
           </tr>
         </thead>{' '}
-        {(!boardData || boardData.data.length === 0) && (
-          <tbody>
-            <tr>
-              <td colSpan="5">데이터가 없습니다.</td>
-            </tr>
-          </tbody>
-        )}
+        {boardData.data.length === 0 && <td colSpan="5">데이터가 없습니다.</td>}
         {boardData.data.length > 0 && (
           <tbody>
             {boardData.data.slice(startIndex, endIndex).map((item, index) => (
@@ -193,7 +187,10 @@ const BoardListForm = ({
                 <td>{boardData.data.length - (startIndex + index)}</td>
                 <td>
                   <NavLink to={`/board/view/${item.seq}`}>
-                    {item.subject}
+                    {item.subject}{' '}
+                    <strong style={{ marginLeft: '1px' }}>
+                      [{item.commentCnt}]
+                    </strong>
                   </NavLink>
                 </td>
                 <td>{item.poster}</td>

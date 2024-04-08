@@ -78,10 +78,26 @@ public class CommentInfoService {
      * @param seq
      */
     public void updateCommentCnt(Long seq) {
+        // 게시글 조회
         BoardData boardData = boardDataRepository.findById(seq).orElseThrow(BoardDataNotFoundException::new);
-        boardData.setCommentCnt(commentDataRepository.getTotal(seq));
 
+        // 게시글 정보 출력
+        System.out.println("BoardData found: " + boardData);
+
+        // 댓글 수 조회
+        int commentCount = commentDataRepository.getTotal(seq);
+
+        // 댓글 수 출력
+        System.out.println("Comment count for board with seq " + seq + ": " + commentCount);
+
+        // 게시글의 댓글 수 업데이트
+        boardData.setCommentCnt(commentCount);
+
+        // 변경된 데이터 저장
         boardDataRepository.flush();
+
+        // 업데이트된 댓글 수 출력
+        System.out.println("Updated comment count for board with seq " + seq + ": " + boardData.getCommentCnt());
     }
 
     public void isMine(Long seq) {

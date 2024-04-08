@@ -29,6 +29,7 @@ public class BoardDeleteService {
 
         // 게시글에 연결된 모든 댓글을 가져와 삭제합니다.
         List<CommentData> comments = commentDataRepository.findAllByBoardData(data);
+        System.out.println("comments:" + comments);
         for (CommentData comment : comments) {
             commentDeleteService.delete(comment.getSeq());
         }

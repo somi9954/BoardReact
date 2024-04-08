@@ -21,6 +21,7 @@ const BoardViewContainer = () => {
   const [form, setForm] = useState({ content: '', poster: '', guestPw: '' });
   const [errors, setErrors] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
+  const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,6 +34,7 @@ const BoardViewContainer = () => {
           const commentData = await responseList(seq);
           setCommentList(commentData);
           increaseViewCount(seq);
+          setCommentCount(commentData.length);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -87,6 +89,7 @@ const BoardViewContainer = () => {
         await requestCommentWrite(postData);
         const commentData = await responseList(seq);
         setCommentList(commentData);
+        setCommentCount(commentData.length);
         setForm((prevForm) => ({ ...prevForm, content: '' }));
         navigate(`/board/view/${seq}`, { replace: true });
       } catch (error) {
@@ -129,8 +132,10 @@ const BoardViewContainer = () => {
       }
 
       await requestCommentDelete(seq);
+      // 댓글 삭제 후 댓글 수 업데이트
       const newCommentList = await responseList(getSeqFromURL());
       setCommentList(newCommentList);
+      setCommentCount(newCommentList.length); // 댓글 수 업데이트
       navigate(`/board/view/${boardData.data.seq}`, { replace: true });
     } catch (error) {
       console.error('댓글 삭제 오류:', error);
@@ -169,13 +174,33 @@ const BoardViewContainer = () => {
     }
   };
 
-  const onCommentUpdate = async (seq, updatedContent) => {
+  const onCommentUpdate = async (comment) => {
     try {
+      // 댓글 목록 데이터 가져오기
+      const commentListResponse = await responseList(boardData.data.seq);
+      console.log('댓글 목록 가져오기:', commentListResponse); // 댓글 목록 로그 확인
+
+      // 수정할 댓글의 seq를 찾습니다.
+      let updatedCommentSeq;
+      for (const currentComment of commentListResponse) {
+        if (currentComment.seq === comment.seq) {
+          updatedCommentSeq = currentComment.seq;
+          break;
+        }
+      }
+
+      // 수정할 댓글의 seq 출력
+      console.log('수정할 댓글의 seq:', updatedCommentSeq);
+
       // 댓글 수정 API 호출
-      await responseCommentUpdate(seq, { content: updatedContent });
+      await responseCommentUpdate(updatedCommentSeq, {
+        ...comment, // 수정된 댓글의 전체 정보를 전송합니다.
+      });
+
       // 수정 후 댓글 목록을 다시 불러와서 갱신
-      const updatedCommentList = await responseList(getSeqFromURL());
+      const updatedCommentList = await responseList(boardData.data.seq);
       setCommentList(updatedCommentList);
+
       // 게시글 뷰 페이지로 이동
       navigate(`/board/view/${boardData.data.seq}`, { replace: true });
     } catch (error) {

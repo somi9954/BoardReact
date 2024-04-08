@@ -1,13 +1,15 @@
 package org.project.boardreact.api.controllers.board;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+
 import java.util.UUID;
 
-@Data
-public class BoardForm {
+public class BoardUpdateForm  extends BoardForm{
+    public BoardUpdateForm() {
+        this.setMode("update");
+    }
 
-    private String mode = "write";
+    private String mode = "update";
 
     private Long seq;
 

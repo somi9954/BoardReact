@@ -122,6 +122,7 @@ public class BoardInfoService {
         BoardForm form = new ModelMapper().map(data, BoardForm.class);
         form.setMode("update");
         form.setBId(data.getBoard().getBId());
+        System.out.println("가져온 form:" + form);
 
         return form;
     }

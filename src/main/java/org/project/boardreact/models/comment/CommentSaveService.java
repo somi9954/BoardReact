@@ -55,16 +55,19 @@ public class CommentSaveService {
         }
 
         save(commentData);
-
     }
 
     public void save(CommentData comment) {
-
         commentDataRepository.saveAndFlush(comment);
 
-        // 총 댓글 갯수 업데이트
+        // 댓글을 추가한 후에 해당 게시글의 댓글 수를 가져와서 업데이트
         Long boardDataSeq = comment.getBoardData().getSeq();
+        long commentCount = commentDataRepository.countByBoardDataSeq(boardDataSeq);
+        BoardData boardData = boardDataRepository.findById(boardDataSeq).orElseThrow(BoardDataNotFoundException::new);
+        boardData.setCommentCnt((int) commentCount);
+        boardDataRepository.save(boardData);
+
+        // 총 댓글 갯수 업데이트
         commentInfoService.updateCommentCnt(boardDataSeq);
     }
 }
-

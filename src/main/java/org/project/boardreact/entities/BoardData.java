@@ -55,6 +55,7 @@ public class BoardData extends Base {
     private int commentCnt; // 댓글 수
 
     @Transient
+    @ToString.Exclude
     private List<CommentData> comments; // 댓글 목록
 
     @Transient
@@ -62,5 +63,9 @@ public class BoardData extends Base {
 
     @Transient
     private List<FileInfo> attachFiles;
+
+    public int getCommentCnt(Long seq) {
+        return commentCnt;
+    }
 
 }
