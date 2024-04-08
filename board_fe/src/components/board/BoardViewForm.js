@@ -76,7 +76,7 @@ const BoardBox = styled.div`
     width: 100%;
     height: 6.25em;
     resize: none;
-    border: 1px solid #d5d5d5;
+    border: 1px solid #f9cac8;
     border-radius: 5px;
   }
 
@@ -112,9 +112,6 @@ const BoardBox = styled.div`
     .List {
       border: 1px solid #d5d5d5;
     }
-    .plist {
-      border-bottom: 1px solid #d5d5d5;
-    }
   }
 `;
 
@@ -122,7 +119,8 @@ const CommentBox = styled.div`
   margin-top: 50px;
 
   .List {
-    border: 1px solid #d5d5d5;
+    border: 1px solid #f9cac8;
+    border-radius: 5px;
   }
 
   .plist {
