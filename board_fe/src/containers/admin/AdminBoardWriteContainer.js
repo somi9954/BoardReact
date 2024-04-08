@@ -14,63 +14,66 @@ const AdminBoardWriteContainer = ({ mode }) => {
     bName: '',
     category: '',
     active: false,
-    authority: 'ALL'
+    authority: 'ALL',
   });
 
   const [errors, setErrors] = useState({});
 
-  const onSubmit = useCallback((e) => {
-    e.preventDefault();
+  const onSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
 
-    const requiredFields = {
-      bId: t('NotBlank_boardId'),
-      bName: t('NotBlank_boardName'),
-    };
+      const requiredFields = {
+        bId: t('NotBlank_boardId'),
+        bName: t('NotBlank_boardName'),
+      };
 
-    const _errors = {};
-    let hasError = false;
-    for (const field in requiredFields) {
-      if (!form[field] || !form[field].trim()) {
-        _errors[field] = _errors[field] || [];
-        _errors[field].push(requiredFields[field]);
+      const _errors = {};
+      let hasError = false;
+      for (const field in requiredFields) {
+        if (!form[field] || !form[field].trim()) {
+          _errors[field] = _errors[field] || [];
+          _errors[field].push(requiredFields[field]);
 
-        hasError = true;
+          hasError = true;
+        }
       }
-    }
 
-    if (hasError) {
-      setErrors((errors) => _errors);
-      return;
-    }
+      if (hasError) {
+        setErrors((errors) => _errors);
+        return;
+      }
 
-    setErrors(_errors);
+      setErrors(_errors);
 
-    RequestConfigWrite(form)
-      .then((data) => {
-        console.log('작성 요청 성공:', data);
+      RequestConfigWrite(form)
+        .then((data) => {
+          console.log('작성 요청 성공:', data);
 
-        setForm({
-          mode: mode,
-          bId: '',
-          bName: '',
-          category: '',
-          active: false,
-          authority: 'ALL'
+          setForm({
+            mode: mode,
+            bId: '',
+            bName: '',
+            category: '',
+            active: false,
+            authority: 'ALL',
+          });
+
+          navigate(`/admin`, { replace: true });
+        })
+        .catch((error) => {
+          console.error('작성 요청 오류:', error);
+          setErrors({ message: error });
         });
-
-        navigate(`/admin`, { replace: true });
-      })
-      .catch((error) => {
-        console.error('작성 요청 오류:', error);
-        setErrors({ message: error });
-      });
-  }, [form, mode, navigate, errors, t]);
+    },
+    [form, mode, navigate, errors, t],
+  );
 
   const onChange = useCallback((e) => {
     const { name, value } = e.target;
     setForm((prevForm) => ({
       ...prevForm,
-      [name]: value
+      [name]: value,
     }));
   }, []);
 
@@ -79,11 +82,17 @@ const AdminBoardWriteContainer = ({ mode }) => {
     [],
   );
 
-  const onAuthority = useCallback(
-    (mode, authority) =>
-      setForm((form) => ({ ...form, [`${mode}Authority`]: authority })),
-    [],
-  );
+  const onAuthority = useCallback((mode, authority) => {
+    setForm((form) => ({
+      ...form,
+      authority:
+        authority === 'ALL'
+          ? 'ALL'
+          : mode === 'add'
+            ? authority
+            : form.authority,
+    }));
+  }, []);
 
   return (
     <ConfigBoardForm

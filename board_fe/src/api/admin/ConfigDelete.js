@@ -1,14 +1,16 @@
 import apiRequest from '../../lib/apiRequest';
 
-export default function requestDelete(bId) {
+export default function requestConfigDelete(bId) {
   return new Promise((resolve, reject) => {
-    apiRequest(`/admin/board/delete/${bId}`, 'DELETE')
+    apiRequest(`/admin/board/${bId}`, 'DELETE')
       .then((res) => {
-        console.log('서버 응답:', res);
-        resolve(res);
+        if (!res.data.success) {
+          reject(res.data);
+        } else {
+          resolve(true);
+          console.log('삭제 성공', res);
+        }
       })
-      .catch((err) => {
-        reject(err);
-      });
+      .catch((err) => reject(err));
   });
 }

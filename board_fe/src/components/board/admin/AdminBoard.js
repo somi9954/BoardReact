@@ -4,8 +4,10 @@ import styled from 'styled-components';
 import loadable from '@loadable/component';
 import Menus from '../../../pages/admin/Menus';
 import { InputText } from '../../commons/InputStyle';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import Paging from '../../commons/Paging';
+import responseAdminList from '../../../api/admin/AdminBoardList';
+import requestConfigDelete from '../../../api/admin/ConfigDelete';
 
 const Container = styled.div`
   select {
@@ -145,13 +147,14 @@ const AdminBoard = ({
   searchInput,
   searchType,
   onSearchTypeChange,
-  onDeleteSelectedBoards,
+  fetchBoardList,
 }) => {
   const { t } = useTranslation();
   const ErrorMessages = loadable(() => import('../../commons/ErrorMessages'));
   const [selectedIds, setSelectedIds] = useState([]);
   const [modifiedBoardList, setModifiedBoardList] = useState([]);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const navigate = useNavigate();
 
   const handleCheckboxChange = (event) => {
     const { value, checked } = event.target;
@@ -175,9 +178,24 @@ const AdminBoard = ({
     }
   };
 
-  const handleDeleteSelectedBoardsClick = () => {
-    console.log('선택된 ID들:', selectedIds); // 디버깅용
-    onDeleteSelectedBoards(); // 삭제 프로세스 시작
+  const handleDeleteSelectedBoards = async () => {
+    try {
+      const confirmed = window.confirm('정말 삭제하시겠습니까?');
+      if (!confirmed) return;
+
+      // 선택된 게시판 ID 배열
+      const selectedBoardIds = selectedIds;
+
+      // 선택된 각 게시판을 삭제
+      for (const boardId of selectedBoardIds) {
+        await requestConfigDelete(boardId);
+        console.log('Deleted board with bid:', boardId);
+      }
+
+      fetchBoardList();
+    } catch (error) {
+      console.error('게시판 삭제 오류:', error);
+    }
   };
 
   const handleActiveChange = (event, index) => {
@@ -299,7 +317,7 @@ const AdminBoard = ({
                       onChange={(event) => handlePermissionChange(event, index)}
                     >
                       <option value="ALL">ALL(비회원+회원+관리자)</option>
-                      <option value="MEMBER">MEMBER(회원+관리자)</option>
+                      <option value="USER">USER(회원+관리자)</option>
                       <option value="ADMIN">ADMIN(관리자)</option>
                     </select>
                   </td>
@@ -337,7 +355,7 @@ const AdminBoard = ({
           <button
             type="button"
             className="sbtn"
-            onClick={handleDeleteSelectedBoardsClick}
+            onClick={handleDeleteSelectedBoards} // 수정된 부분
           >
             선택 게시판 삭제
           </button>

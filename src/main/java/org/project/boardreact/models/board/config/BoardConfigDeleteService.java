@@ -38,9 +38,14 @@ public class BoardConfigDeleteService {
             throw new BadRequestException(Utils.getMessage("삭제할 게시판을 선택하세요.","validation"));
         }
 
+        // 인덱스 값 확인을 위한 로깅 추가
+        System.out.println("삭제할 인덱스 목록: " + idxes);
 
         for (int idx : idxes) {
+            // 인덱스 값 확인을 위한 로깅 추가
+            System.out.println("현재 인덱스: " + idx);
             String bId = utils.getParam("bId_" + idx);
+            System.out.println("bid 가져오기:" + bId);
             Board board = repository.findById(bId).orElse(null);
             if (board == null) continue;
 

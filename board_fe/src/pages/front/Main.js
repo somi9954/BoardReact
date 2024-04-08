@@ -13,7 +13,7 @@ const Main = () => {
         댓글로 여러 의견을 나눠보세요✏️
       </div>
       <div className="about-project">
-        이 프로젝트는 Duckgugong이 레퍼런스로 쓰기위해
+        이 프로젝트는 SOMICHO이 레퍼런스로 쓰기위해
         <br />
         <span>React</span>와<span> SpringBoot</span>으로 만들었습니다😎
       </div>
