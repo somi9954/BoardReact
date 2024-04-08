@@ -225,9 +225,6 @@ const BoardViewForm = ({
           <p className="info">
             <strong>작성일:</strong> {formatDate(createdAt)}
           </p>
-          <p className="info">
-            <strong>수정일:</strong> {formatDate(modifiedAt)}
-          </p>
         </div>
         <p className="viewCnt">
           <strong>조회수: </strong>
