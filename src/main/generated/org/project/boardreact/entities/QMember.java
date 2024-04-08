@@ -21,6 +21,8 @@ public class QMember extends EntityPathBase<Member> {
 
     public final QBase _super = new QBase(this);
 
+    public final EnumPath<org.project.boardreact.commons.contansts.BoardAuthority> boardAuthority = createEnum("boardAuthority", org.project.boardreact.commons.contansts.BoardAuthority.class);
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 

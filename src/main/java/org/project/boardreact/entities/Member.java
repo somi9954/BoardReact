@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.project.boardreact.commons.contansts.BoardAuthority;
 import org.project.boardreact.commons.contansts.MemberType;
 
 @Entity
@@ -30,5 +31,9 @@ public class Member extends Base{
     @Enumerated(EnumType.STRING)
     @Column(length = 15, nullable = false)
     private MemberType type = MemberType.USER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 15, nullable = false)
+    private BoardAuthority boardAuthority = BoardAuthority.USER;
 
 }
