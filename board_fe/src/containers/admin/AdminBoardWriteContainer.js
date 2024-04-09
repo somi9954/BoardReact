@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RequestConfigWrite from '../../api/admin/configboardWrite';
-import ConfigBoardForm from '../../components/board/admin/configBoardForm';
+import ConfigBoardForm from '../../components/board/admin/ConfigBoardForm';
 import { useTranslation } from 'react-i18next';
 
 const AdminBoardWriteContainer = ({ mode }) => {
