@@ -6,7 +6,6 @@ import Menus from '../../../pages/admin/Menus';
 import { InputText } from '../../commons/InputStyle';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Paging from '../../commons/Paging';
-import responseAdminList from '../../../api/admin/AdminBoardList';
 import requestConfigDelete from '../../../api/admin/ConfigDelete';
 
 const Container = styled.div`
@@ -142,18 +141,20 @@ const AdminBoard = ({
   errors,
   boardList,
   loading,
-  onSearch,
-  onInputChange,
-  searchInput,
-  searchType,
-  onSearchTypeChange,
   fetchBoardList,
+  handleSearchChange,
+  handleSearchOptionChange,
+  handleSearchSubmit,
+  handleKeyPress,
+  searchKey,
+  searchOption,
 }) => {
   const { t } = useTranslation();
   const ErrorMessages = loadable(() => import('../../commons/ErrorMessages'));
   const [selectedIds, setSelectedIds] = useState([]);
   const [modifiedBoardList, setModifiedBoardList] = useState([]);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [selectedBoards, setSelectedBoards] = useState([]);
   const navigate = useNavigate();
 
   const handleCheckboxChange = (event) => {
@@ -227,34 +228,33 @@ const AdminBoard = ({
       <Menus />
       <div>
         <h1>{t('게시판 검색')}</h1>
-        <form onSubmit={onSearch}>
-          <div className="table-cols">
-            <div className="search">
-              <div className="input_grp">
-                <dl>{t('검색어')}</dl>
-                <select
-                  name="sopt"
-                  value={searchType}
-                  onChange={onSearchTypeChange}
-                >
-                  <option value="all">{t('통합검색')}</option>
-                  <option value="bId">{t('게시판 ID')}</option>
-                  <option value="bName">{t('게시판명')}</option>
-                </select>
-                <InputText
-                  type="text"
-                  name="skey"
-                  placeholder={t('검색어 입력...')}
-                  value={searchInput}
-                  onChange={onInputChange}
-                />
-                <button type="submit" className="search_btn">
-                  {t('조회하기')}
-                </button>
-              </div>
+        <div className="table-cols">
+          <div className="search">
+            <div className="input_grp">
+              <dl>{t('검색어')}</dl>
+              <select
+                name="sopt"
+                value={searchOption}
+                onChange={handleSearchOptionChange}
+              >
+                <option value="all">{t('통합검색')}</option>
+                <option value="bid">{t('게시판 ID')}</option>
+                <option value="bname">{t('게시판명')}</option>
+              </select>
+              <InputText
+                type="text"
+                name="skey"
+                value={searchKey}
+                onChange={handleSearchChange}
+                onKeyPress={handleKeyPress}
+                placeholder={t('검색어 입력...')}
+              />
+              <button type="submit" className="search_btn">
+                {t('조회하기')}
+              </button>
             </div>
           </div>
-        </form>
+        </div>
         <ErrorMessages errors={errors} field="search" />
 
         <h1>게시판 목록</h1>
@@ -299,7 +299,9 @@ const AdminBoard = ({
                     />
                   </td>
                   <td>{board.bid}</td>
-                  <td>{board.bname}</td>
+                  <td>
+                    <InputText type="text" value={board.bname} />
+                  </td>
                   <td>
                     <select
                       name="active"
@@ -355,7 +357,7 @@ const AdminBoard = ({
           <button
             type="button"
             className="sbtn"
-            onClick={handleDeleteSelectedBoards} // 수정된 부분
+            onClick={handleDeleteSelectedBoards}
           >
             선택 게시판 삭제
           </button>

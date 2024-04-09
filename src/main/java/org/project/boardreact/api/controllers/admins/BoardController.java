@@ -50,12 +50,20 @@ public class BoardController {
     }
 
 
-    @PutMapping("/update")
-    public ResponseEntity<JSONData> updateList(@RequestParam List<Integer> idxes) throws BadRequestException {
+    @PatchMapping("/update")
+    public ResponseEntity<JSONData> updateList(HttpServletRequest request, @RequestParam(name="idx", required = false) List<Integer> idxes) throws BadRequestException {
         try {
-            logger.info("Received request to update boards with indexes: {}", idxes);
+            // Print idxes for debugging
+            System.out.println("Received idxes: " + idxes);
+
+            // Print request details for debugging
+            System.out.println("Request URL: " + request.getRequestURL());
+            System.out.println("Request Method: " + request.getMethod());
+            System.out.println("Request Parameters: " + request.getParameterMap());
+            // You can print more details if needed
+
             saveService.update(idxes);
-            JSONData response = new JSONData<>();
+            JSONData response = new JSONData();
             response.setMessage("Updated successfully");
             return ResponseEntity.status(response.getStatus()).body(response);
         } catch (Exception e) {

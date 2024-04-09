@@ -45,34 +45,24 @@ public class BoardConfigSaveService {
     }
 
 
-    public void update(List<Integer> idxes) throws BadRequestException {
+    public void update(List<Integer> idxes) {
         if (idxes == null || idxes.isEmpty()) {
-            throw new BadRequestException("수정할 게시판을 선택하세요.");
+            throw new BadRequestException(Utils.getMessage("Not_Board","validation"));
         }
 
         for (int idx : idxes) {
             String bId = utils.getParam("bId_" + idx);
-            if (StringUtils.isEmpty(bId)) {
-                throw new BadRequestException("게시판 ID가 없습니다.");
-            }
-
-            String bName = utils.getParam("bName_" + idx);
-            if (StringUtils.isEmpty(bName)) {
-                throw new BadRequestException("게시판 이름을 입력하세요.");
-            }
-
             Board board = boardRepository.findById(bId).orElse(null);
             if (board == null) continue;
 
-            board.setBName(bName);
-
+            String bName = utils.getParam("bName_" + idx);
             boolean active = Boolean.parseBoolean(utils.getParam("active_" + idx));
-            String authorityValue = utils.getParam("authority_" + idx);
-            if (StringUtils.isEmpty(authorityValue) || !BoardAuthority.isValid(authorityValue)) {
-                throw new BadRequestException("유효하지 않은 권한 값입니다.");
-            }
+            BoardAuthority authority =
+                    BoardAuthority.valueOf(utils.getParam("authority_" + idx));
+
+            board.setBName(bName);
             board.setActive(active);
-            board.setAuthority(BoardAuthority.valueOf(authorityValue));
+            board.setAuthority(authority);
         }
 
         boardRepository.flush();

@@ -33,7 +33,7 @@ public class MvcConfig implements WebMvcConfigurer {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://localhost:3000");
         // 메서드 및 헤더 제한
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
 
         // 자격 증명 사용 설정

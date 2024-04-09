@@ -6,9 +6,11 @@ import AdminBoard from '../../components/board/admin/AdminBoard';
 const AdminBoardListContainer = () => {
   const { t } = useTranslation();
   const [boardList, setBoardList] = useState([]);
+  const [originalBoardList, setOriginalBoardList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [searchKey, setSearchKey] = useState('');
+  const [searchOption, setSearchOption] = useState('all');
 
   useEffect(() => {
     fetchBoardList();
@@ -18,9 +20,10 @@ const AdminBoardListContainer = () => {
     setLoading(true);
     try {
       const response = await apiRequest('/admin/board/list', 'GET');
-      console.log('API 응답:', response);
+      console.log('API 응답02:', response);
 
       if (response.data && response.data.content) {
+        setOriginalBoardList(response.data.content);
         setBoardList(response.data.content);
         setLoading(false);
       } else {
@@ -33,12 +36,54 @@ const AdminBoardListContainer = () => {
     }
   };
 
+  const searchBoardList = () => {
+    const filteredList = originalBoardList.filter((item) => {
+      if (searchOption === 'all') {
+        return (
+          (item.bid && item.bid.includes(searchKey)) ||
+          (item.bname && item.bname.includes(searchKey))
+        );
+      } else if (searchOption === 'bid') {
+        return item.bid && item.bid.includes(searchKey);
+      } else if (searchOption === 'bname') {
+        return item.bname && item.bname.includes(searchKey);
+      }
+      return false;
+    });
+
+    setBoardList(filteredList);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchKey(e.target.value);
+  };
+
+  const handleSearchOptionChange = (e) => {
+    setSearchOption(e.target.value);
+  };
+
+  const handleSearchSubmit = () => {
+    searchBoardList();
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      searchBoardList();
+    }
+  };
+
   return (
     <AdminBoard
       boardList={boardList}
       loading={loading}
       error={error}
       fetchBoardList={fetchBoardList}
+      searchKey={searchKey}
+      handleSearchChange={handleSearchChange}
+      searchOption={searchOption}
+      handleSearchOptionChange={handleSearchOptionChange}
+      handleSearchSubmit={handleSearchSubmit}
+      handleKeyPress={handleKeyPress}
     />
   );
 };
