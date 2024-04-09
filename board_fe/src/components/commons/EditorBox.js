@@ -4,6 +4,7 @@ import '@toast-ui/editor/dist/toastui-editor.css';
 import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
 import 'tui-color-picker/dist/tui-color-picker.css';
 import '@toast-ui/editor-plugin-color-syntax/dist/toastui-editor-plugin-color-syntax.css';
+import '@toast-ui/editor/dist/i18n/ko-kr';
 
 const toolbar = [
   ['heading', 'bold', 'italic', 'strike'],
@@ -28,7 +29,7 @@ class EditorBox extends Component {
     const { content } = this.props;
     return (
       <Editor
-        initialValue={content || ' '} // HTML을 Markdown으로 변경
+        initialValue={content || ' '}
         previewStyle="vertical"
         theme=""
         usageStatistics={false}
@@ -37,6 +38,7 @@ class EditorBox extends Component {
         initialEditType="wysiwyg"
         useCommandShortcut={false}
         plugins={[colorSyntax]}
+        language="ko-KR"
         ref={this.editorRef}
         onChange={this.handleChange}
       />

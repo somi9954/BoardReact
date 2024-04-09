@@ -6,6 +6,8 @@ import sizeNames from '../../styles/sizes';
 import styled from 'styled-components';
 import EditorBox from '../commons/EditorBox';
 import ErrorMessages from '../commons/ErrorMessages';
+import on from '../../images/button/on.png';
+import off from '../../images/button/off.png';
 
 const { medium } = sizeNames;
 
@@ -28,6 +30,20 @@ const FormBox = styled.form`
   }
   dl:last-of-type {
     margin-bottom: 15px;
+  }
+
+  .radio-label {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .radio-label input[type='radio'] {
+    display: none;
+  }
+
+  .radio-label .radio-image {
+    width: 25px;
+    margin-right: 5px;
   }
 `;
 
@@ -70,15 +86,22 @@ const BoardForm = ({
         <dd>
           {categories.map((category, index) => (
             <span key={index} style={{ marginRight: '10px' }}>
-              <input
-                type="radio"
-                id={`category-${index}`}
-                name="category"
-                value={category}
-                checked={form.category === category}
-                onChange={onChange}
-              />
-              <label htmlFor={`category-${index}`}>{category}</label>
+              <label htmlFor={`category-${index}`} className="radio-label">
+                <input
+                  type="radio"
+                  id={`category-${index}`}
+                  name="category"
+                  value={category}
+                  checked={form.category === category}
+                  onChange={onChange}
+                />
+                {form.category === category ? (
+                  <img src={on} alt="Selected" className="radio-image" />
+                ) : (
+                  <img src={off} alt="Unselected" className="radio-image" />
+                )}
+                {category}
+              </label>
             </span>
           ))}
         </dd>

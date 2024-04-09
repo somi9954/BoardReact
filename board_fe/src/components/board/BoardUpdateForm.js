@@ -5,6 +5,8 @@ import EditorBox from '../commons/EditorBox';
 import { BigButton, ButtonGroup } from '../commons/ButtonStyle';
 import styled from 'styled-components';
 import sizeNames from '../../styles/sizes';
+import on from '../../images/button/on.png';
+import off from '../../images/button/off.png';
 
 const { medium } = sizeNames;
 
@@ -32,6 +34,15 @@ const FormBox = styled.form`
     display: flex;
     align-items: center;
     margin-right: 10px;
+  }
+
+  input[type='radio'] {
+    display: none;
+  }
+
+  .radio-label .radio-image {
+    width: 25px;
+    margin-right: 5px;
   }
 `;
 
@@ -61,15 +72,22 @@ const BoardUpdateForm = ({
             <dd className="category">
               {initialValues.board.category.split('\n').map((cat, index) => (
                 <div key={index} style={{ marginRight: '10px' }}>
-                  <input
-                    type="radio"
-                    id={cat}
-                    name="category"
-                    value={cat}
-                    checked={form.category === cat}
-                    onChange={onChange}
-                  />
-                  <label htmlFor={cat}>{cat}</label>
+                  <label htmlFor={cat}>
+                    <input
+                      type="radio"
+                      id={cat}
+                      name="category"
+                      value={cat}
+                      checked={form.category === cat}
+                      onChange={onChange}
+                    />
+                    {form.category === cat ? (
+                      <img src={on} alt="Selected" className="radio-image" />
+                    ) : (
+                      <img src={off} alt="Unselected" className="radio-image" />
+                    )}
+                    {cat}
+                  </label>
                 </div>
               ))}
             </dd>
