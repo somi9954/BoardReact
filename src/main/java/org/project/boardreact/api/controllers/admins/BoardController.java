@@ -53,14 +53,12 @@ public class BoardController {
     @PatchMapping("/update")
     public ResponseEntity<JSONData> updateList(HttpServletRequest request, @RequestParam(name="idx", required = false) List<Integer> idxes) throws BadRequestException {
         try {
-            // Print idxes for debugging
-            System.out.println("Received idxes: " + idxes);
 
-            // Print request details for debugging
             System.out.println("Request URL: " + request.getRequestURL());
             System.out.println("Request Method: " + request.getMethod());
             System.out.println("Request Parameters: " + request.getParameterMap());
-            // You can print more details if needed
+
+            System.out.println("Received idxes: " + idxes);
 
             saveService.update(idxes);
             JSONData response = new JSONData();

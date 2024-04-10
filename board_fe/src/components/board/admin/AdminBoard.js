@@ -199,19 +199,40 @@ const AdminBoard = ({
     }
   };
 
+  const handleBNameChange = (event, bid) => {
+    const { value } = event.target;
+
+    const updatedModifiedBoardList = modifiedBoardList.map((board) => {
+      if (board.bid === bid) {
+        return { ...board, bname: value };
+      }
+      return board;
+    });
+
+    setModifiedBoardList(updatedModifiedBoardList);
+  };
+
   const handleActiveChange = (event, index) => {
     const { value } = event.target;
-    const updatedBoardList = [...modifiedBoardList];
-    updatedBoardList[index].activeText = value;
-    updatedBoardList[index].active = value === '사용' ? true : false;
-    setModifiedBoardList(updatedBoardList);
+
+    const updatedModifiedBoardList = [...modifiedBoardList];
+    updatedModifiedBoardList[index] = {
+      ...updatedModifiedBoardList[index],
+      activeText: value,
+      active: value === '사용' ? true : false,
+    };
+    setModifiedBoardList(updatedModifiedBoardList);
   };
 
   const handlePermissionChange = (event, index) => {
     const { value } = event.target;
-    const updatedBoardList = [...modifiedBoardList];
-    updatedBoardList[index].authority = value;
-    setModifiedBoardList(updatedBoardList);
+
+    const updatedModifiedBoardList = [...modifiedBoardList];
+    updatedModifiedBoardList[index] = {
+      ...updatedModifiedBoardList[index],
+      authority: value,
+    };
+    setModifiedBoardList(updatedModifiedBoardList);
   };
 
   useEffect(() => {
@@ -249,7 +270,11 @@ const AdminBoard = ({
                 onKeyPress={handleKeyPress}
                 placeholder={t('검색어 입력...')}
               />
-              <button type="submit" className="search_btn">
+              <button
+                type="submit"
+                className="search_btn"
+                onClick={handleSearchSubmit}
+              >
                 {t('조회하기')}
               </button>
             </div>
@@ -300,7 +325,11 @@ const AdminBoard = ({
                   </td>
                   <td>{board.bid}</td>
                   <td>
-                    <InputText type="text" value={board.bname} />
+                    <InputText
+                      type="text"
+                      value={board.bname}
+                      onChange={(event) => handleBNameChange(event, board.bid)}
+                    />
                   </td>
                   <td>
                     <select
