@@ -2,36 +2,37 @@ server:
   port: 3000
 
 spring:
-  # 데이터 베이스 연결 설정
-  datasource:
-    driverClassName: oracle.jdbc.driver.OracleDriver
-    url: jdbc:oracle:thin:@localhost:1521:xe
-    username: PROJECT_BE
-    password: _aA123456
+  servlet:
+    multipart: # 파일 업로드 설정
+      maxFileSize: 5MB
+      maxRequestSize: 10MB
 
-  # JPA 설정
-  jpa:
+  datasource: # 데이터 베이스 연결 설정
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://somi-mysql.cb4mkq0amnvs.ap-northeast-2.rds.amazonaws.com:3306/boardproject
+    username: admin
+    password: Ranhee9954!
+
+  jpa: # JPA 설정
     properties:
       hibernate:
-        # 실행되는 쿼리 콘솔 출력
         show_sql: true
-        # 콘솔 창에 출력되는 쿼리를 가독성 좋게 포매팅
         format_sql: true
         use_sql_comments: true
-        dialect: org.hibernate.dialect.OracleDialect
+        dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddlAuto: create
 
-logging:
-  level:
-    org:
-      hibernate:
-        type:
-          descriptor:
-            sql: trace
+  logging:
+    level:
+      org:
+        hibernate:
+          type:
+            descriptor:
+              sql: trace
 
-# JSON WebToken 설정
-jwt:
-  header: Authorization
-  secret: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd6eXoxMjMxMjMxMjMxMjMxMjMxMzEyMzEyMzEzMTIzMTIzMTIzMTMxMjMxMzEzMTMxMjM #base64 인코딩 a-z
-  accessTokenValidityInSeconds: 3600 # 60 min
+# 파일 업로드 경로 설정
+file:
+  upload:
+    path: C:/uploads/
+    url: /uploads/
