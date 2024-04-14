@@ -40,7 +40,7 @@ const FormBox = styled.form`
     display: none;
   }
 
-  .radio-label .radio-image {
+  .radio-image {
     width: 25px;
     margin-right: 5px;
   }
