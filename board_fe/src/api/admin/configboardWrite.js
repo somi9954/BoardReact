@@ -1,7 +1,6 @@
 import apiRequest from '../../lib/apiRequest';
 
 export default function RequestConfigWrite(form) {
-  console.log('전송되는 데이터:', form);
   return new Promise((resolve, reject) => {
     apiRequest('/admin/board/add', 'POST', form)
       .then((res) => {

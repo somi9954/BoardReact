@@ -5,7 +5,6 @@ export default function responseList(boardDataSeq) {
     // 실제 게시판 ID 값을 포함하여 요청을 보냄
     apiRequest(`/comment/list/${boardDataSeq}`, 'GET')
       .then((res) => {
-        console.log('Comment List Response:', res.data); // 데이터 출력
         resolve(res.data); // 댓글 목록 데이터 전체를 반환
       })
       .catch((err) => {

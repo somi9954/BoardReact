@@ -7,17 +7,13 @@ import AdminBoardListContainer from '../../containers/admin/AdminBoardListContai
 const Main = () => {
   const { t } = useTranslation();
 
-  const onSelectBoard = (boardId) => {
-    console.log(`Selected board with ID: ${boardId}`);
-  };
-
   return (
     <>
       <Helmet>
         <title>{t('게시판 관리 - 게시판 목록')}</title>
       </Helmet>
       <OuterBox>
-      <AdminBoardListContainer />
+        <AdminBoardListContainer />
       </OuterBox>
     </>
   );

@@ -48,8 +48,6 @@ const AdminBoardWriteContainer = ({ mode }) => {
 
       RequestConfigWrite(form)
         .then((data) => {
-          console.log('작성 요청 성공:', data);
-
           setForm({
             mode: mode,
             bId: '',

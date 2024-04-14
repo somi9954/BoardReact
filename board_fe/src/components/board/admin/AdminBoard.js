@@ -190,13 +190,10 @@ const AdminBoard = ({
       // 선택된 각 게시판을 삭제
       for (const boardId of selectedBoardIds) {
         await requestConfigDelete(boardId);
-        console.log('Deleted board with bid:', boardId);
       }
 
       fetchBoardList();
-    } catch (error) {
-      console.error('게시판 삭제 오류:', error);
-    }
+    } catch (error) {}
   };
 
   const handleBNameChange = (event, bid) => {

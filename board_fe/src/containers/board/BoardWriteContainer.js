@@ -54,9 +54,7 @@ const BoardWriteContainer = () => {
   const fetchLatestSeqAndNavigate = async () => {
     try {
       const latestResponse = await responseList(bId); // 게시판의 최신 글 목록을 가져옴
-      console.log(latestResponse);
       const latestSeq = latestResponse.data[0].seq; // 최신 글의 seq
-      console.log(latestSeq);
       navigate(`/board/view/${latestSeq}`, { replace: true }); // 최신 게시글로 이동
     } catch (error) {
       console.error('Error fetching latest seq and navigating:', error);

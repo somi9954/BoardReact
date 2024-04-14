@@ -6,10 +6,6 @@ const Paging = ({ page, count, setPage }) => {
   useEffect(() => {
     const totalPages = Math.ceil(count / 10);
 
-    // 페이지와 총 페이지 수를 로그로 출력하여 확인
-    console.log('Page:', page);
-    console.log('Total Pages:', totalPages);
-
     if (page === 0 || page > totalPages) {
       setPage(1);
     }

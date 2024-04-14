@@ -20,7 +20,6 @@ const AdminBoardListContainer = () => {
     setLoading(true);
     try {
       const response = await apiRequest('/admin/board/list', 'GET');
-      console.log('API 응답02:', response);
 
       if (response.data && response.data.content) {
         setOriginalBoardList(response.data.content);

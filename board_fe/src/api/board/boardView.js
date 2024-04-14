@@ -4,7 +4,6 @@ export default function responseView(seq) {
   return new Promise((resolve, reject) => {
     apiRequest(`/board/view/${seq}`, 'GET')
       .then((res) => {
-        console.log('Board view Response:', res.data); // 데이터 출력
         if (!res.data.success) {
           reject(res.data);
         } else {

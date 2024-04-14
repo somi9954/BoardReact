@@ -16,16 +16,9 @@ export default function requestWrite(form, bId) {
 
     const requestData = { ...form, bId: bId };
 
-    // 요청 URL과 데이터 확인
-    console.log('요청 URL:', `/api/v1/board/write/${bId}`);
-    console.log('요청 데이터:', requestData);
-
     // API 요청
     apiRequest(`/board/write/${bId}`, 'POST', requestData)
       .then((res) => {
-        // 서버 응답 확인
-        console.log('서버 응답:', res);
-
         if (res.data.success) {
           resolve(res.data);
         } else {
@@ -34,7 +27,6 @@ export default function requestWrite(form, bId) {
       })
       .catch((err) => {
         // 오류 처리
-        console.error('요청 오류:', err);
         reject(err);
       });
   });

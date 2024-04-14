@@ -74,7 +74,6 @@ const BoardForm = ({
       });
       return;
     }
-    console.log('Form submitted!');
     onSubmit(e);
   };
 

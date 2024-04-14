@@ -21,13 +21,9 @@ const AdminBoardUpdateContainer = () => {
     const fetchBoardData = async () => {
       try {
         const bId = getBoardIdFromURL();
-        console.log('해당 게시판 아이디:', bId);
         if (bId) {
           const response = await apiRequest('/admin/board/list', 'GET');
-          console.log('API 응답:', response);
-          console.log('Admin List Response:', response);
           const board = response.data.content.find((item) => item.bid === bId);
-          console.log('게시판 데이터:', board);
           if (board && board.bid === bId) {
             // 추가된 부분
             setForm({

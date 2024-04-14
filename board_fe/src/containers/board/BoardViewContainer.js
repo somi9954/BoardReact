@@ -178,7 +178,6 @@ const BoardViewContainer = () => {
     try {
       // 댓글 목록 데이터 가져오기
       const commentListResponse = await responseList(boardData.data.seq);
-      console.log('댓글 목록 가져오기:', commentListResponse); // 댓글 목록 로그 확인
 
       // 수정할 댓글의 seq를 찾습니다.
       let updatedCommentSeq;
@@ -188,9 +187,6 @@ const BoardViewContainer = () => {
           break;
         }
       }
-
-      // 수정할 댓글의 seq 출력
-      console.log('수정할 댓글의 seq:', updatedCommentSeq);
 
       // 댓글 수정 API 호출
       await responseCommentUpdate(updatedCommentSeq, {

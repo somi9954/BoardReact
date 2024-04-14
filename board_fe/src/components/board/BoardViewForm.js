@@ -196,7 +196,6 @@ const BoardViewForm = ({
   const itemsPerPage = 10;
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, commentList.length);
-  console.log('endIndex', endIndex);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {

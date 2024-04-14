@@ -8,7 +8,6 @@ export default function requestCommentUpdate(seq, updatedData) {
           reject(res.data);
         } else {
           resolve(true);
-          console.log('수정 성공', res);
         }
       })
       .catch((err) => reject(err));

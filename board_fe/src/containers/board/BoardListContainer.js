@@ -21,7 +21,6 @@ const BoardListContainer = () => {
     // 해당 게시판에 대한 데이터를 가져옵니다.
     apiRequest(`/board/list/${bId}`, 'GET')
       .then((boardListRes) => {
-        console.log('Board List Response:', boardListRes.data);
         if (!boardListRes.data.success) {
           throw new Error(boardListRes.data.message);
         }
