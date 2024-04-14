@@ -3,6 +3,7 @@ package org.project.boardreact.models.member;
 import lombok.RequiredArgsConstructor;
 import org.project.boardreact.api.controllers.members.JoinValidator;
 import org.project.boardreact.api.controllers.members.RequestJoin;
+import org.project.boardreact.commons.contansts.BoardAuthority;
 import org.project.boardreact.commons.contansts.MemberType;
 import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.configs.jwt.CustomJwtFilter;
@@ -39,6 +40,7 @@ public class MemberSaveService {
                 .password(hash)
                 .mobile(form.mobile())
                 .type(MemberType.USER)
+                .boardAuthority(BoardAuthority.USER)
                 .build();
 
         save(member);
