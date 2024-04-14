@@ -38,7 +38,7 @@ public class MvcConfig implements WebMvcConfigurer {
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
 
         // 자격 증명 사용 설정
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
         config.addAllowedMethod(HttpMethod.OPTIONS);
 
         // 최대 연령 설정
