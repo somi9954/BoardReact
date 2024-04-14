@@ -26,10 +26,9 @@
     "types": "^0.1.1",
     "web-vitals": "^2.1.0"
   },
-  "proxy" : "http://3.35.50.36:3001",
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "REACT_APP_API_URL=http://3.35.50.36:3001/api/v1 react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
