@@ -20,12 +20,6 @@
 #### ✔️Back-end
 <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"><img src="https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=Spring&logoColor=green"><img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=yellow"><img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white"><img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtoken&logoColor=white">
 
-## Main Library
-#### axios
-- HTTP request & respose
-#### react-router-dom v6
-- 라우팅, 동적 라우팅, query parmeter와 uri parameter를 효율적으로 파싱
-
 ## 프로젝트 주요 기능
 #### 회원가입
 - 회원가입 시 암호화(hashing)화 되어 DB에 저장.
