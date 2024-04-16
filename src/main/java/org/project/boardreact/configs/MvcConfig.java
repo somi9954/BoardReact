@@ -32,6 +32,7 @@ public class MvcConfig implements WebMvcConfigurer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://3.36.76.61:3000");
+        config.addAllowedOrigin("http://3.36.76.61:8080");
         config.addAllowedOrigin("http://localhost:3000");
 
         // 메서드 및 헤더 제한
