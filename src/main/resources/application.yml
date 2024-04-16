@@ -51,4 +51,4 @@ file:
     url: /uploads/
 
 cors:
-  origin: ${cors.origin}
+  allowedOrigins: ${cors.allowedOrigins}
