@@ -33,6 +33,9 @@ public class MvcConfig implements WebMvcConfigurer {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://3.36.76.61:3000");
         config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin("http://www.freeboard.store");
+        config.addAllowedOrigin("http://www.freeboard.store:3000");
+
 
 
         // 메서드 및 헤더 제한
