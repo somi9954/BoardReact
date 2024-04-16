@@ -35,7 +35,7 @@ const OuterBox = styled.header`
       color: ${({ scroll }) => (scroll === 'true' ? '#fff' : info)};
       text-decoration: none;
       transition: color 0.3s;
-      margin-left: 470px;
+      margin-left: 350px;
     }
   }
 
