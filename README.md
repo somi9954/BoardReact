@@ -5,9 +5,9 @@
 #### 메인화면
 ![1](https://github.com/somi9954/BoardReact/assets/137499604/92bd2f2d-f87e-4c4c-9c7d-38537e1da0e0)
 #### 게시물 전체보기(페이지네이션)
-![2](https://github.com/somi9954/BoardReact/assets/137499604/c16ac5b8-3e96-484d-860f-b72bcc9a7641)
+![2](https://github.com/somi9954/BoardReact/assets/137499604/94b9635a-ec80-45b0-b975-b39e4678868c)
 #### 게시물 상세보기(댓글 기능)
-![3](https://github.com/somi9954/BoardReact/assets/137499604/f1745293-9b49-475d-a669-011b86996295)
+![3](https://github.com/somi9954/BoardReact/assets/137499604/c6d721ab-3dd9-4df6-a095-ca4d87ddf65b)
 
 ## 개발 환경
 - IntellJ IDEA (API 개발 개발환경, REACT PROJECT) 
