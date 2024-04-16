@@ -14,6 +14,9 @@
 - MySQL Workbench 8.0 CE(DB 툴)
 - AWS EC2, RDS (배포 툴, DB 툴)
 
+## 개발 기간 
+- 2024.02.27 ~ 2024.04.17
+
 ## 2. ⚙️기술 스택
 #### ✔️프론트엔드
 <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=black"><img src="https://img.shields.io/badge/Css-1572B6?style=for-the-badge&logo=Css&logoColor=white"><img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white"><img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"><img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white">
