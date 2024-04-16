@@ -3,11 +3,11 @@
 - REST API 작성부터 프론엔드 개발까지 혼자만의 개발 레퍼런스 만들기 
 
 #### 메인화면
-![1.gif](..%2F..%2FUsers%2F82103%2FOneDrive%2F%EB%B0%94%ED%83%95%20%ED%99%94%EB%A9%B4%2Flogos%2F1.gif)
+![1](https://github.com/somi9954/BoardReact/assets/137499604/92bd2f2d-f87e-4c4c-9c7d-38537e1da0e0)
 #### 게시물 전체보기(페이지네이션)
-![2.gif](..%2F..%2FUsers%2F82103%2FOneDrive%2F%EB%B0%94%ED%83%95%20%ED%99%94%EB%A9%B4%2Flogos%2F2.gif)
+![2](https://github.com/somi9954/BoardReact/assets/137499604/c16ac5b8-3e96-484d-860f-b72bcc9a7641)
 #### 게시물 상세보기(댓글 기능)
-![3.gif](..%2F..%2FUsers%2F82103%2FOneDrive%2F%EB%B0%94%ED%83%95%20%ED%99%94%EB%A9%B4%2Flogos%2F3.gif)
+![3](https://github.com/somi9954/BoardReact/assets/137499604/f1745293-9b49-475d-a669-011b86996295)
 
 ## 개발 환경
 - IntellJ IDEA (API 개발 개발환경, REACT PROJECT) 
