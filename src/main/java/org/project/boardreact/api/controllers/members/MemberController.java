@@ -20,6 +20,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -31,6 +32,7 @@ public class MemberController {
 
     private final MemberSaveService saveService;
     private final MemberLoginService loginService;
+    private final MemberRepository repository;
 
     @PostMapping
     public ResponseEntity<JSONData> join(@RequestBody @Valid RequestJoin form, Errors errors) {
@@ -70,6 +72,11 @@ public class MemberController {
         return new JSONData(member);
     }
 
+    @GetMapping("/admin/member")
+    public List<Member> findAll(){
+         return repository.findAll();
+    }
+
     @GetMapping("/admin")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String admin() {
@@ -81,4 +88,6 @@ public class MemberController {
             throw new BadRequestException(Utils.getMessages(errors));
         }
     }
+
+
 }

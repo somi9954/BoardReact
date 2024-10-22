@@ -23,5 +23,5 @@ public record RequestJoin(
         String mobile,
 
         @AssertTrue
-        Boolean agree // 기본형으로 핧 시 레코드 클래스에서 에러가 날 수 있어서 래퍼 클래스를 사용함
+        Boolean agree // 기본형으로 사용 시 레코드 클래스에서 에러가 날 수 있어서 래퍼 클래스를 사용함
 ) {}
