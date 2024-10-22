@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -56,4 +58,14 @@ public class MemberSaveService {
 
         repository.saveAndFlush(member);
     }
+
+    // 회원 정보 저장
+    public  void save(RequestJoin join) {
+        Member member = Member.toMember(join);
+        repository.saveAndFlush(member);
+        System.out.println(member);
+    }
+
+
 }
+
