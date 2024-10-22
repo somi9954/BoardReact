@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext, useEffect } from 'react';
+import { useState, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import cookies from 'react-cookies';
 import { useNavigate } from 'react-router-dom';
@@ -70,34 +70,20 @@ const LoginContainer = () => {
     [form],
   );
 
-  const onPaste = useCallback((e) => {
-    const pastedText = e.clipboardData.getData('text');
-    setForm(
-      produce((draft) => {
-        e.currentTarget?.name && (draft[e.currentTarget.name] = pastedText);
-      }),
-    );
-  }, []);
-
   const onChange = useCallback((e) => {
     setForm(
       produce((draft) => {
         // e.currentTarget이 null이 아닌지, e.currentTarget.name이 null이 아닌지 확인
         // 선택적 체이닝(?.)을 사용하여 단축 평가로 조건 확인
         e.currentTarget?.name &&
-          (draft[e.currentTarget.name] = e.currentTarget.value);
+        (draft[e.currentTarget.name] = e.currentTarget.value);
       }),
     );
   }, []);
 
   return (
     <>
-      <LoginForm
-        onChange={onChange}
-        onSubmit={onSubmit}
-        errors={errors}
-        onPaste={onPaste}
-      />
+      <LoginForm onChange={onChange} onSubmit={onSubmit} errors={errors} />
     </>
   );
 };

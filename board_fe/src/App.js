@@ -22,7 +22,6 @@ import AdminMain from './pages/admin/Main';
 import AdminConfig from './pages/admin/Config';
 import AdminBoardWrite from './pages/admin/AdminBoardWrite';
 import AdminBoardChange from './pages/admin/AdminBoardChange';
-import MemberList from './pages/admin/MemberList';
 
 const App = () => {
   const {
@@ -52,7 +51,6 @@ const App = () => {
         <Route path="/admin/board/add" element={<AdminBoardWrite />} />
         <Route path="/admin/board/edit/:bId" element={<AdminBoardChange />} />
         <Route path="config" element={<AdminConfig />} />
-        <Route path="/admin/member" element={<MemberList />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

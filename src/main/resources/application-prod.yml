@@ -10,9 +10,9 @@ spring:
 
   datasource: # 데이터 베이스 연결 설정
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/boardproject
-    username: boardproject
-    password: aA!123456
+    url: jdbc:mysql://somi-mysql.cb4mkq0amnvs.ap-northeast-2.rds.amazonaws.com:3306/boardproject
+    username: admin
+    password: Ranhee9954!
 
   jpa: # JPA 설정
     properties:

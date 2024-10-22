@@ -40,7 +40,7 @@ const FormBox = styled.form`
   }
 `;
 
-const LoginForm = ({ onSubmit, onChange, onPaste, errors }) => {
+const LoginForm = ({ onSubmit, onChange, errors }) => {
   const { t } = useTranslation();
 
   errors = errors || {};
@@ -59,7 +59,6 @@ const LoginForm = ({ onSubmit, onChange, onPaste, errors }) => {
         placeholder={t('이메일')}
         ref={refEmail}
         onChange={onChange}
-        onPaste={onPaste}
       />
       {errors.email && <Message>{errors.email}</Message>}
 
@@ -68,7 +67,6 @@ const LoginForm = ({ onSubmit, onChange, onPaste, errors }) => {
         name="password"
         placeholder={t('비밀번호')}
         onChange={onChange}
-        onPaste={onPaste}
       />
       {errors.password && <Message>{errors.password}</Message>}
 

@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.project.boardreact.api.controllers.members.RequestJoin;
 import org.project.boardreact.commons.contansts.BoardAuthority;
 import org.project.boardreact.commons.contansts.MemberType;
 
@@ -36,14 +35,5 @@ public class Member extends Base{
     @Enumerated(EnumType.STRING)
     @Column(length = 15, nullable = false)
     private BoardAuthority boardAuthority = BoardAuthority.USER;
-
-    public static Member toMember(RequestJoin join) {
-         Member member = new Member();
-         member.setEmail(join.email());
-         member.setPassword(join.password());
-         member.setNickname(join.name());
-         member.setMobile(join.mobile());
-         return member;
-    }
 
 }

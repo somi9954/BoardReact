@@ -14,14 +14,6 @@ const JoinContainer = () => {
   });
   const [errors, setErrors] = useState({});
 
-  const validatePassword = (password) => {
-    // 비밀번호가 8~16자이고, 영문 대소문자, 숫자, 특수문자를 최소 하나 이상 포함하는지 검사
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%^*?&_])[A-Za-z\d@$!%^*?&_]{8,16}$/;
-
-    return passwordRegex.test(password);
-  };
-
   const onSubmit = useCallback(
     (e) => {
       e.preventDefault();
@@ -43,18 +35,6 @@ const JoinContainer = () => {
 
           _errors[field].push(requiredFields[field]);
 
-          hasError = true;
-        }
-      }
-
-      // 비밀번호 필드가 비어있을 때
-      if (!form.password || !form.password.trim()) {
-        _errors.password = [t('NotBlank_password')]; // 에러 메시지 배열을 새로 초기화하고 추가
-        hasError = true;
-      } else {
-        // 비밀번호가 복잡성 요구 사항을 충족하지 않을 때
-        if (!validatePassword(form.password)) {
-          _errors.password = [t('Password_complexity_error')]; // 복잡성 에러 메시지 추가
           hasError = true;
         }
       }
