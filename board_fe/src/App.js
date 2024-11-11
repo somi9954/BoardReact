@@ -52,7 +52,7 @@ const App = () => {
         <Route path="/admin/board/add" element={<AdminBoardWrite />} />
         <Route path="/admin/board/edit/:bId" element={<AdminBoardChange />} />
         <Route path="config" element={<AdminConfig />} />
-        <Route path="/admin/member" element={<MemberList />} />
+        <Route path="/admin/memberList" element={<MemberList />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

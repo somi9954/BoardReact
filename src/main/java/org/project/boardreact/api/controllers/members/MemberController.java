@@ -3,6 +3,7 @@ package org.project.boardreact.api.controllers.members;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.project.boardreact.commons.Utils;
 import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.commons.rests.JSONData;
@@ -28,6 +29,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/member")
 @RequiredArgsConstructor
+@Slf4j
 public class MemberController {
 
     private final MemberSaveService saveService;
@@ -72,9 +74,22 @@ public class MemberController {
         return new JSONData(member);
     }
 
-    @GetMapping("/admin/member")
-    public List<Member> findAll(){
-         return repository.findAll();
+
+    @GetMapping("/admin/memberList")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<JSONData> getAllMembers() {
+        try {
+            List<Member> members = repository.findAll();
+            log.info("Number of members: {}", members.size());
+
+            JSONData data = new JSONData(members);
+            data.setStatus(HttpStatus.OK);
+
+            return ResponseEntity.status(data.getStatus()).body(data);
+        } catch (Exception e) {
+            log.error("Error fetching members: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/admin")

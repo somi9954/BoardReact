@@ -66,6 +66,11 @@ public class MemberSaveService {
         System.out.println(member);
     }
 
+    //회원 리스트
+    public List<Member> getAllMembers() {
+        return repository.findAll();
+    }
+
 
 }
 

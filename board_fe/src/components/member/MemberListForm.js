@@ -5,7 +5,6 @@ import loadable from '@loadable/component';
 import { InputText } from '../commons/InputStyle';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Paging from '../commons/Paging';
-import requestConfigDelete from '../../api/admin/ConfigDelete';
 
 const Container = styled.div`
   select {
@@ -137,108 +136,24 @@ const Container = styled.div`
 `;
 
 const MemberListForm = ({
-  errors,
-  boardList,
-  loading,
-  fetchBoardList,
-  handleSearchChange,
+  members,
+  searchOption,
+  searchKey,
   handleSearchOptionChange,
   handleSearchSubmit,
   handleKeyPress,
-  searchKey,
-  searchOption,
+  handleSearchChange,
 }) => {
   const { t } = useTranslation();
-  const ErrorMessages = loadable(() => import('../commons/ErrorMessages'));
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [modifiedBoardList, setModifiedBoardList] = useState([]);
-  const [selectAllChecked, setSelectAllChecked] = useState(false);
-  const [selectedBoards, setSelectedBoards] = useState([]);
-  const navigate = useNavigate();
+  const [page, setPage] = useState(1);
 
-  const handleCheckboxChange = (event) => {
-    const { value, checked } = event.target;
+  const itemsPerPage = 10;
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, members?.length || 0);
 
-    if (value === 'all') {
-      // 전체 선택 체크박스가 변경될 때
-      if (checked) {
-        const selectedIds = modifiedBoardList.map((board) => board.bid);
-        setSelectedIds(selectedIds);
-      } else {
-        setSelectedIds([]);
-      }
-      setSelectAllChecked(checked);
-    } else {
-      // 개별 체크박스가 변경될 때
-      if (checked) {
-        setSelectedIds([...selectedIds, value]);
-      } else {
-        setSelectedIds(selectedIds.filter((id) => id !== value));
-      }
-    }
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber);
   };
-
-  const handleDeleteSelectedBoards = async () => {
-    try {
-      const confirmed = window.confirm('정말 삭제하시겠습니까?');
-      if (!confirmed) return;
-
-      // 선택된 게시판 ID 배열
-      const selectedBoardIds = selectedIds;
-
-      // 선택된 각 게시판을 삭제
-      for (const boardId of selectedBoardIds) {
-        await requestConfigDelete(boardId);
-      }
-
-      fetchBoardList();
-    } catch (error) {}
-  };
-
-  const handleBNameChange = (event, bid) => {
-    const { value } = event.target;
-
-    const updatedModifiedBoardList = modifiedBoardList.map((board) => {
-      if (board.bid === bid) {
-        return { ...board, bname: value };
-      }
-      return board;
-    });
-
-    setModifiedBoardList(updatedModifiedBoardList);
-  };
-
-  const handleActiveChange = (event, index) => {
-    const { value } = event.target;
-
-    const updatedModifiedBoardList = [...modifiedBoardList];
-    updatedModifiedBoardList[index] = {
-      ...updatedModifiedBoardList[index],
-      activeText: value,
-      active: value === '사용' ? true : false,
-    };
-    setModifiedBoardList(updatedModifiedBoardList);
-  };
-
-  const handlePermissionChange = (event, index) => {
-    const { value } = event.target;
-
-    const updatedModifiedBoardList = [...modifiedBoardList];
-    updatedModifiedBoardList[index] = {
-      ...updatedModifiedBoardList[index],
-      authority: value,
-    };
-    setModifiedBoardList(updatedModifiedBoardList);
-  };
-
-  useEffect(() => {
-    setModifiedBoardList(
-      boardList.map((board) => ({
-        ...board,
-        activeText: board.active ? '사용' : '미사용',
-      })),
-    );
-  }, [boardList]);
 
   return (
     <Container>
@@ -254,8 +169,8 @@ const MemberListForm = ({
                 onChange={handleSearchOptionChange}
               >
                 <option value="all">{t('통합검색')}</option>
-                <option value="email">{t('이메일')}</option>
-                <option value="nickname">{t('닉네임')}</option>
+                <option value="email">{t('아이디(email)')}</option>
+                <option value="nickname">{t('사용자 이름')}</option>
               </select>
               <InputText
                 type="text"
@@ -275,109 +190,47 @@ const MemberListForm = ({
             </div>
           </div>
         </div>
-        <ErrorMessages errors={errors} field="search" />
-
-        <table className="table-rows">
-          <thead>
-            <tr>
-              <th width="40">
-                <InputText
-                  type="checkbox"
-                  className="checkall"
-                  id="checkall"
-                  checked={selectAllChecked}
-                  value="all"
-                  onChange={handleCheckboxChange}
-                />
-              </th>
-              <th width="150">이메일 ID</th>
-              <th width="300">게시판명</th>
-              <th width="150">회원명</th>
-              <th width="150">휴대전화번호</th>
-              <th width="150">상세조회</th>
-              <th width="150">회원삭제</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="6" className="nodata">
-                  등록된 게시판이 없습니다.
-                </td>
-              </tr>
-            ) : modifiedBoardList && modifiedBoardList.length > 0 ? (
-              modifiedBoardList.map((board, index) => (
-                <tr key={board.bid}>
-                  <td>
-                    <InputText
-                      type="checkbox"
-                      className="check"
-                      id={`check${board.bid}`}
-                      value={board.bid}
-                      checked={selectedIds.includes(board.bid)}
-                      onChange={handleCheckboxChange}
-                    />
-                  </td>
-                  <td>{board.bid}</td>
-                  <td>
-                    <InputText
-                      type="text"
-                      value={board.bname}
-                      onChange={(event) => handleBNameChange(event, board.bid)}
-                    />
-                  </td>
-                  <td>
-                    <select
-                      name="active"
-                      value={board.activeText}
-                      onChange={(event) => handleActiveChange(event, index)}
-                    >
-                      <option value="사용">사용</option>
-                      <option value="미사용">미사용</option>
-                    </select>
-                  </td>
-                  <td>
-                    <select
-                      name="permission"
-                      value={board.authority}
-                      onChange={(event) => handlePermissionChange(event, index)}
-                    >
-                      <option value="ALL">ALL(비회원+회원+관리자)</option>
-                      <option value="USER">USER(회원+관리자)</option>
-                      <option value="ADMIN">ADMIN(관리자)</option>
-                    </select>
-                  </td>
-                  <td>
-                    <div className="table-action2">
-                      <NavLink
-                        to={`/admin/board/edit/${board.bid}`}
-                        className="sbtn2"
-                      >
-                        조회
-                      </NavLink>
-                    </div>
-                  </td>
-                  <td>
-                    <NavLink
-                      to={`/board/list/${board.bid}`}
-                      className="sbtn blue2"
-                    >
-                      삭제
-                    </NavLink>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="nodata">
-                  등록된 회원이 없습니다.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        <Paging page={1} count={10} setPage={() => {}} />
       </div>
+      <h1>회원 목록</h1>
+      <table className="table-rows">
+        <thead>
+          <tr>
+            <th width="50">{t('userNo')}</th>
+            <th width="150">{t('회원ID(email)')}</th>
+            <th width="150">{t('사용자 이름')}</th>
+            <th width="200">{t('등록일')}</th>
+            <th width="100">{t('회원 타입')}</th>
+          </tr>
+        </thead>
+
+        {members?.length === 0 ? (
+          <tbody>
+            <tr>
+              <td colSpan="5">{t('데이터가 없습니다.')}</td>
+            </tr>
+          </tbody>
+        ) : (
+          <tbody>
+            {members?.slice(startIndex, endIndex).map((item, index) => (
+              <tr key={item.userNo}>
+                <td>{startIndex + index + 1}</td>
+                <td>{item.email}</td>
+                <td>{item.nickname}</td>
+                <td>{item.createdAt}</td>
+                <td>{item.type}</td>
+              </tr>
+            ))}
+          </tbody>
+        )}
+      </table>
+
+      <Paging
+        className="paging"
+        page={page}
+        count={members?.length || 0}
+        setPage={handlePageChange}
+        initialPage={page}
+      />
     </Container>
   );
 };
