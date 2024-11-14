@@ -200,6 +200,7 @@ const MemberListForm = ({
             <th width="150">{t('사용자 이름')}</th>
             <th width="100">{t('등록일')}</th>
             <th width="70">{t('회원 타입')}</th>
+            <th></th>
           </tr>
         </thead>
 

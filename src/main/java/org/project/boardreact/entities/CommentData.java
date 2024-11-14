@@ -1,5 +1,6 @@
 package org.project.boardreact.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ public class CommentData extends Base {
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="boardData_seq")
+    @JsonBackReference
     private BoardData boardData;
 
     @ManyToOne(fetch=FetchType.EAGER)

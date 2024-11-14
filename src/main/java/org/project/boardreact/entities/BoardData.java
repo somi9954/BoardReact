@@ -1,5 +1,6 @@
 package org.project.boardreact.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -56,6 +57,7 @@ public class BoardData extends Base {
 
     @Transient
     @ToString.Exclude
+    @JsonManagedReference
     private List<CommentData> comments; // 댓글 목록
 
     @Transient
