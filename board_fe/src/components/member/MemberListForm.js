@@ -195,18 +195,18 @@ const MemberListForm = ({
       <table className="table-rows">
         <thead>
           <tr>
-            <th width="50">{t('userNo')}</th>
-            <th width="150">{t('회원ID(email)')}</th>
+            <th width="20">{t('userNo')}</th>
+            <th width="100">{t('회원ID(email)')}</th>
             <th width="150">{t('사용자 이름')}</th>
-            <th width="200">{t('등록일')}</th>
-            <th width="100">{t('회원 타입')}</th>
+            <th width="100">{t('등록일')}</th>
+            <th width="70">{t('회원 타입')}</th>
           </tr>
         </thead>
 
         {members?.length === 0 ? (
           <tbody>
             <tr>
-              <td colSpan="5">{t('데이터가 없습니다.')}</td>
+              <td colSpan="5">{t('회원 데이터가 없습니다.')}</td>
             </tr>
           </tbody>
         ) : (

@@ -1,20 +1,18 @@
 import apiRequest from '../../lib/apiRequest';
 
-export default function responseList() {
-  return new Promise((resolve, reject) => {
-    apiRequest(`/member/admin/memberList`, 'GET')
-      .then((res) => {
-        console.log('response', res); // 응답 데이터 전체 출력
-        if (Array.isArray(res.data)) {
-          resolve(res.data);
-        } else {
-          console.error('Invalid data format:', res.data); // 데이터 구조 확인
-          reject('Invalid response format');
-        }
-      })
-      .catch((err) => {
-        console.error('API request failed:', err);
-        reject(err);
-      });
-  });
+export default async function responseList() {
+  try {
+    const res = await apiRequest('/member/admin/memberList', 'GET');
+    console.log('응답', res);
+
+    if (res.data && Array.isArray(res.data.data)) {
+      return res.data.data;
+    } else {
+      console.error('잘못된 데이터 형식:', res.data);
+      throw new Error('잘못된 응답 형식');
+    }
+  } catch (err) {
+    console.error('API 요청 실패:', err);
+    throw err;
+  }
 }
