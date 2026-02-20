@@ -186,17 +186,12 @@ const Mypage = () => {
               onChange={onUploadProfileImage}
               style={{ display: 'none' }}
             />
-            <BigButton
+            <UploadButton
               type="button"
-              color="white"
-              fcolor="info"
-              bcolor="info"
-              width="160px"
-              height="36px"
               onClick={() => profileImageInputRef.current?.click()}
             >
               프로필 사진 업로드
-            </BigButton>
+            </UploadButton>
           </div>
           <DangerText>탈퇴를 진행하면 즉시 로그아웃되며, 계정은 30일 뒤에 영구 삭제됩니다.</DangerText>
         </InfoBox>
