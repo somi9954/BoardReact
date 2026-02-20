@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.project.boardreact.commons.Utils;
 import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.commons.rests.JSONData;
+import org.project.boardreact.commons.contansts.MemberType;
 import org.project.boardreact.entities.Member;
 import org.project.boardreact.models.member.MemberInfo;
 import org.project.boardreact.models.member.MemberLoginService;
@@ -17,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +38,7 @@ public class MemberController {
     private final MemberSaveService saveService;
     private final MemberLoginService loginService;
     private final MemberRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping
     public ResponseEntity<JSONData> join(@RequestBody @Valid RequestJoin form, Errors errors) {
@@ -74,6 +78,51 @@ public class MemberController {
         return new JSONData(member);
     }
 
+    @PatchMapping("/mypage")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<JSONData> updateMyPage(@AuthenticationPrincipal MemberInfo memberInfo,
+                                                 @RequestBody @Valid RequestProfileUpdate form,
+                                                 Errors errors) {
+
+        if (StringUtils.hasText(form.password()) && !form.password().equals(form.confirmPassword())) {
+            errors.rejectValue("confirmPassword", "Mismatch_confirmPassword", "비밀번호가 일치하지 않습니다.");
+        }
+
+        errorProcess(errors);
+
+        Member member = memberInfo.getMember();
+
+        if (StringUtils.hasText(form.nickname())) {
+            member.setNickname(form.nickname());
+        }
+
+        if (form.mobile() != null) {
+            member.setMobile(form.mobile());
+        }
+
+        if (StringUtils.hasText(form.password())) {
+            member.setPassword(passwordEncoder.encode(form.password()));
+        }
+
+        saveService.save(member);
+
+        JSONData data = new JSONData(member);
+        data.setMessage("회원정보가 수정되었습니다.");
+
+        return ResponseEntity.ok(data);
+    }
+
+    @DeleteMapping("/mypage")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<JSONData> deleteMyPage(@AuthenticationPrincipal MemberInfo memberInfo) {
+        Member member = memberInfo.getMember();
+        repository.delete(member);
+
+        JSONData data = new JSONData(true);
+        data.setMessage("회원 탈퇴가 완료되었습니다.");
+        return ResponseEntity.ok(data);
+    }
+
 
     @GetMapping("/admin/memberList")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -96,6 +145,40 @@ public class MemberController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public String admin() {
         return "관리자 페이지 접속....";
+    }
+
+    @PatchMapping("/admin/{userNo}/type")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<JSONData> updateMemberType(@PathVariable Long userNo, @RequestBody Map<String, String> params) {
+        Member member = repository.findById(userNo).orElseThrow(() -> new BadRequestException(Map.of("userNo", "회원 정보를 찾을 수 없습니다.")));
+
+        String type = params.get("type");
+        if (type == null) {
+            throw new BadRequestException(Map.of("type", "변경할 회원 타입이 필요합니다."));
+        }
+
+        member.setType(MemberType.valueOf(type));
+        repository.saveAndFlush(member);
+
+        JSONData data = new JSONData(member);
+        data.setMessage("회원 권한이 변경되었습니다.");
+        return ResponseEntity.ok(data);
+    }
+
+    @DeleteMapping("/admin/{userNo}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<JSONData> deleteMember(@PathVariable Long userNo, @AuthenticationPrincipal MemberInfo memberInfo) {
+        Member loginMember = memberInfo.getMember();
+        if (loginMember.getUserNo().equals(userNo)) {
+            throw new BadRequestException(Map.of("userNo", "본인 계정은 삭제할 수 없습니다."));
+        }
+
+        Member member = repository.findById(userNo).orElseThrow(() -> new BadRequestException(Map.of("userNo", "회원 정보를 찾을 수 없습니다.")));
+        repository.delete(member);
+
+        JSONData data = new JSONData(true);
+        data.setMessage("회원이 탈퇴 처리되었습니다.");
+        return ResponseEntity.ok(data);
     }
 
     private void errorProcess(Errors errors) {
