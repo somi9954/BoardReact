@@ -6,8 +6,8 @@ import { ButtonGroup, BigButton } from '../commons/ButtonStyle';
 import sizeNames from '../../styles/sizes';
 import styled from 'styled-components';
 import loadable from '@loadable/component';
-import React, { useEffect, useState } from 'react';
-import requestConfigInfo from '../../api/admin/configInfo';
+import React from 'react';
+import useSiteConfig from '../../hooks/useSiteConfig';
 
 const ErrorMessages = loadable(() => import('../commons/ErrorMessages'));
 
@@ -61,17 +61,7 @@ const FormBox = styled.form`
 
 const JoinForm = ({ onSubmit, onChange, onToggle, form, errors }) => {
   const { t } = useTranslation();
-  const [joinTerms, setJoinTerms] = useState('회원 가입약관....');
-
-  useEffect(() => {
-    requestConfigInfo()
-      .then((res) => {
-        if (res?.data?.joinTerms) {
-          setJoinTerms(res.data.joinTerms);
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const { joinTerms } = useSiteConfig();
 
   return (
     <FormBox onSubmit={onSubmit}>

@@ -2,6 +2,7 @@ package org.project.boardreact.configs;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
@@ -17,6 +19,19 @@ import java.util.Arrays;
 @Configuration
 @EnableJpaAuditing
 public class MvcConfig implements WebMvcConfigurer {
+
+    @Value("${file.upload.path}")
+    private String uploadPath;
+
+    @Value("${file.upload.url}")
+    private String uploadUrl;
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String path = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
+        registry.addResourceHandler(uploadUrl + "**")
+                .addResourceLocations("file:" + path);
+    }
 
     @Bean
     public MessageSource messageSource() {

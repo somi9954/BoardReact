@@ -4,11 +4,11 @@ import { Outlet } from 'react-router-dom';
 import React, { useContext, useEffect } from 'react';
 import MainClassContext from '../../modules/mainClass';
 import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
+import useSiteConfig from '../../hooks/useSiteConfig';
 
 const CommonLayout = () => {
   const { mainClass, update } = useContext(MainClassContext);
-  const { t } = useTranslation();
+  const { siteTitle } = useSiteConfig();
 
   useEffect(() => {
     update();
@@ -17,7 +17,7 @@ const CommonLayout = () => {
   return (
     <>
       <Helmet>
-        <title>{t('FreeTalk')}</title>
+        <title>{siteTitle || 'FreeTalk'}</title>
       </Helmet>
       <Header />
       <main className={mainClass}>

@@ -4,6 +4,10 @@ export function requestMypageUpdate(form) {
   return apiRequest('/member/mypage', 'PATCH', form);
 }
 
+export function requestMypageDeleteSummary() {
+  return apiRequest('/member/mypage/delete-summary', 'GET');
+}
+
 export function requestMypageDelete() {
   return apiRequest('/member/mypage', 'DELETE');
 }

@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import cookies from 'react-cookies';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -10,6 +10,7 @@ import { InputText } from '../../../components/commons/InputStyle';
 import { BigButton, ButtonGroup } from '../../../components/commons/ButtonStyle';
 import {
   requestMypageDelete,
+  requestMypageDeleteSummary,
   requestMypageUpdate,
   requestProfileImageUpload,
 } from '../../../api/member/Mypage';
@@ -72,12 +73,14 @@ const DangerText = styled.p`
   font-size: 14px;
 `;
 
+
 const Mypage = () => {
   const navigate = useNavigate();
   const {
     state: { userInfo },
     action: { setUserInfo, setIsLogin, setIsAdmin },
   } = useContext(UserContext);
+  const profileImageInputRef = useRef(null);
 
   const avatarUrl =
     userInfo?.profileImage ||
@@ -134,10 +137,21 @@ const Mypage = () => {
   };
 
   const onDelete = async () => {
-    const confirmed = window.confirm('정말 회원 탈퇴하시겠습니까? 탈퇴 후 30일 뒤에 계정이 완전 삭제됩니다.');
-    if (!confirmed) return;
-
     try {
+      const summaryRes = await requestMypageDeleteSummary();
+      if (summaryRes.data?.success === false) {
+        alert(summaryRes.data?.message || '탈퇴 전 게시글/댓글 정보를 조회하지 못했습니다.');
+        return;
+      }
+
+      const boardCount = summaryRes.data?.data?.boardCount || 0;
+      const commentCount = summaryRes.data?.data?.commentCount || 0;
+
+      const confirmed = window.confirm(
+        `회원 탈퇴를 진행하면 게시글 ${boardCount}개, 댓글 ${commentCount}개가 삭제됩니다.\n정말 탈퇴하시겠습니까?`,
+      );
+      if (!confirmed) return;
+
       const res = await requestMypageDelete();
       if (res.data?.success === false) {
         alert(res.data?.message || '회원 탈퇴에 실패했습니다.');
@@ -165,7 +179,24 @@ const Mypage = () => {
             <p>{userInfo?.nickname || '사용자'} 님</p>
           </div>
           <div className="profile-upload">
-            <input type="file" accept="image/*" onChange={onUploadProfileImage} />
+            <input
+              ref={profileImageInputRef}
+              type="file"
+              accept="image/*"
+              onChange={onUploadProfileImage}
+              style={{ display: 'none' }}
+            />
+            <BigButton
+              type="button"
+              color="white"
+              fcolor="info"
+              bcolor="info"
+              width="160px"
+              height="36px"
+              onClick={() => profileImageInputRef.current?.click()}
+            >
+              프로필 사진 업로드
+            </BigButton>
           </div>
           <DangerText>탈퇴를 진행하면 즉시 로그아웃되며, 계정은 30일 뒤에 영구 삭제됩니다.</DangerText>
         </InfoBox>

@@ -1,14 +1,14 @@
-import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import React from 'react';
+import useSiteConfig from '../../hooks/useSiteConfig';
 
 const MainTitle = () => {
-  const { t } = useTranslation();
+  const { siteTitle } = useSiteConfig();
 
   return (
     <>
       <Helmet>
-        <title>{t('FreeTalk')}</title>
+        <title>{siteTitle || 'FreeTalk'}</title>
       </Helmet>
     </>
   );

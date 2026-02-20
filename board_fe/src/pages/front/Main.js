@@ -1,17 +1,9 @@
 import '../Main.scss';
-import React, { useEffect, useState } from 'react';
-import requestConfigInfo from '../../api/admin/configInfo';
+import React from 'react';
+import useSiteConfig from '../../hooks/useSiteConfig';
 
 const Main = () => {
-  const [siteConfig, setSiteConfig] = useState({});
-
-  useEffect(() => {
-    requestConfigInfo()
-      .then((res) => {
-        setSiteConfig(res?.data || {});
-      })
-      .catch(() => {});
-  }, []);
+  const siteConfig = useSiteConfig();
 
   return (
     <div className="home-wrapper">
