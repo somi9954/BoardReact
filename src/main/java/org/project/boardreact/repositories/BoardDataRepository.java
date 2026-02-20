@@ -9,4 +9,8 @@ import java.util.List;
 
 public interface BoardDataRepository extends JpaRepository<BoardData, Long>, QuerydslPredicateExecutor<BoardData> {
     List<BoardData> findAllByMember(Member member);
+
+    long countByMember(Member member);
+
+    void deleteAllByMember(Member member);
 }
