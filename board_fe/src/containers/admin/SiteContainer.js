@@ -59,7 +59,11 @@ const SiteContainer = () => {
       }
 
       try {
-        await requestConfig(form);
+        const res = await requestConfig(form);
+        if (res.status >= 400) {
+          throw new Error(res.data?.message || '사이트 설정 저장에 실패했습니다.');
+        }
+
         alert('사이트 설정이 저장되었습니다.');
         navigate('/admin/config', { replace: true });
       } catch (err) {

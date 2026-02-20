@@ -12,7 +12,5 @@ export const requestProfileImageUpload = (file) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  return apiRequest('/member/mypage/profile-image', 'POST', formData, {
-    'Content-Type': 'multipart/form-data',
-  });
+  return apiRequest('/member/mypage/profile-image', 'POST', formData);
 };
