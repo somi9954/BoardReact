@@ -132,6 +132,12 @@ const MemberListForm = ({
 }) => {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
+  const onDelete =
+    typeof handleDelete === 'function'
+      ? handleDelete
+      : () => {
+          alert('탈퇴 처리 기능을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+        };
 
   const itemsPerPage = 10;
   const startIndex = (page - 1) * itemsPerPage;
@@ -219,7 +225,7 @@ const MemberListForm = ({
                   <button
                     type="button"
                     className="sbtn"
-                    onClick={() => handleDelete(item.userNo)}
+                    onClick={() => onDelete(item.userNo)}
                   >
                     탈퇴
                   </button>
