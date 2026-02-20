@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import cookies from 'react-cookies';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -72,12 +72,28 @@ const DangerText = styled.p`
   font-size: 14px;
 `;
 
+const UploadButton = styled.button`
+  padding: 8px 14px;
+  border: 1px solid #607d8b;
+  border-radius: 4px;
+  background: #fff;
+  color: #607d8b;
+  cursor: pointer;
+  font-size: 13px;
+
+  &:hover {
+    background: #607d8b;
+    color: #fff;
+  }
+`;
+
 const Mypage = () => {
   const navigate = useNavigate();
   const {
     state: { userInfo },
     action: { setUserInfo, setIsLogin, setIsAdmin },
   } = useContext(UserContext);
+  const profileImageInputRef = useRef(null);
 
   const avatarUrl =
     userInfo?.profileImage ||
@@ -165,7 +181,19 @@ const Mypage = () => {
             <p>{userInfo?.nickname || '사용자'} 님</p>
           </div>
           <div className="profile-upload">
-            <input type="file" accept="image/*" onChange={onUploadProfileImage} />
+            <input
+              ref={profileImageInputRef}
+              type="file"
+              accept="image/*"
+              onChange={onUploadProfileImage}
+              style={{ display: 'none' }}
+            />
+            <UploadButton
+              type="button"
+              onClick={() => profileImageInputRef.current?.click()}
+            >
+              프로필 사진 업로드
+            </UploadButton>
           </div>
           <DangerText>탈퇴를 진행하면 즉시 로그아웃되며, 계정은 30일 뒤에 영구 삭제됩니다.</DangerText>
         </InfoBox>
