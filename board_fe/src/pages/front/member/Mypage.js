@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react';
-import bannerImage from '../../../images/main/mini.jpg';
 import cookies from 'react-cookies';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -39,12 +38,19 @@ const FormBox = styled.form`
 
 const InfoBox = styled.div`
   margin-bottom: 20px;
-  .thumb {
-    width: 100%;
-    max-height: 180px;
-    object-fit: cover;
-    border-radius: 8px;
+  .profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 12px;
+  }
+
+  .thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid #d5d5d5;
   }
 
   p {
@@ -65,6 +71,8 @@ const Mypage = () => {
     state: { userInfo },
     action: { setUserInfo, setIsLogin, setIsAdmin, updateUserInfo },
   } = useContext(UserContext);
+
+  const avatarUrl = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(userInfo?.nickname || userInfo?.email || 'USER')}`;
 
   const [form, setForm] = useState({
     nickname: userInfo?.nickname || '',
@@ -124,8 +132,10 @@ const Mypage = () => {
       <OuterBox>
         <MainTitle color="info">마이페이지</MainTitle>
         <InfoBox>
-          <img className="thumb" src={bannerImage} alt="마이페이지 안내 이미지" />
-          <p>이메일: {userInfo?.email}</p>
+          <div className="profile">
+            <img className="thumb" src={avatarUrl} alt="프로필 이미지" />
+            <p>{userInfo?.nickname || '사용자'} 님</p>
+          </div>
           <p>회원유형: {userInfo?.type}</p>
           <DangerText>탈퇴를 진행하면 즉시 로그아웃되며, 계정은 30일 뒤에 영구 삭제됩니다.</DangerText>
         </InfoBox>

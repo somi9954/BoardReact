@@ -144,7 +144,14 @@ public class MemberController {
 
     @PatchMapping("/admin/{userNo}/type")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<JSONData> updateMemberType(@PathVariable Long userNo, @RequestBody Map<String, String> params) {
+    public ResponseEntity<JSONData> updateMemberType(@PathVariable Long userNo,
+                                                     @AuthenticationPrincipal MemberInfo memberInfo,
+                                                     @RequestBody Map<String, String> params) {
+        Member loginMember = memberInfo.getMember();
+        if (loginMember.getUserNo().equals(userNo)) {
+            throw new BadRequestException(Map.of("userNo", List.of("본인 계정의 권한은 변경할 수 없습니다.")));
+        }
+
         Member member = repository.findById(userNo).orElseThrow(() -> new BadRequestException(Map.of("userNo", List.of("회원 정보를 찾을 수 없습니다."))));
 
         String type = params.get("type");
