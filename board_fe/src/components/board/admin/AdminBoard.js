@@ -4,9 +4,10 @@ import styled from 'styled-components';
 import loadable from '@loadable/component';
 import Menus from '../../../pages/admin/Menus';
 import { InputText } from '../../commons/InputStyle';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import Paging from '../../commons/Paging';
 import requestConfigDelete from '../../../api/admin/ConfigDelete';
+import RequestConfigWriteChange from '../../../api/admin/ConfigBoardUpdate';
 
 const Container = styled.div`
   select {
@@ -154,8 +155,34 @@ const AdminBoard = ({
   const [selectedIds, setSelectedIds] = useState([]);
   const [modifiedBoardList, setModifiedBoardList] = useState([]);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
-  const [selectedBoards, setSelectedBoards] = useState([]);
-  const navigate = useNavigate();
+  const handleUpdateSelectedBoards = async () => {
+    if (selectedIds.length === 0) {
+      alert('수정할 게시판을 선택해주세요.');
+      return;
+    }
+
+    const targets = modifiedBoardList.filter((board) =>
+      selectedIds.includes(board.bid),
+    );
+
+    try {
+      await Promise.all(
+        targets.map((board) =>
+          RequestConfigWriteChange(board.bid, {
+            bId: board.bid,
+            bName: board.bname,
+            active: board.active,
+            authority: board.authority,
+          }),
+        ),
+      );
+
+      alert('선택한 게시판이 수정되었습니다.');
+      fetchBoardList();
+    } catch (err) {
+      alert('게시판 수정 중 오류가 발생했습니다.');
+    }
+  };
 
   const handleCheckboxChange = (event) => {
     const { value, checked } = event.target;
@@ -377,7 +404,11 @@ const AdminBoard = ({
           </tbody>
         </table>
         <div className="table-action">
-          <button type="button" className="sbtn blue">
+          <button
+            type="button"
+            className="sbtn blue"
+            onClick={handleUpdateSelectedBoards}
+          >
             선택 게시판 수정
           </button>
           <button

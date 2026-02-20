@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import loadable from '@loadable/component';
 import { InputText } from '../commons/InputStyle';
-import { NavLink, useNavigate } from 'react-router-dom';
 import Paging from '../commons/Paging';
 
 const Container = styled.div`
   select {
     border: 1px solid #d5d5d5;
-    min-width: 150px;
-    height: 45px;
+    min-width: 110px;
+    height: 34px;
     border-radius: 5px;
   }
 
@@ -46,50 +44,26 @@ const Container = styled.div`
     border: 1px solid #d94c90;
     color: #d94c90;
     min-width: 90px;
-    padding: 0 20px;
-    height: 28px;
-    line-height: 26px;
+    padding: 0 12px;
+    height: 34px;
+    line-height: 32px;
     text-align: center;
     border-radius: 5px;
     margin-left: 5px;
+    background: #fff;
   }
+
   .sbtn.blue {
     color: #fff;
     background: #d94c90;
   }
+
   .table-cols {
     width: 100%;
     border-spacing: 0;
     padding: 0;
     border-top: 1px solid #d5d5d5;
     margin-bottom: 20px;
-  }
-  .table-action {
-    padding: 10px 0;
-    border-bottom: 1px solid #d5d5d5;
-    text-align: left;
-  }
-
-  .table-action2 {
-    padding: 10px 0;
-    text-align: center;
-  }
-
-  .sbtn2 {
-    display: inline-block;
-    border: 1px solid #d94c90;
-    color: #d94c90;
-    min-width: 90px;
-    padding: 0 20px;
-    height: 28px;
-    line-height: 26px;
-    text-align: center;
-    border-radius: 5px;
-  }
-  .sbtn.blue2 {
-    color: #fff;
-    background: #d94c90;
-    margin-left: 5px;
   }
 
   .table-cols dl {
@@ -98,37 +72,46 @@ const Container = styled.div`
     text-align: left;
     font-weight: bold;
   }
+
   .input_grp {
     display: flex;
     align-items: center;
     background: #fff;
     padding: 10px 15px;
   }
+
   .input_grp > * {
     margin-right: 5px;
   }
+
   .search {
     border-bottom: 1px solid #d5d5d5;
   }
+
   .table-rows {
     width: 100%;
     border-spacing: 0;
     padding: 0;
   }
+
   .table-rows th {
     background: #f9cac8;
     color: #fff;
     border-top: 1px solid #d5d5d5;
     padding: 12px 10px;
   }
+
   .table-rows td {
     padding: 15px 10px;
+    text-align: center;
   }
+
   .table-rows th,
   .table-rows td {
     border-bottom: 1px solid #d5d5d5;
     border-right: 1px solid #d5d5d5;
   }
+
   .table-rows th:first-of-type,
   .table-rows td:first-of-type {
     border-left: 1px solid #d5d5d5;
@@ -143,6 +126,8 @@ const MemberListForm = ({
   handleSearchSubmit,
   handleKeyPress,
   handleSearchChange,
+  handleTypeChange,
+  handleDelete,
 }) => {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
@@ -200,14 +185,15 @@ const MemberListForm = ({
             <th width="150">{t('사용자 이름')}</th>
             <th width="100">{t('등록일')}</th>
             <th width="70">{t('회원 타입')}</th>
-            <th></th>
+            <th width="120">권한변경</th>
+            <th width="90">탈퇴</th>
           </tr>
         </thead>
 
         {members?.length === 0 ? (
           <tbody>
             <tr>
-              <td colSpan="5">{t('회원 데이터가 없습니다.')}</td>
+              <td colSpan="7">{t('회원 데이터가 없습니다.')}</td>
             </tr>
           </tbody>
         ) : (
@@ -219,6 +205,24 @@ const MemberListForm = ({
                 <td>{item.nickname}</td>
                 <td>{item.createdAt}</td>
                 <td>{item.type}</td>
+                <td>
+                  <select
+                    value={item.type}
+                    onChange={(e) => handleTypeChange(item.userNo, e.target.value)}
+                  >
+                    <option value="USER">USER</option>
+                    <option value="ADMIN">ADMIN</option>
+                  </select>
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    className="sbtn"
+                    onClick={() => handleDelete(item.userNo)}
+                  >
+                    탈퇴
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

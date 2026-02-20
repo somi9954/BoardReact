@@ -1,28 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import MemberListForm from '../../components/member/MemberListForm';
 import responseList from '../../api/member/MemberList';
+import {
+  requestMemberDelete,
+  requestMemberTypeUpdate,
+} from '../../api/member/AdminMember';
 
 const MemberListContainer = () => {
   const { t } = useTranslation();
   const [members, setMembers] = useState([]);
+  const [originMembers, setOriginMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchKey, setSearchKey] = useState('');
   const [searchOption, setSearchOption] = useState('all');
 
-  useEffect(() => {
+  const loadMembers = useCallback(() => {
+    setLoading(true);
     responseList()
       .then((data) => {
-        console.log('Members data:', data);
         setMembers(data);
+        setOriginMembers(data);
         setLoading(false);
       })
       .catch((err) => {
         setError(t('Failed to load member list: ') + err);
         setLoading(false);
       });
-  }, []);
+  }, [t]);
+
+  useEffect(() => {
+    loadMembers();
+  }, [loadMembers]);
 
   if (loading) {
     return <div>{t('Loading...')}</div>;
@@ -33,7 +43,7 @@ const MemberListContainer = () => {
   }
 
   const searchMemberList = () => {
-    const filteredList = members.filter((item) => {
+    const filteredList = originMembers.filter((item) => {
       if (searchOption === 'all') {
         return (
           (item.email && item.email.includes(searchKey)) ||
@@ -51,7 +61,12 @@ const MemberListContainer = () => {
   };
 
   const handleSearchChange = (e) => {
-    setSearchKey(e.target.value);
+    const value = e.target.value;
+    setSearchKey(value);
+
+    if (!value.trim()) {
+      setMembers(originMembers);
+    }
   };
 
   const handleSearchOptionChange = (e) => {
@@ -68,6 +83,37 @@ const MemberListContainer = () => {
     }
   };
 
+  const handleTypeChange = async (userNo, type) => {
+    try {
+      const res = await requestMemberTypeUpdate(userNo, type);
+      if (res.data?.success === false) {
+        alert(res.data?.message || '권한 변경에 실패했습니다.');
+        return;
+      }
+
+      loadMembers();
+    } catch (err) {
+      alert('권한 변경 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDelete = async (userNo) => {
+    const confirmed = window.confirm('정말 탈퇴 처리하시겠습니까?');
+    if (!confirmed) return;
+
+    try {
+      const res = await requestMemberDelete(userNo);
+      if (res.data?.success === false) {
+        alert(res.data?.message || '탈퇴 처리에 실패했습니다.');
+        return;
+      }
+
+      loadMembers();
+    } catch (err) {
+      alert('탈퇴 처리 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <MemberListForm
       members={members}
@@ -78,6 +124,8 @@ const MemberListContainer = () => {
       handleSearchOptionChange={handleSearchOptionChange}
       handleSearchSubmit={handleSearchSubmit}
       handleKeyPress={handleKeyPress}
+      handleTypeChange={handleTypeChange}
+      handleDelete={handleDelete}
     />
   );
 };
