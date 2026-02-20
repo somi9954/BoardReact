@@ -7,6 +7,7 @@ import org.project.boardreact.commons.Utils;
 import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.commons.rests.JSONData;
 import org.project.boardreact.commons.contansts.MemberType;
+import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.entities.Member;
 import org.project.boardreact.models.member.MemberInfo;
 import org.project.boardreact.models.member.MemberLoginService;
@@ -188,8 +189,13 @@ public class MemberController {
     }
 
     private void deleteMemberRelatedData(Member member) {
+        List<BoardData> boardDataList = boardDataRepository.findAllByMember(member);
+        if (!boardDataList.isEmpty()) {
+            commentDataRepository.deleteAllByBoardDataIn(boardDataList);
+            boardDataRepository.deleteAll(boardDataList);
+        }
+
         commentDataRepository.deleteAll(commentDataRepository.findAllByMember(member));
-        boardDataRepository.deleteAll(boardDataRepository.findAllByMember(member));
     }
 
     private void errorProcess(Errors errors) {
