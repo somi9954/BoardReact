@@ -59,6 +59,20 @@ const Container = styled.div`
     background: #d94c90;
   }
 
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #edf2ff;
+    color: #324f9f;
+  }
+
+  .badge.deleted {
+    background: #ffe8ef;
+    color: #b4235b;
+  }
+
   .table-cols {
     width: 100%;
     border-spacing: 0;
@@ -192,15 +206,16 @@ const MemberListForm = ({
             <th width="150">{t('사용자 이름')}</th>
             <th width="100">{t('등록일')}</th>
             <th width="70">{t('회원 타입')}</th>
+            <th width="120">상태</th>
             <th width="120">권한변경</th>
-            <th width="90">탈퇴</th>
+            <th width="120">탈퇴/삭제예정일</th>
           </tr>
         </thead>
 
         {members?.length === 0 ? (
           <tbody>
             <tr>
-              <td colSpan="7">{t('회원 데이터가 없습니다.')}</td>
+              <td colSpan="8">{t('회원 데이터가 없습니다.')}</td>
             </tr>
           </tbody>
         ) : (
@@ -213,22 +228,36 @@ const MemberListForm = ({
                 <td>{item.createdAt}</td>
                 <td>{item.type}</td>
                 <td>
+                  <span className={`badge ${item.deleted ? 'deleted' : ''}`}>
+                    {item.deleted ? '탈퇴' : '정상'}
+                  </span>
+                </td>
+                <td>
                   <select
                     value={item.type}
                     onChange={(e) => handleTypeChange(item.userNo, e.target.value)}
+                    disabled={item.deleted}
                   >
                     <option value="USER">USER</option>
                     <option value="ADMIN">ADMIN</option>
                   </select>
                 </td>
                 <td>
-                  <button
-                    type="button"
-                    className="sbtn"
-                    onClick={() => onDelete(item.userNo)}
-                  >
-                    탈퇴
-                  </button>
+                  {item.deleted ? (
+                    item.deletedAt ? (
+                      <span>{new Date(new Date(item.deletedAt).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)}</span>
+                    ) : (
+                      <span>-</span>
+                    )
+                  ) : (
+                    <button
+                      type="button"
+                      className="sbtn"
+                      onClick={() => onDelete(item.userNo)}
+                    >
+                      탈퇴
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
