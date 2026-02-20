@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
+import useSiteConfig from '../../hooks/useSiteConfig';
 import colorNames from '../../styles/colors';
 import sizeNames from '../../styles/sizes';
 const { info } = colorNames;
@@ -70,6 +71,7 @@ const Header = () => {
     state: { isLogin, isAdmin },
   } = useContext(UserContext);
   const [scroll, setScroll] = useState(false);
+  const { siteTitle } = useSiteConfig();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -94,7 +96,7 @@ const Header = () => {
           to="/"
           className={({ isActive }) => classNames({ on: isActive })}
         >
-          FreeTalk
+          {siteTitle || 'FreeTalk'}
         </NavLink>
       </div>
       <div className="right">

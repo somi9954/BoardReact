@@ -5,6 +5,7 @@ import org.project.boardreact.configs.jwt.CustomJwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -51,7 +52,9 @@ public class SecurityConfig {
                     "/api/v1/member", // 회원가입
                     "/api/v1/member/token", // 로그인
                     "/api/v1/member/info",
-                    "/api/v1/member/exists/**").permitAll().anyRequest().authenticated(); // 나머지 URL은 모두 회원 인증(토큰 인증)
+                    "/api/v1/member/exists/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/config/public").permitAll()
+                    .anyRequest().authenticated(); // 나머지 URL은 모두 회원 인증(토큰 인증)
         });
 
         return http.build();

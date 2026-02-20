@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.File;
 import java.util.Arrays;
@@ -170,7 +171,9 @@ public class FileInfoService {
         }
 
         // 파일 서버 접속 URL (fileUrl)
-        String fileUrl = request.getContextPath() + uploadUrl + folder + "/" + fileName;
+        String fileUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(uploadUrl + folder + "/" + fileName)
+                .toUriString();
 
         // 썸네일 경로(thumbsPath)
         String thumbPath = getUploadThumbPath() + folder;
@@ -185,7 +188,8 @@ public class FileInfoService {
 
         // 썸네일 URL(thumbsUrl)
         String[] thumbsUrl = Arrays.stream(thumbsPath)
-                .map(s -> s.replace(uploadPath, request.getContextPath() + uploadUrl)).toArray(String[]::new);
+                .map(s -> s.replace(uploadPath, ServletUriComponentsBuilder.fromCurrentContextPath().path(uploadUrl).toUriString()))
+                .toArray(String[]::new);
 
         item.setFilePath(filePath);
         item.setFileUrl(fileUrl);
