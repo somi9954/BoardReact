@@ -46,12 +46,12 @@ const App = () => {
       </Route>
 
       {/* 관리자 페이지 */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminMain />} />
+      <Route element={<AdminLayout />}>
+        <Route path="/admin" element={<AdminMain />} />
         <Route path="/admin/board/list" element={<AdminMain />} />
         <Route path="/admin/board/add" element={<AdminBoardWrite />} />
         <Route path="/admin/board/edit/:bId" element={<AdminBoardChange />} />
-        <Route path="config" element={<AdminConfig />} />
+        <Route path="/admin/config" element={<AdminConfig />} />
         <Route path="/admin/memberList" element={<MemberList />} />
       </Route>
 

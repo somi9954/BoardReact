@@ -1,12 +1,48 @@
 import { useContext, useState } from 'react';
 import cookies from 'react-cookies';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import MemberOnly from '../../../components/authority/MemberOnly';
 import UserContext from '../../../modules/user';
+import { OuterBox } from '../../../components/commons/OutlineStyle';
+import { MainTitle, SubTitle } from '../../../components/commons/TitleStyle';
+import { InputText } from '../../../components/commons/InputStyle';
+import { BigButton, ButtonGroup } from '../../../components/commons/ButtonStyle';
 import {
   requestMypageDelete,
   requestMypageUpdate,
 } from '../../../api/member/Mypage';
+
+const FormBox = styled.form`
+  dl {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+  }
+
+  dt {
+    width: 150px;
+    font-size: 15px;
+    font-weight: bold;
+  }
+
+  dd {
+    flex-grow: 1;
+    margin: 0;
+  }
+
+  dl + dl {
+    border-top: 1px solid #d5d5d5;
+  }
+`;
+
+const InfoBox = styled.div`
+  margin-bottom: 20px;
+  p {
+    margin: 6px 0;
+    font-size: 15px;
+  }
+`;
 
 const Mypage = () => {
   const navigate = useNavigate();
@@ -70,53 +106,80 @@ const Mypage = () => {
 
   return (
     <MemberOnly>
-      <h1>마이페이지</h1>
-      <p>이메일: {userInfo?.email}</p>
-      <p>회원유형: {userInfo?.type}</p>
+      <OuterBox>
+        <MainTitle color="info">마이페이지</MainTitle>
+        <InfoBox>
+          <p>이메일: {userInfo?.email}</p>
+          <p>회원유형: {userInfo?.type}</p>
+        </InfoBox>
 
-      <form onSubmit={onSubmit}>
-        <p>
-          닉네임:{' '}
-          <input
-            type="text"
-            name="nickname"
-            value={form.nickname}
-            onChange={onChange}
-          />
-        </p>
-        <p>
-          연락처:{' '}
-          <input
-            type="text"
-            name="mobile"
-            value={form.mobile}
-            onChange={onChange}
-          />
-        </p>
-        <p>
-          새 비밀번호:{' '}
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={onChange}
-          />
-        </p>
-        <p>
-          새 비밀번호 확인:{' '}
-          <input
-            type="password"
-            name="confirmPassword"
-            value={form.confirmPassword}
-            onChange={onChange}
-          />
-        </p>
-        <button type="submit">회원정보 수정</button>
-      </form>
+        <SubTitle color="info" border_width={1}>
+          회원정보 수정
+        </SubTitle>
 
-      <button type="button" onClick={onDelete}>
-        회원 탈퇴
-      </button>
+        <FormBox onSubmit={onSubmit}>
+          <dl>
+            <dt>닉네임</dt>
+            <dd>
+              <InputText
+                type="text"
+                name="nickname"
+                value={form.nickname}
+                onChange={onChange}
+              />
+            </dd>
+          </dl>
+          <dl>
+            <dt>연락처</dt>
+            <dd>
+              <InputText
+                type="text"
+                name="mobile"
+                value={form.mobile}
+                onChange={onChange}
+              />
+            </dd>
+          </dl>
+          <dl>
+            <dt>새 비밀번호</dt>
+            <dd>
+              <InputText
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={onChange}
+              />
+            </dd>
+          </dl>
+          <dl>
+            <dt>새 비밀번호 확인</dt>
+            <dd>
+              <InputText
+                type="password"
+                name="confirmPassword"
+                value={form.confirmPassword}
+                onChange={onChange}
+              />
+            </dd>
+          </dl>
+
+          <ButtonGroup>
+            <BigButton type="submit" color="info" bcolor="info" height="45px">
+              회원정보 수정
+            </BigButton>
+            <BigButton
+              type="button"
+              color="white"
+              fcolor="info"
+              bcolor="info"
+              height="45px"
+              onClick={onDelete}
+            >
+              회원 탈퇴
+            </BigButton>
+          </ButtonGroup>
+        </FormBox>
+      </OuterBox>
     </MemberOnly>
   );
 };
