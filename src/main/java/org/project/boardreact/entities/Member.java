@@ -31,6 +31,9 @@ public class Member extends Base{
     @Column(length = 11)
     private String mobile;
 
+    @Column(length = 255)
+    private String profileImage;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 15, nullable = false)
     private MemberType type = MemberType.USER;

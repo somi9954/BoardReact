@@ -27,7 +27,7 @@ public class ConfigInfoService {
     public <T> T get(String code, Class<T> clazz, TypeReference<T> typeReference) {
 
         Configs config = repository.findById(code).orElse(null);
-        if (config == null || StringUtils.hasText(config.getValue())) {
+        if (config == null || !StringUtils.hasText(config.getValue())) {
             return null;
         }
 

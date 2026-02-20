@@ -7,9 +7,11 @@ import org.project.boardreact.commons.Utils;
 import org.project.boardreact.commons.contansts.MemberType;
 import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.commons.rests.JSONData;
+import org.project.boardreact.entities.FileInfo;
 import org.project.boardreact.entities.Member;
 import org.project.boardreact.models.member.MemberInfo;
 import org.project.boardreact.models.member.MemberLoginService;
+import org.project.boardreact.models.file.FileUploadService;
 import org.project.boardreact.models.member.MemberSaveService;
 import org.project.boardreact.repositories.MemberRepository;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,6 +41,7 @@ public class MemberController {
     private final MemberLoginService loginService;
     private final MemberRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final FileUploadService fileUploadService;
 
     @PostMapping
     public ResponseEntity<JSONData> join(@RequestBody @Valid RequestJoin form, Errors errors) {
@@ -98,10 +102,39 @@ public class MemberController {
             member.setPassword(passwordEncoder.encode(form.password()));
         }
 
+        if (StringUtils.hasText(form.profileImage())) {
+            member.setProfileImage(form.profileImage());
+        }
+
         saveService.save(member);
 
         JSONData data = new JSONData(member);
         data.setMessage("회원정보가 수정되었습니다.");
+
+        return ResponseEntity.ok(data);
+    }
+
+
+    @PostMapping("/mypage/profile-image")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<JSONData> uploadProfileImage(@AuthenticationPrincipal MemberInfo memberInfo,
+                                                       @RequestPart("file") MultipartFile file) {
+        if (file == null || file.isEmpty() || file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+            throw new BadRequestException(Map.of("file", List.of("이미지 파일만 업로드할 수 있습니다.")));
+        }
+
+        List<FileInfo> uploaded = fileUploadService.upload(new MultipartFile[]{file}, null, "profile");
+        if (uploaded.isEmpty()) {
+            throw new BadRequestException(Map.of("file", List.of("프로필 이미지를 업로드하지 못했습니다.")));
+        }
+
+        FileInfo item = uploaded.get(0);
+        Member member = memberInfo.getMember();
+        member.setProfileImage(item.getFileUrl());
+        saveService.save(member);
+
+        JSONData data = new JSONData(member);
+        data.setMessage("프로필 이미지가 변경되었습니다.");
 
         return ResponseEntity.ok(data);
     }
