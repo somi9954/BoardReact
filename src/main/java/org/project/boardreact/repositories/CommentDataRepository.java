@@ -3,6 +3,7 @@ package org.project.boardreact.repositories;
 
 import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.entities.CommentData;
+import org.project.boardreact.entities.Member;
 import org.project.boardreact.entities.QCommentData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -29,7 +30,8 @@ public interface CommentDataRepository extends JpaRepository<CommentData, Long>,
      */
     List<CommentData> findAllByBoardData(BoardData boardData);
 
+    List<CommentData> findAllByMember(Member member);
+
     // 해당 게시글 ID에 대한 댓글 수를 반환하는 메서드
     long countByBoardDataSeq(Long boardDataSeq);
 }
-

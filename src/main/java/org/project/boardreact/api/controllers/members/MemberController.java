@@ -2,7 +2,6 @@ package org.project.boardreact.api.controllers.members;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.project.boardreact.commons.Utils;
 import org.project.boardreact.commons.exceptions.BadRequestException;
@@ -12,6 +11,8 @@ import org.project.boardreact.entities.Member;
 import org.project.boardreact.models.member.MemberInfo;
 import org.project.boardreact.models.member.MemberLoginService;
 import org.project.boardreact.models.member.MemberSaveService;
+import org.project.boardreact.repositories.BoardDataRepository;
+import org.project.boardreact.repositories.CommentDataRepository;
 import org.project.boardreact.repositories.MemberRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,14 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 @RestController
@@ -38,6 +38,8 @@ public class MemberController {
     private final MemberSaveService saveService;
     private final MemberLoginService loginService;
     private final MemberRepository repository;
+    private final BoardDataRepository boardDataRepository;
+    private final CommentDataRepository commentDataRepository;
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping
@@ -114,8 +116,10 @@ public class MemberController {
 
     @DeleteMapping("/mypage")
     @PreAuthorize("isAuthenticated()")
+    @Transactional
     public ResponseEntity<JSONData> deleteMyPage(@AuthenticationPrincipal MemberInfo memberInfo) {
         Member member = memberInfo.getMember();
+        deleteMemberRelatedData(member);
         repository.delete(member);
 
         JSONData data = new JSONData(true);
@@ -167,6 +171,7 @@ public class MemberController {
 
     @DeleteMapping("/admin/{userNo}")
     @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
     public ResponseEntity<JSONData> deleteMember(@PathVariable Long userNo, @AuthenticationPrincipal MemberInfo memberInfo) {
         Member loginMember = memberInfo.getMember();
         if (loginMember.getUserNo().equals(userNo)) {
@@ -174,11 +179,17 @@ public class MemberController {
         }
 
         Member member = repository.findById(userNo).orElseThrow(() -> new BadRequestException(Map.of("userNo", List.of("회원 정보를 찾을 수 없습니다."))));
+        deleteMemberRelatedData(member);
         repository.delete(member);
 
         JSONData data = new JSONData(true);
         data.setMessage("회원이 탈퇴 처리되었습니다.");
         return ResponseEntity.ok(data);
+    }
+
+    private void deleteMemberRelatedData(Member member) {
+        commentDataRepository.deleteAll(commentDataRepository.findAllByMember(member));
+        boardDataRepository.deleteAll(boardDataRepository.findAllByMember(member));
     }
 
     private void errorProcess(Errors errors) {
