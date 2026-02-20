@@ -7,15 +7,19 @@ import org.project.boardreact.commons.Utils;
 import org.project.boardreact.commons.contansts.MemberType;
 import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.commons.rests.JSONData;
+import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.entities.FileInfo;
 import org.project.boardreact.entities.Member;
 import org.project.boardreact.models.member.MemberInfo;
 import org.project.boardreact.models.member.MemberLoginService;
 import org.project.boardreact.models.file.FileUploadService;
 import org.project.boardreact.models.member.MemberSaveService;
+import org.project.boardreact.repositories.BoardDataRepository;
+import org.project.boardreact.repositories.CommentDataRepository;
 import org.project.boardreact.repositories.MemberRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,6 +46,8 @@ public class MemberController {
     private final MemberRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final FileUploadService fileUploadService;
+    private final BoardDataRepository boardDataRepository;
+    private final CommentDataRepository commentDataRepository;
 
     @PostMapping
     public ResponseEntity<JSONData> join(@RequestBody @Valid RequestJoin form, Errors errors) {
@@ -115,10 +121,13 @@ public class MemberController {
     }
 
 
-    @PostMapping("/mypage/profile-image")
+    @PostMapping(value = "/mypage/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<JSONData> uploadProfileImage(@AuthenticationPrincipal MemberInfo memberInfo,
-                                                       @RequestParam("file") MultipartFile file) {
+                                                       @RequestParam(name = "file", required = false) MultipartFile file,
+                                                       @RequestParam(name = "profileImage", required = false) MultipartFile profileImage) {
+        file = file != null ? file : profileImage;
+
         if (file == null || file.isEmpty() || file.getContentType() == null || !file.getContentType().startsWith("image/")) {
             throw new BadRequestException(Map.of("file", List.of("이미지 파일만 업로드할 수 있습니다.")));
         }
@@ -139,15 +148,36 @@ public class MemberController {
         return ResponseEntity.ok(data);
     }
 
+    @GetMapping("/mypage/delete-summary")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<JSONData> getDeleteSummary(@AuthenticationPrincipal MemberInfo memberInfo) {
+        Member member = memberInfo.getMember();
+        long boardCount = boardDataRepository.countByMember(member);
+        long commentCount = commentDataRepository.countByMember(member);
+
+        JSONData data = new JSONData(Map.of(
+                "boardCount", boardCount,
+                "commentCount", commentCount
+        ));
+
+        return ResponseEntity.ok(data);
+    }
+
+
     @DeleteMapping("/mypage")
     @PreAuthorize("isAuthenticated()")
     @Transactional
     public ResponseEntity<JSONData> deleteMyPage(@AuthenticationPrincipal MemberInfo memberInfo) {
         Member member = memberInfo.getMember();
+
+        long boardCount = boardDataRepository.countByMember(member);
+        long commentCount = commentDataRepository.countByMember(member);
+
+        deleteMemberContents(member);
         softDeleteMember(member);
 
         JSONData data = new JSONData(true);
-        data.setMessage("회원 탈퇴가 완료되었습니다. 30일 후 완전 삭제됩니다.");
+        data.setMessage(String.format("게시글 %d개, 댓글 %d개를 삭제하고 회원 탈퇴가 완료되었습니다. 30일 후 완전 삭제됩니다.", boardCount, commentCount));
         return ResponseEntity.ok(data);
     }
 
@@ -175,11 +205,17 @@ public class MemberController {
         return "관리자 페이지 접속....";
     }
 
-    @PatchMapping("/admin/{userNo}/type")
+    @PatchMapping({"/admin/{userNo}/type", "/admin/type"})
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<JSONData> updateMemberType(@PathVariable("userNo") Long userNo,
+    public ResponseEntity<JSONData> updateMemberType(@PathVariable(name = "userNo", required = false) Long pathUserNo,
+                                                     @RequestParam(name = "userNo", required = false) Long queryUserNo,
                                                      @AuthenticationPrincipal MemberInfo memberInfo,
                                                      @RequestBody Map<String, String> params) {
+        Long userNo = pathUserNo != null ? pathUserNo : queryUserNo;
+        if (userNo == null) {
+            throw new BadRequestException(Map.of("userNo", List.of("회원 번호가 필요합니다.")));
+        }
+
         Member loginMember = memberInfo.getMember();
         if (loginMember.getUserNo().equals(userNo)) {
             throw new BadRequestException(Map.of("userNo", List.of("본인 계정의 권한은 변경할 수 없습니다.")));
@@ -215,6 +251,17 @@ public class MemberController {
         JSONData data = new JSONData(true);
         data.setMessage("회원이 탈퇴 처리되었습니다. 30일 후 완전 삭제됩니다.");
         return ResponseEntity.ok(data);
+    }
+
+    private void deleteMemberContents(Member member) {
+        List<BoardData> boards = boardDataRepository.findAllByMember(member);
+
+        if (!boards.isEmpty()) {
+            commentDataRepository.deleteAllByBoardDataIn(boards);
+            boardDataRepository.deleteAll(boards);
+        }
+
+        commentDataRepository.deleteAllByMember(member);
     }
 
     private void softDeleteMember(Member member) {
