@@ -30,6 +30,8 @@ public interface CommentDataRepository extends JpaRepository<CommentData, Long>,
      */
     List<CommentData> findAllByBoardData(BoardData boardData);
 
+    void deleteAllByBoardDataIn(List<BoardData> boardDataList);
+
     List<CommentData> findAllByMember(Member member);
 
     // 해당 게시글 ID에 대한 댓글 수를 반환하는 메서드
