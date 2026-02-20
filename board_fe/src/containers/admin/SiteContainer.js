@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import SiteConfig from '../../components/board/admin/SiteConfig';
 import requestConfig from '../../api/admin/config';
+import requestConfigInfo from '../../api/admin/configInfo';
 
 const SiteContainer = () => {
   const { t } = useTranslation();
@@ -13,7 +14,23 @@ const SiteContainer = () => {
     cssJsVersion: 1,
   });
   const [errors, setErrors] = useState({});
-  const [membershipTerms, setMembershipTerms] = useState('');
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await requestConfigInfo();
+        if (res?.data) {
+          setForm((prev) => ({
+            ...prev,
+            ...res.data,
+            cssJsVersion: res.data.cssJsVersion || 1,
+          }));
+        }
+      } catch (err) {}
+    };
+
+    fetchConfig();
+  }, []);
 
   const onSubmit = useCallback(
     async (e) => {
@@ -43,11 +60,8 @@ const SiteContainer = () => {
 
       try {
         await requestConfig(form);
-        // 사이트 설정 완료시
-        setForm({ cssJsVersion: 1 }); // 양식 초기화
-
-        // 관리자 페이지로 이동
-        navigate('/admin', { replace: true });
+        alert('사이트 설정이 저장되었습니다.');
+        navigate('/admin/config', { replace: true });
       } catch (err) {
         setErrors({ message: err.message });
       }
@@ -71,7 +85,6 @@ const SiteContainer = () => {
       onChange={onChange}
       form={form}
       errors={errors}
-      membershipTerms={membershipTerms}
     />
   );
 };

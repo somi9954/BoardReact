@@ -7,8 +7,9 @@ import Paging from '../commons/Paging';
 const Container = styled.div`
   select {
     border: 1px solid #d5d5d5;
-    min-width: 110px;
-    height: 34px;
+    min-width: 150px;
+    height: 45px;
+    padding: 0 10px;
     border-radius: 5px;
   }
 
