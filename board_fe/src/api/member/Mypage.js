@@ -7,3 +7,12 @@ export function requestMypageUpdate(form) {
 export function requestMypageDelete() {
   return apiRequest('/member/mypage', 'DELETE');
 }
+
+export const requestProfileImageUpload = (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return apiRequest('/member/mypage/profile-image', 'POST', formData, {
+    'Content-Type': 'multipart/form-data',
+  });
+};

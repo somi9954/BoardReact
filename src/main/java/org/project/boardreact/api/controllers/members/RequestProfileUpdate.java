@@ -11,6 +11,8 @@ public record RequestProfileUpdate(
         @Size(min = 8)
         String password,
 
-        String confirmPassword
+        String confirmPassword,
+
+        String profileImage
 ) {
 }

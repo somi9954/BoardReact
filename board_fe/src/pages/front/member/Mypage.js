@@ -11,6 +11,7 @@ import { BigButton, ButtonGroup } from '../../../components/commons/ButtonStyle'
 import {
   requestMypageDelete,
   requestMypageUpdate,
+  requestProfileImageUpload,
 } from '../../../api/member/Mypage';
 
 const FormBox = styled.form`
@@ -46,11 +47,17 @@ const InfoBox = styled.div`
   }
 
   .thumb {
-    width: 64px;
-    height: 64px;
+    width: 32px;
+    height: 32px;
     object-fit: cover;
     border-radius: 50%;
     border: 1px solid #d5d5d5;
+  }
+
+  .profile-upload {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   p {
@@ -69,10 +76,12 @@ const Mypage = () => {
   const navigate = useNavigate();
   const {
     state: { userInfo },
-    action: { setUserInfo, setIsLogin, setIsAdmin, updateUserInfo },
+    action: { setUserInfo, setIsLogin, setIsAdmin },
   } = useContext(UserContext);
 
-  const avatarUrl = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(userInfo?.nickname || userInfo?.email || 'USER')}`;
+  const avatarUrl =
+    userInfo?.profileImage ||
+    `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(userInfo?.nickname || userInfo?.email || 'USER')}`;
 
   const [form, setForm] = useState({
     nickname: userInfo?.nickname || '',
@@ -86,6 +95,26 @@ const Mypage = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const onUploadProfileImage = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const res = await requestProfileImageUpload(file);
+      if (res.data?.success === false) {
+        alert(res.data?.message || '프로필 이미지 변경에 실패했습니다.');
+        return;
+      }
+
+      setUserInfo(res.data.data);
+      alert(res.data?.message || '프로필 이미지가 변경되었습니다.');
+    } catch (err) {
+      alert('프로필 이미지 변경 중 오류가 발생했습니다.');
+    } finally {
+      e.target.value = '';
+    }
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -97,7 +126,6 @@ const Mypage = () => {
       }
 
       setUserInfo(res.data.data);
-      updateUserInfo();
       setForm((prev) => ({ ...prev, password: '', confirmPassword: '' }));
       alert('회원정보가 수정되었습니다.');
     } catch (err) {
@@ -135,6 +163,9 @@ const Mypage = () => {
           <div className="profile">
             <img className="thumb" src={avatarUrl} alt="프로필 이미지" />
             <p>{userInfo?.nickname || '사용자'} 님</p>
+          </div>
+          <div className="profile-upload">
+            <input type="file" accept="image/*" onChange={onUploadProfileImage} />
           </div>
           <p>회원유형: {userInfo?.type}</p>
           <DangerText>탈퇴를 진행하면 즉시 로그아웃되며, 계정은 30일 뒤에 영구 삭제됩니다.</DangerText>
