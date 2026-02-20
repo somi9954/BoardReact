@@ -150,11 +150,11 @@ public class MemberController {
     @PatchMapping("/admin/{userNo}/type")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<JSONData> updateMemberType(@PathVariable Long userNo, @RequestBody Map<String, String> params) {
-        Member member = repository.findById(userNo).orElseThrow(() -> new BadRequestException(Map.of("userNo", "회원 정보를 찾을 수 없습니다.")));
+        Member member = repository.findById(userNo).orElseThrow(() -> new BadRequestException(Map.of("userNo", List.of("회원 정보를 찾을 수 없습니다."))));
 
         String type = params.get("type");
         if (type == null) {
-            throw new BadRequestException(Map.of("type", "변경할 회원 타입이 필요합니다."));
+            throw new BadRequestException(Map.of("type", List.of("변경할 회원 타입이 필요합니다.")));
         }
 
         member.setType(MemberType.valueOf(type));
@@ -170,10 +170,10 @@ public class MemberController {
     public ResponseEntity<JSONData> deleteMember(@PathVariable Long userNo, @AuthenticationPrincipal MemberInfo memberInfo) {
         Member loginMember = memberInfo.getMember();
         if (loginMember.getUserNo().equals(userNo)) {
-            throw new BadRequestException(Map.of("userNo", "본인 계정은 삭제할 수 없습니다."));
+            throw new BadRequestException(Map.of("userNo", List.of("본인 계정은 삭제할 수 없습니다.")));
         }
 
-        Member member = repository.findById(userNo).orElseThrow(() -> new BadRequestException(Map.of("userNo", "회원 정보를 찾을 수 없습니다.")));
+        Member member = repository.findById(userNo).orElseThrow(() -> new BadRequestException(Map.of("userNo", List.of("회원 정보를 찾을 수 없습니다."))));
         repository.delete(member);
 
         JSONData data = new JSONData(true);
