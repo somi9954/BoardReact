@@ -98,7 +98,7 @@ const MemberListContainer = () => {
   };
 
   const handleDelete = async (userNo) => {
-    const confirmed = window.confirm('정말 탈퇴 처리하시겠습니까?');
+    const confirmed = window.confirm('정말 탈퇴 처리하시겠습니까? 탈퇴 회원은 30일 후 자동 삭제됩니다.');
     if (!confirmed) return;
 
     try {

@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import bannerImage from '../../../images/main/mini.jpg';
 import cookies from 'react-cookies';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -38,10 +39,24 @@ const FormBox = styled.form`
 
 const InfoBox = styled.div`
   margin-bottom: 20px;
+  .thumb {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
   p {
     margin: 6px 0;
     font-size: 15px;
   }
+`;
+
+const DangerText = styled.p`
+  margin: 15px 0 0;
+  color: #d94c90;
+  font-size: 14px;
 `;
 
 const Mypage = () => {
@@ -83,7 +98,7 @@ const Mypage = () => {
   };
 
   const onDelete = async () => {
-    const confirmed = window.confirm('정말 회원 탈퇴하시겠습니까?');
+    const confirmed = window.confirm('정말 회원 탈퇴하시겠습니까? 탈퇴 후 30일 뒤에 계정이 완전 삭제됩니다.');
     if (!confirmed) return;
 
     try {
@@ -97,7 +112,7 @@ const Mypage = () => {
       setIsLogin(false);
       setIsAdmin(false);
       setUserInfo({});
-      alert('회원 탈퇴가 완료되었습니다.');
+      alert(res.data?.message || '회원 탈퇴가 완료되었습니다.');
       navigate('/', { replace: true });
     } catch (err) {
       alert('회원 탈퇴 중 오류가 발생했습니다.');
@@ -109,8 +124,10 @@ const Mypage = () => {
       <OuterBox>
         <MainTitle color="info">마이페이지</MainTitle>
         <InfoBox>
+          <img className="thumb" src={bannerImage} alt="마이페이지 안내 이미지" />
           <p>이메일: {userInfo?.email}</p>
           <p>회원유형: {userInfo?.type}</p>
+          <DangerText>탈퇴를 진행하면 즉시 로그아웃되며, 계정은 30일 뒤에 영구 삭제됩니다.</DangerText>
         </InfoBox>
 
         <SubTitle color="info" border_width={1}>

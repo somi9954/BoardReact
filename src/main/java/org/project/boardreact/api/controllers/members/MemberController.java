@@ -4,16 +4,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.project.boardreact.commons.Utils;
+import org.project.boardreact.commons.contansts.MemberType;
 import org.project.boardreact.commons.exceptions.BadRequestException;
 import org.project.boardreact.commons.rests.JSONData;
-import org.project.boardreact.commons.contansts.MemberType;
-import org.project.boardreact.entities.BoardData;
 import org.project.boardreact.entities.Member;
 import org.project.boardreact.models.member.MemberInfo;
 import org.project.boardreact.models.member.MemberLoginService;
 import org.project.boardreact.models.member.MemberSaveService;
-import org.project.boardreact.repositories.BoardDataRepository;
-import org.project.boardreact.repositories.CommentDataRepository;
 import org.project.boardreact.repositories.MemberRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,6 +23,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +37,6 @@ public class MemberController {
     private final MemberSaveService saveService;
     private final MemberLoginService loginService;
     private final MemberRepository repository;
-    private final BoardDataRepository boardDataRepository;
-    private final CommentDataRepository commentDataRepository;
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping
@@ -60,11 +56,6 @@ public class MemberController {
         errorProcess(errors);
 
         String accessToken = loginService.login(form);
-
-        /**
-         * 1. 응답 body - JSONData 형식으로
-         * 2. 응답 헤더 - Authorization: Bearer 토큰
-         */
 
         JSONData data = new JSONData(accessToken);
         HttpHeaders headers = new HttpHeaders();
@@ -120,11 +111,10 @@ public class MemberController {
     @Transactional
     public ResponseEntity<JSONData> deleteMyPage(@AuthenticationPrincipal MemberInfo memberInfo) {
         Member member = memberInfo.getMember();
-        deleteMemberRelatedData(member);
-        repository.delete(member);
+        softDeleteMember(member);
 
         JSONData data = new JSONData(true);
-        data.setMessage("회원 탈퇴가 완료되었습니다.");
+        data.setMessage("회원 탈퇴가 완료되었습니다. 30일 후 완전 삭제됩니다.");
         return ResponseEntity.ok(data);
     }
 
@@ -180,22 +170,17 @@ public class MemberController {
         }
 
         Member member = repository.findById(userNo).orElseThrow(() -> new BadRequestException(Map.of("userNo", List.of("회원 정보를 찾을 수 없습니다."))));
-        deleteMemberRelatedData(member);
-        repository.delete(member);
+        softDeleteMember(member);
 
         JSONData data = new JSONData(true);
-        data.setMessage("회원이 탈퇴 처리되었습니다.");
+        data.setMessage("회원이 탈퇴 처리되었습니다. 30일 후 완전 삭제됩니다.");
         return ResponseEntity.ok(data);
     }
 
-    private void deleteMemberRelatedData(Member member) {
-        List<BoardData> boardDataList = boardDataRepository.findAllByMember(member);
-        if (!boardDataList.isEmpty()) {
-            commentDataRepository.deleteAllByBoardDataIn(boardDataList);
-            boardDataRepository.deleteAll(boardDataList);
-        }
-
-        commentDataRepository.deleteAll(commentDataRepository.findAllByMember(member));
+    private void softDeleteMember(Member member) {
+        member.setDeleted(true);
+        member.setDeletedAt(LocalDateTime.now());
+        repository.saveAndFlush(member);
     }
 
     private void errorProcess(Errors errors) {
@@ -203,6 +188,4 @@ public class MemberController {
             throw new BadRequestException(Utils.getMessages(errors));
         }
     }
-
-
 }

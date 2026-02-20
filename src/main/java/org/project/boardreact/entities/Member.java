@@ -9,6 +9,8 @@ import org.project.boardreact.api.controllers.members.RequestJoin;
 import org.project.boardreact.commons.contansts.BoardAuthority;
 import org.project.boardreact.commons.contansts.MemberType;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data @Builder
 @NoArgsConstructor @AllArgsConstructor
@@ -36,6 +38,11 @@ public class Member extends Base{
     @Enumerated(EnumType.STRING)
     @Column(length = 15, nullable = false)
     private BoardAuthority boardAuthority = BoardAuthority.USER;
+
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+    private LocalDateTime deletedAt;
 
     public static Member toMember(RequestJoin join) {
          Member member = new Member();
