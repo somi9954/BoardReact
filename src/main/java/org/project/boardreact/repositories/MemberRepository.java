@@ -13,6 +13,13 @@ public interface MemberRepository extends JpaRepository<Member, Long>, QuerydslP
     Member save(Member member);
 
     Optional<Member> findByEmailAndDeletedFalse(String email);
+
+    /**
+     * Backward-compatible lookup by email used by some legacy call sites.
+     */
+    default Optional<Member> findById(String email) {
+        return findByEmailAndDeletedFalse(email);
+    }
     Optional<Member> findByNickname(String nickname);
     Optional<Member> findByMobile(String mobile);
 
