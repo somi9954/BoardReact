@@ -2,12 +2,11 @@ package org.project.boardreact.commons.exceptions;
 
 import org.springframework.http.HttpStatus;
 
-import java.util.List;
 import java.util.Map;
 
 public class BadRequestException extends CommonException{
 
-    public BadRequestException(Map<String, List<String>> messages) {
+    public BadRequestException(Map<String, ?> messages) {
         super(messages, HttpStatus.BAD_REQUEST);
     }
 
