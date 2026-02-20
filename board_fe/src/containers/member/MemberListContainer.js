@@ -93,7 +93,8 @@ const MemberListContainer = () => {
 
       loadMembers();
     } catch (err) {
-      alert('권한 변경 중 오류가 발생했습니다.');
+      const message = err?.response?.data?.message || '권한 변경 중 오류가 발생했습니다.';
+      alert(message);
     }
   };
 

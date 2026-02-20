@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { InputText } from '../commons/InputStyle';
@@ -29,6 +29,17 @@ const Container = styled.div`
     padding: 0;
   }
 
+  h2 {
+    font-size: 23px;
+    margin: 35px 0 12px;
+  }
+
+  .summary {
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #444;
+  }
+
   .search_btn {
     height: 45px;
     line-height: 45px;
@@ -52,11 +63,6 @@ const Container = styled.div`
     border-radius: 5px;
     margin-left: 5px;
     background: #fff;
-  }
-
-  .sbtn.blue {
-    color: #fff;
-    background: #d94c90;
   }
 
   .badge {
@@ -133,6 +139,13 @@ const Container = styled.div`
   }
 `;
 
+const add30Days = (deletedAt) => {
+  if (!deletedAt) return '-';
+  return new Date(new Date(deletedAt).getTime() + 30 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+};
+
 const MemberListForm = ({
   members,
   searchOption,
@@ -145,7 +158,8 @@ const MemberListForm = ({
   handleDelete,
 }) => {
   const { t } = useTranslation();
-  const [page, setPage] = useState(1);
+  const [activePage, setActivePage] = useState(1);
+  const [deletedPage, setDeletedPage] = useState(1);
   const onDelete =
     typeof handleDelete === 'function'
       ? handleDelete
@@ -154,12 +168,21 @@ const MemberListForm = ({
         };
 
   const itemsPerPage = 10;
-  const startIndex = (page - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, members?.length || 0);
 
-  const handlePageChange = (pageNumber) => {
-    setPage(pageNumber);
-  };
+  const activeMembers = useMemo(
+    () => (members || []).filter((item) => !item.deleted),
+    [members],
+  );
+  const deletedMembers = useMemo(
+    () => (members || []).filter((item) => item.deleted),
+    [members],
+  );
+
+  const activeStart = (activePage - 1) * itemsPerPage;
+  const activeEnd = Math.min(activeStart + itemsPerPage, activeMembers.length);
+
+  const deletedStart = (deletedPage - 1) * itemsPerPage;
+  const deletedEnd = Math.min(deletedStart + itemsPerPage, deletedMembers.length);
 
   return (
     <Container>
@@ -197,7 +220,13 @@ const MemberListForm = ({
           </div>
         </div>
       </div>
-      <h1>회원 목록</h1>
+
+      <h1>{t('회원 목록')}</h1>
+      <p className="summary">
+        {t('정상 회원')}: {activeMembers.length} / {t('탈퇴 회원')}: {deletedMembers.length}
+      </p>
+
+      <h2>{t('정상 회원 목록')}</h2>
       <table className="table-rows">
         <thead>
           <tr>
@@ -206,58 +235,47 @@ const MemberListForm = ({
             <th width="150">{t('사용자 이름')}</th>
             <th width="100">{t('등록일')}</th>
             <th width="70">{t('회원 타입')}</th>
-            <th width="120">상태</th>
-            <th width="120">권한변경</th>
-            <th width="120">탈퇴/삭제예정일</th>
+            <th width="120">{t('상태')}</th>
+            <th width="120">{t('권한변경')}</th>
+            <th width="120">{t('탈퇴')}</th>
           </tr>
         </thead>
 
-        {members?.length === 0 ? (
+        {activeMembers.length === 0 ? (
           <tbody>
             <tr>
-              <td colSpan="8">{t('회원 데이터가 없습니다.')}</td>
+              <td colSpan="8">{t('정상 회원 데이터가 없습니다.')}</td>
             </tr>
           </tbody>
         ) : (
           <tbody>
-            {members?.slice(startIndex, endIndex).map((item, index) => (
+            {activeMembers.slice(activeStart, activeEnd).map((item, index) => (
               <tr key={item.userNo}>
-                <td>{startIndex + index + 1}</td>
+                <td>{activeStart + index + 1}</td>
                 <td>{item.email}</td>
                 <td>{item.nickname}</td>
                 <td>{item.createdAt}</td>
                 <td>{item.type}</td>
                 <td>
-                  <span className={`badge ${item.deleted ? 'deleted' : ''}`}>
-                    {item.deleted ? '탈퇴' : '정상'}
-                  </span>
+                  <span className="badge">정상</span>
                 </td>
                 <td>
                   <select
                     value={item.type}
                     onChange={(e) => handleTypeChange(item.userNo, e.target.value)}
-                    disabled={item.deleted}
                   >
                     <option value="USER">USER</option>
                     <option value="ADMIN">ADMIN</option>
                   </select>
                 </td>
                 <td>
-                  {item.deleted ? (
-                    item.deletedAt ? (
-                      <span>{new Date(new Date(item.deletedAt).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)}</span>
-                    ) : (
-                      <span>-</span>
-                    )
-                  ) : (
-                    <button
-                      type="button"
-                      className="sbtn"
-                      onClick={() => onDelete(item.userNo)}
-                    >
-                      탈퇴
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="sbtn"
+                    onClick={() => onDelete(item.userNo)}
+                  >
+                    {t('탈퇴')}
+                  </button>
                 </td>
               </tr>
             ))}
@@ -267,10 +285,59 @@ const MemberListForm = ({
 
       <Paging
         className="paging"
-        page={page}
-        count={members?.length || 0}
-        setPage={handlePageChange}
-        initialPage={page}
+        page={activePage}
+        count={activeMembers.length}
+        setPage={setActivePage}
+        initialPage={activePage}
+      />
+
+      <h2>{t('탈퇴 회원 목록')}</h2>
+      <table className="table-rows">
+        <thead>
+          <tr>
+            <th width="20">{t('userNo')}</th>
+            <th width="100">{t('회원ID(email)')}</th>
+            <th width="150">{t('사용자 이름')}</th>
+            <th width="100">{t('등록일')}</th>
+            <th width="70">{t('회원 타입')}</th>
+            <th width="120">{t('상태')}</th>
+            <th width="120">{t('탈퇴일')}</th>
+            <th width="120">{t('완전 삭제 예정일')}</th>
+          </tr>
+        </thead>
+
+        {deletedMembers.length === 0 ? (
+          <tbody>
+            <tr>
+              <td colSpan="8">{t('탈퇴 회원 데이터가 없습니다.')}</td>
+            </tr>
+          </tbody>
+        ) : (
+          <tbody>
+            {deletedMembers.slice(deletedStart, deletedEnd).map((item, index) => (
+              <tr key={item.userNo}>
+                <td>{deletedStart + index + 1}</td>
+                <td>{item.email}</td>
+                <td>{item.nickname}</td>
+                <td>{item.createdAt}</td>
+                <td>{item.type}</td>
+                <td>
+                  <span className="badge deleted">탈퇴</span>
+                </td>
+                <td>{item.deletedAt || '-'}</td>
+                <td>{add30Days(item.deletedAt)}</td>
+              </tr>
+            ))}
+          </tbody>
+        )}
+      </table>
+
+      <Paging
+        className="paging"
+        page={deletedPage}
+        count={deletedMembers.length}
+        setPage={setDeletedPage}
+        initialPage={deletedPage}
       />
     </Container>
   );
