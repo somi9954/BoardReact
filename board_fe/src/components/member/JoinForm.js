@@ -7,6 +7,7 @@ import sizeNames from '../../styles/sizes';
 import styled from 'styled-components';
 import loadable from '@loadable/component';
 import React, { useEffect, useState } from 'react';
+import requestConfigInfo from '../../api/admin/configInfo';
 
 const ErrorMessages = loadable(() => import('../commons/ErrorMessages'));
 
@@ -60,6 +61,17 @@ const FormBox = styled.form`
 
 const JoinForm = ({ onSubmit, onChange, onToggle, form, errors }) => {
   const { t } = useTranslation();
+  const [joinTerms, setJoinTerms] = useState('회원 가입약관....');
+
+  useEffect(() => {
+    requestConfigInfo()
+      .then((res) => {
+        if (res?.data?.joinTerms) {
+          setJoinTerms(res.data.joinTerms);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <FormBox onSubmit={onSubmit}>
@@ -126,7 +138,7 @@ const JoinForm = ({ onSubmit, onChange, onToggle, form, errors }) => {
       <SubTitle align="center" color="ff4910" border_width={1}>
         {t('회원가입 약관')}
       </SubTitle>
-      <pre className="terms">회원 가입약관....</pre>
+      <pre className="terms">{joinTerms}</pre>
       <div className="agree_terms" onClick={onToggle}>
         {form.agree ? <FiCheckSquare /> : <FiSquare />}
         {t('회원 약관에 동의합니다.')}

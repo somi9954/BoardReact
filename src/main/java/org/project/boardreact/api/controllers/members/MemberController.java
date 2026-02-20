@@ -118,7 +118,7 @@ public class MemberController {
     @PostMapping("/mypage/profile-image")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<JSONData> uploadProfileImage(@AuthenticationPrincipal MemberInfo memberInfo,
-                                                       @RequestPart("file") MultipartFile file) {
+                                                       @RequestParam("file") MultipartFile file) {
         if (file == null || file.isEmpty() || file.getContentType() == null || !file.getContentType().startsWith("image/")) {
             throw new BadRequestException(Map.of("file", List.of("이미지 파일만 업로드할 수 있습니다.")));
         }
@@ -177,7 +177,7 @@ public class MemberController {
 
     @PatchMapping("/admin/{userNo}/type")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<JSONData> updateMemberType(@PathVariable Long userNo,
+    public ResponseEntity<JSONData> updateMemberType(@PathVariable("userNo") Long userNo,
                                                      @AuthenticationPrincipal MemberInfo memberInfo,
                                                      @RequestBody Map<String, String> params) {
         Member loginMember = memberInfo.getMember();
@@ -203,7 +203,7 @@ public class MemberController {
     @DeleteMapping("/admin/{userNo}")
     @PreAuthorize("hasAuthority('ADMIN')")
     @Transactional
-    public ResponseEntity<JSONData> deleteMember(@PathVariable Long userNo, @AuthenticationPrincipal MemberInfo memberInfo) {
+    public ResponseEntity<JSONData> deleteMember(@PathVariable("userNo") Long userNo, @AuthenticationPrincipal MemberInfo memberInfo) {
         Member loginMember = memberInfo.getMember();
         if (loginMember.getUserNo().equals(userNo)) {
             throw new BadRequestException(Map.of("userNo", List.of("본인 계정은 삭제할 수 없습니다.")));

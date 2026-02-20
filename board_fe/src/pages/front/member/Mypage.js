@@ -167,7 +167,6 @@ const Mypage = () => {
           <div className="profile-upload">
             <input type="file" accept="image/*" onChange={onUploadProfileImage} />
           </div>
-          <p>회원유형: {userInfo?.type}</p>
           <DangerText>탈퇴를 진행하면 즉시 로그아웃되며, 계정은 30일 뒤에 영구 삭제됩니다.</DangerText>
         </InfoBox>
 
