@@ -16,6 +16,7 @@ import org.project.boardreact.models.member.MemberSaveService;
 import org.project.boardreact.repositories.MemberRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -115,10 +116,13 @@ public class MemberController {
     }
 
 
-    @PostMapping("/mypage/profile-image")
+    @PostMapping(value = "/mypage/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<JSONData> uploadProfileImage(@AuthenticationPrincipal MemberInfo memberInfo,
-                                                       @RequestParam("file") MultipartFile file) {
+                                                       @RequestParam(name = "file", required = false) MultipartFile file,
+                                                       @RequestParam(name = "profileImage", required = false) MultipartFile profileImage) {
+        file = file != null ? file : profileImage;
+
         if (file == null || file.isEmpty() || file.getContentType() == null || !file.getContentType().startsWith("image/")) {
             throw new BadRequestException(Map.of("file", List.of("이미지 파일만 업로드할 수 있습니다.")));
         }
@@ -175,11 +179,17 @@ public class MemberController {
         return "관리자 페이지 접속....";
     }
 
-    @PatchMapping("/admin/{userNo}/type")
+    @PatchMapping({"/admin/{userNo}/type", "/admin/type"})
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<JSONData> updateMemberType(@PathVariable("userNo") Long userNo,
+    public ResponseEntity<JSONData> updateMemberType(@PathVariable(name = "userNo", required = false) Long pathUserNo,
+                                                     @RequestParam(name = "userNo", required = false) Long queryUserNo,
                                                      @AuthenticationPrincipal MemberInfo memberInfo,
                                                      @RequestBody Map<String, String> params) {
+        Long userNo = pathUserNo != null ? pathUserNo : queryUserNo;
+        if (userNo == null) {
+            throw new BadRequestException(Map.of("userNo", List.of("회원 번호가 필요합니다.")));
+        }
+
         Member loginMember = memberInfo.getMember();
         if (loginMember.getUserNo().equals(userNo)) {
             throw new BadRequestException(Map.of("userNo", List.of("본인 계정의 권한은 변경할 수 없습니다.")));
